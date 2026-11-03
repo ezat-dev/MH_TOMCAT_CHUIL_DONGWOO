@@ -1641,6 +1641,65 @@ html, body { overflow-x: hidden; }
   window.addEventListener('resize', fit);
 })();
 </script>
+<style>
+/* ===== 데모: 통합모니터링 재설계 (설비 도면 제외) ===== */
+.abs { top: 8px; font-family: "Pretendard","Malgun Gothic","맑은 고딕",sans-serif; }
+.process-wrapper { gap: 0; padding: 0; background: #fff; border: 1px solid #e3e8ef; border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(15,23,42,.06); overflow: hidden; }
+.process-wrapper::before, .process-wrapper::after { display: none; }
+.process-step-wrapper { border-left: 1px solid #eef1f5; min-width: 92px; }
+.process-step-wrapper:first-child { border-left: 0; }
+.process-step { padding: 8px 6px 2px; font-size: 12.5px; font-weight: 600; color: #64748b; background: transparent;
+  border-radius: 0; box-shadow: none; animation: none; }
+.process-step.active-green { background: transparent; color: #2563eb !important; box-shadow: none; animation: none; filter: none; }
+.process-step.active-green::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #2563eb; margin-right: 5px; }
+.process-bottom-bar { margin: 0; height: 30px; border-radius: 0; background: transparent; box-shadow: none;
+  color: #0f172a; font-size: 14px; font-weight: 700; }
+.process-bottom-bar:empty::before { content: "—"; color: #cbd5e1; font-weight: 400; }
+.process-step-wrapper:hover .process-step { transform: none; box-shadow: none; }
+.process-step-wrapper:hover .process-bottom-bar { background: #f8fafc; }
+
+.imx { width: 1860px; padding: 0 20px 20px; box-sizing: border-box; font-family: "Pretendard","Malgun Gothic","맑은 고딕",sans-serif; color: #0f172a; }
+.imx * { box-sizing: border-box; }
+.imx-row { display: grid; gap: 16px; margin-top: 16px; }
+.imx-row.r1 { grid-template-columns: 1fr 1fr; }
+.imx-row.r2 { grid-template-columns: 1.15fr 0.85fr; }
+.imx-card { background: #fff; border: 1px solid #e3e8ef; border-radius: 10px; padding: 14px 18px 12px; min-width: 0; }
+.imx-card header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.imx-card h3 { margin: 0; font-size: 17px; font-weight: 700; color: #334155; }
+.imx-note { font-size: 13px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.imx-note b { color: #0f172a; }
+
+table.imx-mt { width: 100%; border-collapse: collapse; table-layout: fixed; font-variant-numeric: tabular-nums; }
+table.imx-mt th { font-size: 14px; font-weight: 600; color: #64748b; padding: 6px 4px 8px; text-align: center; border-bottom: 1px solid #e3e8ef; white-space: nowrap; }
+table.imx-mt th:first-child { width: 46px; }
+table.imx-mt td { text-align: center; padding: 0 4px; white-space: nowrap; font-weight: 600; color: inherit !important; }
+table.imx-mt td:first-child { text-align: left; font-size: 13px; font-weight: 700; color: #94a3b8 !important; }
+table.imx-mt tr.pv td { height: 52px; font-size: 22px; font-weight: 700; color: #0f172a !important; }
+table.imx-mt tr.sp td { height: 34px; font-size: 15px; font-weight: 500; color: #94a3b8 !important; border-top: 1px solid #eef1f5; }
+table.imx-mt tr.pv td.dev-warn { color: #d97706 !important; background: #fff7e8; }
+table.imx-mt tr.pv td.dev-bad { color: #dc2626 !important; background: #fdeeee; }
+
+.imx-inv { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); }
+.imx-inv > div { padding: 6px 10px 4px; border-left: 1px solid #eef1f5; display: flex; flex-direction: column; gap: 4px; }
+.imx-inv > div:first-child { border-left: 0; padding-left: 0; }
+.imx-inv .n { font-size: 14px; color: #64748b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.imx-inv b { font-size: 26px; font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.imx-inv b.dev-warn { color: #d97706; } .imx-inv b.dev-bad { color: #dc2626; }
+.imx-inv .s { font-size: 14px; color: #94a3b8; } .imx-inv .s em { font-style: normal; color: #64748b; }
+
+#tableAlarmWrapper { max-height: 128px; overflow: auto; }
+#tableAlarm { width: 100%; height: auto; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+#tableAlarm th, #tableAlarm td { font-size: 14px !important; padding: 0 8px !important; text-align: left !important; }
+#tableAlarm th { position: sticky; top: 0; background: #fff; color: #64748b; font-weight: 600; height: 30px; border-bottom: 1px solid #e3e8ef; }
+#tableAlarm td { height: 32px; border-bottom: 1px solid #eef1f5; color: #334155; font-weight: 500 !important; }
+#tableAlarm td.st { white-space: nowrap; }
+#tableAlarm tr.on td { color: #0f172a; font-weight: 600 !important; }
+#tableAlarm tr.on td.st { color: #dc2626; }
+#tableAlarm .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: #cbd5e1; vertical-align: 1px; }
+#tableAlarm tr.on .dot { background: #dc2626; }
+/* 원본 전역 table 스타일(파란 헤더·하늘색 셀·테두리) 무력화 */.imx table, .imx th, .imx td { border: 0 !important; background: transparent !important; box-shadow: none !important; }.imx table.imx-mt th, .imx #tableAlarm th { border-bottom: 1px solid #e3e8ef !important; color: #64748b !important; background: #fff !important; }.imx table.imx-mt tr.sp td { border-top: 1px solid #eef1f5 !important; }.imx #tableAlarm td { border-bottom: 1px solid #eef1f5 !important; }.imx table.imx-mt tr.pv td.dev-warn { background: #fff7e8 !important; }.imx table.imx-mt tr.pv td.dev-bad { background: #fdeeee !important; }
+</style>
 </head>
 <body>
 
@@ -1966,180 +2025,65 @@ html, body { overflow-x: hidden; }
   </div>
   
   
-  <div class="table-title1">
-<!-- <span class="span1">소입(온도 유조 냉각 CP)</span>
-<span class="span2">인버터 제어</span> -->
+<!-- ===== 데모: 하단 패널 재설계 (설비 도면은 위 그대로) ===== -->
+<div class="imx">
+  <div class="imx-row r1">
+    <section class="imx-card">
+      <header><h3>소입 라인</h3><span class="imx-note">PV 현재값 · SP 설정값 · 편차 ±5℃ 초과 시 주황, ±10℃ 초과 시 빨강</span></header>
+      <table class="imx-mt">
+        <thead><tr><th></th><th>전세정기</th><th>1존</th><th>2존</th><th>3존</th><th>4존</th><th>5존</th><th>유조</th><th>CP-A</th></tr></thead>
+        <tbody>
+          <tr class="pv"><td>PV</td>
+            <td class="F_WASH_PV" data-sp="F_WASH_SP">-</td><td class="Q_PV_1" data-sp="Q_SP_1">-</td><td class="Q_PV_2" data-sp="Q_SP_2">-</td>
+            <td class="Q_PV_3" data-sp="Q_SP_3">-</td><td class="Q_PV_4" data-sp="Q_SP_4">-</td><td class="Q_PV_5" data-sp="Q_SP_5">-</td>
+            <td class="OIL_PV" data-sp="OIL_SP">-</td><td class="CP_PV_1" data-sp="CP_SP_1" data-cp="1">-</td></tr>
+          <tr class="sp"><td>SP</td>
+            <td class="F_WASH_SP">-</td><td class="Q_SP_1">-</td><td class="Q_SP_2">-</td><td class="Q_SP_3">-</td>
+            <td class="Q_SP_4">-</td><td class="Q_SP_5">-</td><td class="OIL_SP">-</td><td class="CP_SP_1">-</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="imx-card">
+      <header><h3>소려 라인</h3><span class="imx-note">전체 온도 <span id="imxSummary"></span></span></header>
+      <table class="imx-mt">
+        <thead><tr><th></th><th>중간세정기</th><th>1존</th><th>2존</th><th>3존</th><th>4존</th><th>5존</th><th>방청</th><th>CP-B</th></tr></thead>
+        <tbody>
+          <tr class="pv"><td>PV</td>
+            <td class="M_WASH_PV" data-sp="M_WASH_SP">-</td><td class="T_PV_1" data-sp="T_SP_1">-</td><td class="T_PV_2" data-sp="T_SP_2">-</td>
+            <td class="T_PV_3" data-sp="T_SP_3">-</td><td class="T_PV_4" data-sp="T_SP_4">-</td><td class="T_PV_5" data-sp="T_SP_5">-</td>
+            <td class="BC_PV" data-sp="BC_SP">-</td><td class="CP_PV_2" data-sp="CP_SP_2" data-cp="1">-</td></tr>
+          <tr class="sp"><td>SP</td>
+            <td class="M_WASH_SP">-</td><td class="T_SP_1">-</td><td class="T_SP_2">-</td><td class="T_SP_3">-</td>
+            <td class="T_SP_4">-</td><td class="T_SP_5">-</td><td class="BC_SP">-</td><td class="CP_SP_2">-</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <div class="imx-row r2">
+    <section class="imx-card">
+      <header><h3>인버터 제어</h3><span class="imx-note">주파수 PV / SP</span></header>
+      <div class="imx-inv">
+        <div><span class="n">전세정기</span><b class="IN_WASH_PV" data-sp="IN_WASH_SP" data-hz="1">-</b><span class="s">SP <em class="IN_WASH_SP">-</em></span></div>
+        <div><span class="n">소입로</span><b class="IN_Q_PV" data-sp="IN_Q_SP" data-hz="1">-</b><span class="s">SP <em class="IN_Q_SP">-</em></span></div>
+        <div><span class="n">소입유조</span><b class="IN_OIL_PV" data-sp="IN_OIL_SP" data-hz="1">-</b><span class="s">SP <em class="IN_OIL_SP">-</em></span></div>
+        <div><span class="n">아지테이터 FAN</span><b class="IN_DATA_PV" data-sp="IN_DATA_SP" data-hz="1">-</b><span class="s">SP <em class="IN_DATA_SP">-</em></span></div>
+        <div><span class="n">중간세정기</span><b class="IN_M_WASH_PV" data-sp="IN_M_WASH_SP" data-hz="1">-</b><span class="s">SP <em class="IN_M_WASH_SP">-</em></span></div>
+        <div><span class="n">소려로</span><b class="IN_T_PV" data-sp="IN_T_SP" data-hz="1">-</b><span class="s">SP <em class="IN_T_SP">-</em></span></div>
+      </div>
+    </section>
+    <section class="imx-card">
+      <header><h3>최근 알람</h3><span class="imx-note" id="imxAlarmCnt"></span></header>
+      <div id="tableAlarmWrapper">
+        <table id="tableAlarm">
+          <thead><tr><th>알람내용</th><th>발생시간</th><th>상태</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 </div>
 
-<div class="div1">
-<table border="1" cellspacing="0" cellpadding="5" class="temp-table">
-  <thead>
-    <tr>
-      <th></th>
-      <th>전세정기</th>
-      <th> 1존</th>
-      <th> 2존</th>
-      <th> 3존</th>
-      <th> 4존</th>
-      <th> 5존</th>
-      <th> 유조</th>
-   
-      <th>&nbsp&nbspCP_A&nbsp&nbsp</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>PV</td>
-      <td class="F_WASH_PV">##.#</td>
-      <td class="Q_PV_1">##.#</td>
-      <td class="Q_PV_2">##.#</td>
-      <td class="Q_PV_3">##.#</td>
-      <td class="Q_PV_4">##.#</td>
-      <td class="Q_PV_5">##.#</td>
-      <td class="OIL_PV">##.#</td>
-
-      <td class="CP_PV_1">##.#</td>
-    </tr>
-    <tr>
-      <td>SP</td>
-      <td class="F_WASH_SP">##.#</td>
-      <td class="Q_SP_1">##.#</td>
-      <td class="Q_SP_2">##.#</td>
-      <td class="Q_SP_3">##.#</td>
-      <td class="Q_SP_4">##.#</td>
-      <td class="Q_SP_5">##.#</td>
-      <td class="OIL_SP">##.#</td>
-
-      <td class="CP_SP_1">##.#</td>
-    </tr>
-  </tbody>
-</table>
-
-<table border="1" cellspacing="0" cellpadding="5" class="temp-table">
-  <thead>
-    <tr>
-      <th></th>
-      <th>전세정기 </th>
-      <th>소입로 </th>
-      <th>소입유조 </th>
-      <th>아지테이터 FAN</th>
-      <th>중간세정기 </th>
-      <th>소려로 </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>PV</td>
-      <td class="IN_WASH_PV">##.#</td>
-      <td class="IN_Q_PV">##.#</td>
-      <td class="IN_OIL_PV">##.#</td>
-      <td class="IN_DATA_PV">##.#</td>
-      <td class="IN_M_WASH_PV">##.#</td>
-      <td class="IN_T_PV">##.#</td>
-    </tr>
-    <tr>
-      <td>SP</td>
-      <td class="IN_WASH_SP">##.#</td>
-      <td class="IN_Q_SP">##.#</td>
-      <td class="IN_OIL_SP">##.#</td>
-      <td class="IN_DATA_SP">##.#</td>
-      <td class="IN_M_WASH_SP">##.#</td>
-      <td class="IN_T_SP">##.#</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<br>
-
-<div class="div2">
-  <div class="table-title1">
-
-</div>
-<table border="1" cellspacing="0" cellpadding="5" class="temp-table">
-
-  <thead>
-    <tr>
-      <th></th>
-      <th>중간세정기</th>
-      <th> 1존</th>
-      <th> 2존</th>
-      <th> 3존</th>
-      <th> 4존</th>
-      <th> 5존</th>
-      <th>방청</th>
- 
-      <th>CP_B</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>PV</td>
-      <td class="M_WASH_PV">##.#</td>
-      <td class="T_PV_1">##.#</td>
-      <td class="T_PV_2">##.#</td>
-      <td class="T_PV_3">##.#</td>
-      <td class="T_PV_4">##.#</td>
-      <td class="T_PV_5">##.#</td>
-      <td class="BC_PV">##.#</td>
-  
-      <td class="CP_PV_2">##.#</td>
-    </tr>
-    <tr>
-      <td>SP</td>
-      <td class="M_WASH_SP">##.#</td>
-      <td class="T_SP_1">##.#</td>
-      <td class="T_SP_2">##.#</td>
-      <td class="T_SP_3">##.#</td>
-      <td class="T_SP_4">##.#</td>
-      <td class="T_SP_5">##.#</td>
-      <td class="BC_SP">##.#</td>
-
-      <td class="CP_SP_2">##.#</td>
-    </tr>
-  </tbody>
-</table>
-  <div class="right-pane">
-<!--       <div class="alarm">경보요약</div> -->
-      
-       <div id="tableAlarmWrapper" style="max-height:127px; overflow:auto;">
-                <table id="tableAlarm">
-                    <thead>
-                        <tr>
-                            <!-- <th>No</th>                                 
-                            <th>PLC주소</th> -->
-                            <th>알람내용</th>
-                            <th>발생시간</th>
-                        <!--     <th>해제시간</th> -->
-                          
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>       
- </div>
-
-
-
-<!-- <div id="currentTime" style="
-    position: fixed;
-    top: 12px;
-    right: 20px;
-    padding: 6px 14px;
-    background: #f5f5f5;  /* 밝은 회색 배경 */
-    color: #333;           /* 진한 회색 글씨 */
-    font-size: 28px;
-    font-weight: 600;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* 은은한 그림자 */
-    letter-spacing: 1px;
-    z-index: 99999;
-"></div> -->
-
-
-       
-</div>
   
   
 
@@ -2335,6 +2279,27 @@ function valueDisplay(key, val) {
 // =====================
 // OPC 값 조회
 // =====================
+// =====================
+// 데모: PV 와 SP 를 비교해 편차 색상 표시 (온도 ±5/±10℃, CP ±0.02/±0.04, Hz ±1/±2)
+// =====================
+function imxNum(el) { var n = parseFloat(String(el ? el.textContent : "").replace(/[^0-9.\-]/g, "")); return isNaN(n) ? null : n; }
+function imxDeviation() {
+    var cnt = { ok: 0, warn: 0, bad: 0 };
+    document.querySelectorAll(".imx [data-sp]").forEach(function (el) {
+        var sp = imxNum(document.querySelector(".imx ." + el.getAttribute("data-sp")));
+        var pv = imxNum(el);
+        el.classList.remove("dev-warn", "dev-bad");
+        if (pv == null || sp == null || (el.dataset.cp && sp === 0)) return;
+        var l1 = el.dataset.cp ? 0.02 : el.dataset.hz ? 1 : 5, d = Math.abs(pv - sp);
+        var st = d > l1 * 2 ? "bad" : d > l1 ? "warn" : "ok";
+        if (st !== "ok") el.classList.add("dev-" + st);
+        if (!el.dataset.hz) cnt[st]++;
+    });
+    var s = document.getElementById("imxSummary");
+    if (s) s.innerHTML = "정상 <b>" + cnt.ok + "</b> · 주의 <b>" + cnt.warn + "</b> · 이상 <b>" + cnt.bad + "</b>";
+}
+setInterval(imxDeviation, 1000);
+
 function overviewListView() {
     $.ajax({
         url: "/line/monitoring/view",
@@ -2429,28 +2394,23 @@ function fetchAlarm() {
             var $tbody = $("#tableAlarm tbody").empty();
 
             if (!arr || arr.length === 0) {
-                $tbody.append('<tr><td colspan="6" style="font-weight:900;">조회된 데이터가 없습니다.</td></tr>');
+                $tbody.append('<tr><td colspan="3" style="color:#94a3b8;">발생한 알람이 없습니다.</td></tr>');
+                $("#imxAlarmCnt").text("");
                 return;
             }
 
+            var onCnt = 0;
             arr.forEach(function(r, idx) {
-                var tr = $("<tr></tr>");
-                tr.append("<td style='text-align:left;padding-left:12px;font-weight:900;'>" + (r.a_desc || "") + "</td>");
-                tr.append("<td style='font-weight:900;'>" + (r.a_stime || "") + "</td>");
+                var on = !r.a_etime;
+                if (on) onCnt++;
+                var tr = $("<tr></tr>").toggleClass("on", on);
+                tr.append($("<td></td>").html("<i class='dot'></i>").append(document.createTextNode(r.a_desc || "")));
+                tr.append("<td>" + String(r.a_stime || "").substr(5, 11) + "</td>");
+                tr.append("<td class='st'>" + (on ? "발생중" : "해제 " + String(r.a_etime).substr(11, 5)) + "</td>");
                 tr.data("rowdata", r);
-
-                if (!r.a_etime || r.a_etime === "") {
-                    tr.css({
-                        "background": "linear-gradient(90deg, rgba(255,230,0,0.25), rgba(255,255,255,0))",
-                        "font-weight": "900",
-                        "color": "#a80000"
-                    });
-                } else {
-                    tr.append("<td style='font-weight:900;'>-</td>");
-                }
-
                 $tbody.append(tr);
             });
+            $("#imxAlarmCnt").html("발생중 <b>" + onCnt + "</b> · 최근 " + arr.length + "건");
         }
     });
 }
