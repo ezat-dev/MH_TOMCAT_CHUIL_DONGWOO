@@ -1,0 +1,10 @@
+# Tomcat 실행 시 생성되는 폴더
+logs/
+temp/
+work/
+# 로컬 설정
+.claude/
+# 빌드 산출물 / 의존성
+node_modules/
+src/ym-frontend/dist/
+*.log

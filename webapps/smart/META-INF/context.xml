@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- React SPA: 확장자 없는 경로는 index.html 로 돌려서 클라이언트 라우터가 처리 -->
+<Context>
+  <Valve className="org.apache.catalina.valves.rewrite.RewriteValve" />
+</Context>

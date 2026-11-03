@@ -1,0 +1,885 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="workprocess" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f90a1047-5d3e-4cbd-b8bc-8a713bec80c0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="DefaultStyle" isDefault="true" fontName="굴림" fontSize="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+	<parameter name="jisi_lot" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="w_old_lot" class="java.lang.String"/>
+	<field name="w_ci_lot" class="java.lang.String"/>
+	<field name="item_no" class="java.lang.String"/>
+	<field name="item_name" class="java.lang.String"/>
+	<field name="cust_name" class="java.lang.String"/>
+	<field name="w_plan_cnt" class="java.lang.Integer"/>
+	<field name="charge_weight" class="java.lang.Integer"/>
+	<field name="q1_zone" class="java.lang.Integer"/>
+	<field name="q2_zone" class="java.lang.Integer"/>
+	<field name="q3_zone" class="java.lang.Integer"/>
+	<field name="q4_zone" class="java.lang.Integer"/>
+	<field name="q5_zone" class="java.lang.Integer"/>
+	<field name="q_speed" class="java.lang.Integer"/>
+	<field name="cp" class="java.lang.Float"/>
+	<field name="t1_zone" class="java.lang.Integer"/>
+	<field name="t2_zone" class="java.lang.Integer"/>
+	<field name="t3_zone" class="java.lang.Integer"/>
+	<field name="t4_zone" class="java.lang.Integer"/>
+	<field name="t5_zone" class="java.lang.Integer"/>
+	<field name="t_speed" class="java.lang.Integer"/>
+	<field name="tong_num" class="java.lang.String"/>
+	<field name="img_url_1" class="java.lang.String"/>
+	<field name="img_url_2" class="java.lang.String"/>
+	<field name="erp_jack_no" class="java.lang.String"/>
+	<background>
+		<band splitType="Immediate"/>
+	</background>
+	<detail>
+		<band height="394">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<frame>
+				<reportElement x="14" y="-10" width="530" height="393" uuid="459a482d-6090-49aa-8ad9-44335e0e908d">
+					<property name="ShowOutOfBoundContent" value="true"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="104" width="190" height="17" uuid="d0d6bbc7-589e-41bd-9dd8-d2353610631a">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cust_name}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="121" width="190" height="17" uuid="62293ff6-f13c-437d-babe-3e00258297ce">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{item_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="70" width="76" height="17" uuid="1b04ca0f-eb5c-4410-a44c-c76579acb3b4">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[퀜 칭  2존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="70" width="178" height="17" uuid="c2510796-6e84-4f49-a195-d75f91f401de">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{q2_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="4" y="104" width="76" height="17" uuid="a6841fcc-c338-4a27-b3ac-6c84fa35044e">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[업체명]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="138" width="190" height="17" uuid="fd1120d6-3cde-41d7-ace0-e94f418290ba">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{item_no}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="87" width="76" height="17" uuid="76f84635-1e3d-4683-9450-9fc74b763aeb">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[퀜 칭  3존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="87" width="178" height="17" uuid="66df5ffe-dfc3-4846-ab0b-cdd5559bfb3c">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{q3_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="138" width="76" height="17" uuid="6aa391bd-8ac2-4668-bc6a-d486dab75396">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[템퍼링 1존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="138" width="178" height="17" uuid="b2c7ad5d-0644-488b-a874-f2cdacf555ff">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{t1_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="4" y="121" width="76" height="17" uuid="064d50bc-bb89-42ae-b8b1-5f9da23c0001">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[품 명]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="270" y="53" width="76" height="17" uuid="3daa555f-bfd0-4716-8747-deb7558f1bc4">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[퀜 칭  1존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="53" width="178" height="17" uuid="f6ccd918-d2ec-4d98-a733-c89c3bb772f7">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{q1_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="4" y="172" width="76" height="17" uuid="b9245302-8f74-420f-a859-39d988f4322a"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[기준 장입량]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="4" y="138" width="76" height="17" uuid="7057f347-ef79-460d-9b74-04cf142afa18">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[품 번]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="4" y="155" width="76" height="17" uuid="e0907cb3-aec0-431e-ae9e-7da09eab1f8c">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[계획통수]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="4" y="223" width="76" height="17" uuid="9c30b123-17d5-4e5f-9807-e10d26467a03">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[C P]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="223" width="190" height="17" uuid="c4ff9f7f-1a72-4db6-9343-e6588039c5d0">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cp}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="155" width="190" height="17" uuid="9c9147a4-b22c-4deb-ada9-c758dfd70fe0">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{w_plan_cnt}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="189" width="190" height="17" uuid="491209ba-29dd-4dd7-95ec-fc49ab98a5fa">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{q_speed}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="172" width="190" height="17" uuid="e5b88592-85a4-4921-b49e-4c6b597e5078">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{charge_weight}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="206" width="190" height="17" uuid="c8d14854-d3a8-4acc-acb8-6e9338fd5a07">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{t_speed}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="53" width="190" height="17" uuid="45ddfa40-ddaa-4b17-8d8c-0220881b0fb0">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{w_ci_lot} + 
+($F{w_old_lot} != null && !$F{w_old_lot}.isEmpty() ? " (재처리)" : "")]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="4" y="53" width="76" height="17" uuid="6bcc922f-64c4-4da9-badc-33a8f3df69c7">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[작업LOT]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="70" width="190" height="17" uuid="ef42cede-56de-49f0-aeb1-e9fa7e4fa186">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{tong_num}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="4" y="70" width="76" height="17" uuid="6d190bc2-0fcd-4b99-9e0c-fd6c446f6f95">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[통 번호]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="4" y="189" width="76" height="17" uuid="66f26e3a-1037-45c5-a5b7-0eb4459c0ea5"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[퀜칭 속도]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="4" y="206" width="76" height="17" uuid="2f7913ee-c4da-48a7-bd0b-968a454ce14f"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[템퍼링 속도]]></text>
+				</staticText>
+				<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+					<reportElement x="80" y="240" width="189" height="149" uuid="9b57dcdb-039f-4513-a17d-bd5aed90e6a2"/>
+					<imageExpression><![CDATA["D:/product_img/" + $F{img_url_1}]]></imageExpression>
+				</image>
+				<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+					<reportElement x="346" y="240" width="177" height="150" uuid="ebef3d55-977d-426e-af6d-a30591fa2d6a"/>
+					<imageExpression><![CDATA["D:/product_img/" + $F{img_url_2}]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement x="4" y="240" width="76" height="150" uuid="4dc51085-0130-43ae-8ca1-5aab237b954a">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[IMG_1]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="270" y="240" width="76" height="150" uuid="3f3ff631-08a9-449a-8892-0b92d2cfbd4d"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[IMG_2]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="80" y="240" width="190" height="150" uuid="24e871b0-7e37-4b29-b679-8af04d7a33ac">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="346" y="240" width="178" height="150" uuid="33efb2d0-2a08-4a98-9043-934b9cf51e14">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="132" y="7" width="263" height="43" uuid="81c51dd2-eea4-4438-a932-50dae68cb62d"/>
+					<textElement textAlignment="Center">
+						<font fontName="맑은 고딕" size="26" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[열처리 작업 지시서]]></text>
+				</staticText>
+				<componentElement>
+					<reportElement x="466" y="2" width="62" height="49" uuid="5391a408-b09c-423e-9e10-4b5afcf8b3c0">
+						<property name="com.jaspersoft.studio.unit.margin" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" margin="0">
+						<jr:codeExpression><![CDATA[$F{tong_num}]]></jr:codeExpression>
+					</jr:QRCode>
+				</componentElement>
+				<staticText>
+					<reportElement x="270" y="104" width="76" height="17" uuid="c0f4dadb-8421-4fd6-ae44-4fad0e7e2d24">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[퀜 칭  4존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="104" width="178" height="17" uuid="fd6c45ae-ba41-422f-950f-0a9d0d22dd42">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{q4_zone}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="121" width="178" height="17" uuid="d1990160-c688-40a5-93bd-2e58d898f722">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{q5_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="121" width="76" height="17" uuid="6667927e-6c3e-49dc-84df-e40b0f2c2e90">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[퀜 칭  5존(℃)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="270" y="155" width="76" height="17" uuid="59bf5f91-e58b-41c4-8422-f3576ba690bc">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[템퍼링 2존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="155" width="178" height="17" uuid="d5103b77-b26f-4eb5-ba59-c020ca5896e8">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{t2_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="172" width="76" height="17" uuid="d5eeb4ff-d074-460a-b4cd-5bcfb4690bfb">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[템퍼링 3존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="172" width="178" height="17" uuid="f41267f3-dfef-478f-858e-d5b8d7bcb6ba">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{t3_zone}]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="189" width="178" height="17" uuid="05dd40b9-ffb4-4891-9ce2-208ac61a0c97">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{t4_zone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="189" width="76" height="17" uuid="ceffc799-df25-4faf-8405-13771c1c98d3">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[템퍼링 4존(℃)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="270" y="206" width="76" height="17" uuid="f372a130-a7eb-4052-850d-ce67a26cc90b">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[템퍼링 5존(℃)]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="206" width="178" height="17" uuid="c9aeb162-2524-4937-b44b-56160cab121b">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{t5_zone}]]></textFieldExpression>
+				</textField>
+				<image>
+					<reportElement x="80" y="2" width="52" height="47" uuid="d8cfe680-2e39-4cf0-9724-ae7e192bb093">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<imageExpression><![CDATA["D:/천일_양식/chunil_log.png"]]></imageExpression>
+				</image>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="346" y="223" width="178" height="17" uuid="9033cc7a-bb11-404c-94eb-195148b2adaf">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+				</textField>
+				<staticText>
+					<reportElement x="270" y="223" width="76" height="17" uuid="1aeacef7-809d-499f-89ac-7a2a23e2c722">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="4" y="87" width="76" height="17" uuid="a792dfeb-c6c0-422a-b33f-d33f2a8ca6d2">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<text><![CDATA[작지 번호]]></text>
+				</staticText>
+				<textField textAdjust="StretchHeight">
+					<reportElement x="80" y="87" width="190" height="17" uuid="5abf6afe-0869-476d-87d9-5c1d5b4c6ff3">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="굴림" size="9" isBold="true" pdfFontName="fonts/gulim.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{erp_jack_no}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>
