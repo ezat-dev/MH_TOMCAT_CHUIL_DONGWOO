@@ -279,7 +279,74 @@
             .bar-input { width:90px; font-size:12px; }
             .lot-tooltip { width:260px; }
         }
+
+        /* ═════ 데모: 고밀도 라이트 테마 + 한 화면 맞춤 (스크롤 없음) ═════ */
+        :root {
+            --fg:#1b222c; --fg2:#5b6470; --fg3:#8d949e; --line:#e1e5ea; --line2:#eef0f3; --hover:#f6f7f9;
+            --accent:#3b6fc4; --ok:#3e9a5c; --warn:#b8862a; --bad:#c2453d;
+            --sans:"IBM Plex Sans KR","Pretendard","Malgun Gothic","맑은 고딕",sans-serif;
+            --mono:"IBM Plex Mono",Consolas,"Malgun Gothic",monospace;
+        }
+        html, body { height:100%; overflow:hidden; background:#f8f9fb; font-family:var(--sans); color:var(--fg); }
+        body { display:flex; flex-direction:column; }
+        #controlBar { flex:none; }
+        #tableWrap { flex:1 1 auto; min-height:0; margin-bottom:16px !important; }
+        #dataList { height:100%; }
+
+        #controlBar { background:#fff; box-shadow:none; border-bottom:1px solid var(--line); padding:8px 16px; gap:8px; position:static; }
+        .bar-label { color:var(--fg2); }
+        .bar-sep { color:var(--fg3); }
+        .bar-input { height:32px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--fg);
+            font-family:var(--mono); font-variant-numeric:tabular-nums; }
+        .bar-input:focus { border-color:var(--accent); background:#fff; }
+        .btn { height:32px; padding:0 12px; border-radius:6px; font-weight:500; font-family:var(--sans);
+            border:1px solid var(--line); background:#fff; color:var(--fg); transition:background-color 80ms; }
+        .btn:hover { filter:none; background:var(--hover); }
+        .btn-blue { background:var(--fg); border-color:var(--fg); color:#fff; }
+        .btn-blue:hover { background:#333c48; }
+        .btn-blue img { filter:brightness(0) invert(1); }
+        .btn-gray, .btn-amber, .btn-green { background:#fff; color:var(--fg); }
+        .btn-amber { color:var(--warn); }
+        .refresh-info { color:var(--fg3); font-size:12px; }
+        .refresh-info #countdown { font-family:var(--mono); color:var(--fg2); }
+        .pulse-dot { background:var(--ok); animation:none; }
+
+        .lot-tooltip { background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(27,34,44,.12); }
+        .lot-tooltip::before { border-bottom-color:var(--line); }
+        .lot-tooltip::after { border-bottom-color:#fff; }
+        .tip-head { color:var(--fg); border-bottom-color:var(--line2); font-size:12px; }
+        .tip-num.g, .tip-num.r, .tip-num.b { background:var(--line2); color:var(--fg2); }
+        .tip-text { color:var(--fg2); font-size:12px; }
+        .tip-text b { color:var(--fg); }
+
+        #tableWrap { margin:12px 16px 0; width:auto; background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+        #dataList .tabulator-header { background:#fff !important; border-bottom:1px solid var(--line) !important; }
+        #dataList .tabulator-col { background:#fff !important; color:var(--fg2) !important; font-size:12px !important; font-weight:500 !important;
+            border-right:1px solid var(--line2) !important; padding:4px !important; }
+        #dataList .tabulator-col:hover { background:var(--hover) !important; }
+        #dataList .tabulator-header-filter input { background:#fff !important; border:1px solid var(--line) !important; color:var(--fg) !important;
+            border-radius:4px; font-size:12px; padding:4px 8px; font-family:var(--mono); }
+        #dataList .tabulator-row, #dataList .tabulator-row.tabulator-row-even { background:#fff; border-bottom:1px solid var(--line2) !important; }
+        #dataList .tabulator-row:hover { background:var(--hover) !important; }
+        #dataList .tabulator-cell { padding:4px 8px !important; border-right:1px solid var(--line2) !important; font-size:13px; }
+        #dataList .tabulator-frozen { background:inherit; }
+        .row-ri { background-color:#fbf1f0 !important; }
+        .row-ri:hover { background-color:#f7e6e4 !important; }
+        .lot-ri { color:var(--bad); font-weight:500; font-size:12px; font-family:var(--sans); }
+        .row-selected, .row-selected:hover { background-color:#eef3fb !important; box-shadow:inset 2px 0 0 var(--accent); }
+        .t-done { color:var(--fg); font-weight:400; font-family:var(--mono); font-variant-numeric:tabular-nums; }
+        .t-empty { color:#c9ced5; }
+        .qr-ok { color:var(--ok); font-weight:500; }
+        .pi { line-height:1.45; white-space:nowrap; overflow:hidden; min-width:0; }
+        .pi .lot { font-family:var(--mono); font-weight:500; font-size:13px; color:var(--fg); }
+        .pi .cust { margin-left:8px; font-size:12px; color:var(--fg2); }
+        .pi .item { font-size:12px; color:var(--fg2); overflow:hidden; text-overflow:ellipsis; }
+        .pi .pno { margin-left:8px; font-family:var(--mono); font-size:12px; color:var(--fg3); }
+        #loadingBar { background:var(--accent); }
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 </head>
 <body>
 
@@ -295,15 +362,15 @@
         <img src="/line/css/tabBar/search-icon.png" alt="">조회
     </button>
 
-    <button class="btn btn-gray" id="btnEdit">✏️ 리스트 수정</button>
+    <button class="btn btn-gray" id="btnEdit">리스트 수정</button>
 
 <!-- ══════ 로트 지정 버튼 + 툴팁 ══════ -->
 <div class="lot-btn-wrap">
-    <button class="btn btn-amber" id="btnLotAssign">📌 로트 지정</button>
+    <button class="btn btn-amber" id="btnLotAssign">로트 지정</button>
 
     <div class="lot-tooltip">
         <div class="tip-head">
-            📌 로트 지정 사용 안내<br>
+            로트 지정 사용 안내<br>
             (행 선택 후 버튼 클릭)
         </div>
         
@@ -443,6 +510,13 @@ function hideLoading() {
     setTimeout(function () { bar.className = ""; }, 500);
 }
 
+/* ── 테이블 높이: #tableWrap 이 CSS flex 로 창 아래 끝까지 채우고, 테이블은 그 100% ── */
+let resizeT;
+$(window).on("resize", function () {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () { if (dataTable) dataTable.redraw(); }, 120);
+});
+
 /* ── Ajax 파라미터 ── */
 function getParams() {
     return { startDay: $("#daySetStart").val(), endDay: $("#daySetEnd").val() };
@@ -545,7 +619,7 @@ function startCountdown() {
 ══════════════════════════════════════════════ */
 function initTable() {
     dataTable = new Tabulator("#dataList", {
-        height: "700px",
+        height: "100%",
         ajaxConfig: "POST",
         ajaxURL: "/line/monitoring/lotProcessor/list",
         ajaxParams: getParams(),
@@ -602,11 +676,11 @@ function initTable() {
                     if (lot.indexOf("RI") !== -1 && lot.indexOf("(재처리)") === -1) {
                         lot += ' <span class="lot-ri">(재처리)</span>';
                     }
-                    return '<div style="line-height:1.5;font-size:12px;white-space:normal;">' +
-                           '<b style="font-size:13px">' + lot + '</b><br>' +
-                           '<span style="color:#556">' + (d.cust_name || "") + '</span><br>' +
-                           '<span style="color:#334">' + (d.item_name || "") + '</span><br>' +
-                           '<span style="color:#889">' + (d.item_no   || "") + '</span>' +
+                    if (!d.w_ci_lot) return "";
+                    /* 2줄: LOT · 거래처 / 제품명 · 품번 */
+                    return '<div class="pi">' +
+                           '<div><span class="lot">' + lot + '</span><span class="cust">' + (d.cust_name || "") + '</span></div>' +
+                           '<div class="item">' + (d.item_name || "") + '<span class="pno">' + (d.item_no || "") + '</span></div>' +
                            '</div>';
                 }
             },

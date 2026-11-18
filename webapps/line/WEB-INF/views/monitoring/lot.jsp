@@ -80,6 +80,13 @@
     .badge.done { color: var(--done); background: var(--done-bg); }
     .mono { font-family: Consolas, "JetBrains Mono", monospace; }
     .hidden-date { display: none; }
+
+    /* 화면 높이 꽉 채움: 마지막 섹션(오늘 작업 목록)이 남은 높이 사용, 페이지 스크롤 없음 */
+    html, body { height: 100%; overflow: hidden; }
+    .main { height: 100vh; display: flex; flex-direction: column; }
+    .main > .page-head, .main > .kpis, .main > .section { flex: none; }
+    .main > .section:last-child { flex: 1; min-height: 0; margin-bottom: 0; display: flex; flex-direction: column; }
+    .main > .section:last-child #dataList { flex: 1; min-height: 0; }
 </style>
 </head>
 <body>
@@ -190,7 +197,7 @@ let dataTable = null;
 function buildTable() {
     dataTable = new Tabulator('#dataList', {
         layout: 'fitColumns',
-        height: 'auto',
+        height: '100%',
         selectable: 1,
         placeholder: '오늘 등록된 LOT가 없습니다.',
         columns: [
@@ -240,6 +247,7 @@ $(function () {
     buildTable();
     loadData();
     setInterval(loadData, 5000);
+    $(window).on('resize', function () { if (dataTable) dataTable.redraw(); });
 });
 </script>
 

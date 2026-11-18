@@ -1,0 +1,65 @@
+/* ===== 데모: 기준정보 화면 공통 (거래처 관리 · 패턴 관리) — ops-list.css 위에 얹는 페이지 규칙 ===== */
+
+/* 화면 높이: 표가 창 아래 끝까지, 페이지 세로 스크롤 없음 (표 높이는 JS fitTable 이 맞춤) */
+html, body.mst { overflow: hidden; }
+.mst .ops-page { padding-bottom: 16px; }
+.mst .ops-input { min-width: 0; font-family: var(--ops-sans); }
+.mst .ops-input.mono { font-family: var(--ops-mono); }
+.mst .ops-btn.select-button, .mst .ops-btn.insert-button, .mst .ops-btn.delete-button, .mst .ops-btn.excel-button { box-shadow: none; }
+.mst .ops-card-foot .hint { color: var(--ops-fg3); }
+
+/* Tabulator 4.9 헤더 필터 · 숨김 컬럼 · 셀 */
+.mst .ops-table .tabulator-header-filter { margin-top: 4px; }
+.mst .ops-table .tabulator-header-filter input {
+  height: 26px !important; padding: 0 8px !important; border: 1px solid var(--ops-line) !important; border-radius: 4px !important;
+  background: #fff !important; font-family: var(--ops-sans) !important; font-size: 12px !important; color: var(--ops-fg) !important; outline: none !important;
+}
+.mst .ops-table .tabulator-header-filter input::placeholder { color: var(--ops-fg3); }
+.mst .ops-table .tabulator-header-filter input:focus { border-color: var(--ops-accent) !important; box-shadow: 0 0 0 2px var(--ops-accent-tint) !important; }
+.mst .ops-table .tabulator-col .tabulator-col-content .tabulator-arrow { border-bottom-color: var(--ops-line) !important; }
+.mst .ops-table .tabulator-col.tabulator-sortable[aria-sort="asc"] .tabulator-arrow { border-bottom-color: var(--ops-fg2) !important; }
+.mst .ops-table .tabulator-col.tabulator-sortable[aria-sort="desc"] .tabulator-arrow { border-top-color: var(--ops-fg2) !important; }
+.mst .ops-table .tabulator-cell { color: var(--ops-fg) !important; }
+.mst .ops-table .tabulator-row.row_select { border-left: 0 !important; }
+.mst .tabulator-col.hidden-column, .mst .tabulator-cell.hidden-column { display: none !important; }
+.mst .tabulator-cell.c-mono { font-family: var(--ops-mono); font-size: 12px; font-variant-numeric: tabular-nums slashed-zero; }
+.mst .tabulator-cell.c-dim { color: var(--ops-fg3) !important; }
+.mst .tabulator-cell.c-strong { font-weight: 500; }
+.mst .temp-val { font-family: var(--ops-mono); font-size: 12px; font-weight: 400; color: var(--ops-fg); font-variant-numeric: tabular-nums; }
+.mst .temp-none { color: var(--ops-line); }
+
+/* 모달: 머리·버튼줄 고정, 본문만 스크롤 */
+.mst .modal-overlay { z-index: 9999; padding: 16px; }
+.mst .modal-box { display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
+.mst .modal-box > form { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.mst .modal-box .modal-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.mst .modal-head { gap: 12px; }
+.mst .modal-head .ttl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mst .modal-head .sub { font-size: 12px; color: var(--ops-fg3); }
+.mst .modal-close.close { float: none; opacity: 1; text-shadow: none; border: 0; background: transparent; font-family: var(--ops-sans); font-size: 18px; font-weight: 400; line-height: 1; padding: 0; }
+.mst .modal-close.close:hover { background: var(--ops-hover); color: var(--ops-fg); opacity: 1; }
+.mst .form-sec { display: flex; flex-direction: column; gap: 8px; }
+.mst .form-sec-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; padding-bottom: 4px; border-bottom: 1px solid var(--ops-line2); font-size: 12px; font-weight: 600; color: var(--ops-fg); }
+.mst .form-sec-title small { font-size: 12px; font-weight: 400; color: var(--ops-fg3); }
+.mst .form-label .req { color: var(--ops-bad); margin-left: 2px; }
+.mst .form-label small { font-weight: 400; color: var(--ops-fg3); }
+.mst .form-input[readonly] { background: var(--ops-bg); color: var(--ops-fg2); cursor: default; }
+.mst .form-input::placeholder { color: var(--ops-fg3); }
+.mst .form-input[type="number"] { text-align: right; font-variant-numeric: tabular-nums; }
+.mst .form-input[type="number"]::-webkit-inner-spin-button { opacity: .4; }
+.mst .zone-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.mst .zone-grid .form-label { text-align: right; }
+.mst .modal-btn-row { flex-shrink: 0; }
+
+/* 엑셀 생성 중 */
+.mst #excelOverlay { display: none; position: fixed; inset: 0; z-index: 9998; background: oklch(20% 0.01 255 / 0.3); }
+.mst #excelLoading {
+  display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;
+  align-items: center; gap: 12px; padding: 16px 24px; background: #fff; border: 1px solid var(--ops-line); border-radius: 8px;
+  box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16); font-size: 13px; color: var(--ops-fg);
+}
+.mst #excelLoading::before {
+  content: ""; display: inline-block; vertical-align: -3px; margin-right: 8px; width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--ops-line); border-top-color: var(--ops-accent); animation: mst-spin .8s linear infinite;
+}
+@keyframes mst-spin { to { transform: rotate(360deg); } }

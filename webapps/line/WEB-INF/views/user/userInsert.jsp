@@ -12,385 +12,141 @@
   <jsp:include page="../include/tabBar.jsp"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-
-  <style>
-    /* ===================== Design System ===================== */
-    :root{
-      --bg:#f0f2f7;
-      --surface:#ffffff;
-      --surface2:#f7f8fc;
-      --border:#e2e6ef;
-      --text-p:#0f172a;
-      --text-s:#64748b;
-      --text-m:#94a3b8;
-      --accent:#2563eb;
-      --green:#16a34a;
-      --red:#dc2626;
-      --shadow-sm:0 1px 3px rgba(0,0,0,.06);
-      --shadow-md:0 18px 60px rgba(0,0,0,.22);
-      --radius:12px;
-      --topbar-h:56px;
-    }
-
-    *{ box-sizing:border-box; margin:0; padding:0; }
-    body{
-      font-family:'Noto Sans KR',sans-serif;
-      background:var(--bg);
-      color:var(--text-p);
-    }
-
-    /* ===================== TOPBAR ===================== */
-    .topbar{
-      position:sticky; top:0; z-index:200;
-      background:rgba(255,255,255,.92);
-      backdrop-filter: blur(12px);
-      border-bottom:1px solid var(--border);
-      box-shadow:var(--shadow-sm);
-    }
-    .topbar-inner{
-      max-width:1600px;
-      margin:0 auto;
-      height:var(--topbar-h);
-      padding:0 20px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .topbar-title{
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:-.3px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      white-space:nowrap;
-      margin-right:6px;
-    }
-    .divider{ width:1px; height:20px; background:var(--border); flex-shrink:0; }
-    .label{
-      font-size:12px;
-      font-weight:800;
-      color:var(--text-s);
-      white-space:nowrap;
-    }
-
-    .ctrl{
-      height:34px;
-      padding:0 10px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      background:var(--surface2);
-      color:var(--text-p);
-      font-size:13px;
-      outline:none;
-      transition:border-color .15s, box-shadow .15s, background .15s;
-    }
-    .ctrl:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(37,99,235,.14);
-      background:#fff;
-    }
-
-    .btn{
-      height:34px;
-      padding:0 14px;
-      border-radius:10px;
-      font-size:12px;
-      font-weight:900;
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      cursor:pointer;
-      border:1px solid transparent;
-      transition: transform .08s, filter .15s;
-      white-space:nowrap;
-      user-select:none;
-    }
-    .btn:active{ transform:translateY(1px); }
-    .btn:hover{ filter:brightness(1.06); }
-    .btn img{ width:16px; height:16px; }
-
-    .btn-search{ background:linear-gradient(135deg,#64748b,#475569); color:#fff; border-color:#475569; }
-    .btn-insert{ background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border-color:#1d4ed8; }
-    .btn-delete{ background:var(--surface); color:var(--red); border-color:var(--border); }
-    .btn-delete:hover{ background:#fff5f5; }
-
-    /* ===================== PAGE WRAP ===================== */
-    .page-wrap{
-      max-width:1600px;
-      margin:0 auto;
-      padding:16px 20px 24px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-
-    .card{
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow-sm);
-      overflow:hidden;
-    }
-    .card-header{
-      padding:12px 16px;
-      border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .card-title{
-      font-size:13px;
-      font-weight:900;
-      color:var(--text-p);
-      letter-spacing:-.2px;
-    }
-    .card-meta{
-      font-size:12px;
-      color:var(--text-m);
-      font-family:'JetBrains Mono', monospace;
-    }
-
-    /* ===================== TABULATOR OVERRIDE ===================== */
-    #dataTable{ padding:10px; }
-    .tabulator{ border:none !important; font-size:13px !important; }
-    .tabulator .tabulator-header{
-      background:var(--surface2) !important;
-      border-bottom:1px solid var(--border) !important;
-      color:var(--text-s) !important;
-      font-weight:800 !important;
-    }
-    .tabulator-row:hover{ background:#f8faff !important; }
-    .row_select{
-      background:#eff6ff !important;
-      border-left:4px solid var(--accent) !important;
-    }
-
-    /* ===================== MODAL ===================== */
-    .modal{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(15,23,42,.55);
-      backdrop-filter: blur(5px);
-      z-index:9999;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .modal.show{ display:flex; }
-
-    .modal-content{
-      width:520px;
-      max-width:95vw;
-      max-height:90vh;
-      overflow:auto;
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow:var(--shadow-md);
-      padding:22px 20px 18px;
-      position:relative;
-      animation: pop .18s ease;
-    }
-    @keyframes pop{
-      from{ opacity:0; transform:translateY(10px) scale(.98); }
-      to{ opacity:1; transform:none; }
-    }
-
-    .modal-title{
-      font-size:16px;
-      font-weight:900;
-      color:var(--text-p);
-      margin-bottom:14px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .modal-title:before{
-      content:"";
-      width:4px; height:18px;
-      border-radius:4px;
-      background:var(--accent);
-      display:inline-block;
-    }
-
-    .close{
-      position:absolute;
-      right:14px; top:12px;
-      width:32px; height:32px;
-      border-radius:10px;
-      border:1px solid var(--border);
-      background:var(--surface2);
-      color:var(--text-s);
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:18px;
-      font-weight:900;
-      transition:filter .15s;
-    }
-    .close:hover{ filter:brightness(1.05); }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px 12px;
-    }
-    .form-group{ display:flex; flex-direction:column; gap:6px; }
-    .form-group.full{ grid-column:1 / -1; }
-
-    .form-label{
-      font-size:12px;
-      font-weight:800;
-      color:var(--text-s);
-    }
-    .form-input, .form-select{
-      height:38px;
-      padding:0 12px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      background:var(--surface2);
-      font-size:13px;
-      outline:none;
-      transition:border-color .15s, box-shadow .15s, background .15s;
-    }
-    .form-input:focus, .form-select:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(37,99,235,.14);
-      background:#fff;
-    }
-
-    .modal-btns{
-      display:flex;
-      gap:10px;
-      margin-top:16px;
-    }
-    .modal-btns .btn{
-      flex:1;
-      height:40px;
-      justify-content:center;
-      border-radius:12px;
-      font-size:13px;
-    }
-    .btn-save{ background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border-color:#1d4ed8; }
-    .btn-close{ background:var(--surface2); color:var(--text-p); border-color:var(--border); }
-
-    /* ===================== Responsive ===================== */
-    @media (max-width: 900px){
-      .topbar-inner{ height:auto; padding:10px 14px; }
-      .page-wrap{ padding:12px 14px 18px; }
-      .form-grid{ grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/line/css/opsList/ops-list.css">
+  <link rel="stylesheet" href="/line/css/opsList/ops-user.css">
 </head>
 
-<body>
+<body class="ops fit">
 
-  <!-- ===================== TOPBAR ===================== -->
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-title">👤 사용자 등록/관리</div>
-      <div class="divider"></div>
+  <!-- ===================== 헤더 + 툴바 ===================== -->
+  <header class="ops-head">
+    <div class="ops-head-in">
+      <h1 class="ops-title">사용자 관리</h1>
 
-      <span class="label">입사 연도</span>
-      <input type="text" autocomplete="off" class="ctrl yearSet" id="startDate" style="width:140px; text-align:center;" placeholder="YYYY">
+      <span class="ops-label">입사 연도</span>
+      <input type="text" autocomplete="off" class="ops-input yearSet" id="startDate" style="width:96px; min-width:0;" placeholder="YYYY">
 
-      <span class="label" style="margin-left:6px;">성명</span>
-      <input type="text" id="user_name" class="ctrl" style="width:180px; text-align:center;" placeholder="이름 입력">
+      <span class="ops-label">성명</span>
+      <input type="text" id="user_name" class="ops-input" style="font-family:var(--ops-sans);" placeholder="이름 입력">
 
-      <div class="divider"></div>
-
-      <button class="btn btn-search select-button">
-        <img src="/line/css/tabBar/search-icon.png" alt="select">조회
-      </button>
-      <button class="btn btn-insert insert-button">
-        <img src="/line/css/tabBar/add-outline.png" alt="insert">추가
-      </button>
-      <button class="btn btn-delete delete-button">
-        <img src="/line/css/tabBar/xDel3.png" alt="delete">삭제
+      <button class="ops-btn select-button">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16" y2="16"/></svg>조회
       </button>
 
-      <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
-        <span class="label" id="footer-info" style="font-family:'JetBrains Mono',monospace; color:var(--text-m);">-</span>
-      </div>
+      <span class="ops-spacer"></span>
+
+      <button class="ops-btn danger delete-button">
+        <svg viewBox="0 0 24 24"><polyline points="4 7 20 7"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>삭제
+      </button>
+      <button class="ops-btn primary insert-button">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>사용자 추가
+      </button>
     </div>
-  </div>
+  </header>
 
   <!-- ===================== PAGE ===================== -->
-  <div class="page-wrap">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">사용자 목록</div>
-        <div class="card-meta">Double Click : 수정</div>
+  <main class="ops-page">
+
+    <section class="ops-kpi k4" aria-label="요약">
+      <div class="hero">
+        <span class="kpi-label">등록 사용자</span>
+        <span class="kpi-value" id="kpi-total">-</span>
+        <span class="kpi-sub">조회 조건 기준</span>
       </div>
-      <div id="dataTable"></div>
-    </div>
-  </div>
+      <div>
+        <span class="kpi-label">부서</span>
+        <span class="kpi-value" id="kpi-busu">-</span>
+        <span class="kpi-sub">고유 부서 수</span>
+      </div>
+      <div>
+        <span class="kpi-label">올해 입사</span>
+        <span class="kpi-value" id="kpi-year">-</span>
+        <span class="kpi-sub" id="kpi-year-sub">입사일 기준</span>
+      </div>
+      <div>
+        <span class="kpi-label">최근 입사일</span>
+        <span class="kpi-value" id="kpi-last">-</span>
+        <span class="kpi-sub" id="kpi-last-sub">&nbsp;</span>
+      </div>
+    </section>
+
+    <section class="ops-card grow">
+      <div class="ops-card-head">
+        <h2>사용자 목록</h2>
+        <span class="note">행 클릭 선택 · 더블클릭 수정 · 열 머리 입력칸으로 필터</span>
+      </div>
+      <div id="dataTable" class="ops-table"></div>
+      <div class="ops-card-foot">
+        <span id="footer-info">-</span>
+        <span>선택 <strong id="footer-sel">-</strong></span>
+      </div>
+    </section>
+
+  </main>
 
   <!-- ===================== MODAL ===================== -->
   <div id="modalContainer" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
       <button class="close" type="button" aria-label="닫기">&times;</button>
 
-      <div class="modal-title">사용자 등록/수정</div>
+      <div class="modal-title" id="userModalTitle">사용자 등록/수정</div>
 
       <form id="corrForm" autocomplete="off">
         <input type="hidden" name="user_code">
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">ID</label>
-            <input type="text" name="user_id" class="form-input" placeholder="아이디">
-          </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">아이디</label>
+              <input type="text" name="user_id" class="form-input mono" placeholder="아이디">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">PassWord</label>
-            <input type="text" name="user_pw" class="form-input" placeholder="비밀번호">
-          </div>
+            <div class="form-group">
+              <label class="form-label">비밀번호</label>
+              <input type="text" name="user_pw" class="form-input mono" placeholder="비밀번호">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">성명</label>
-            <input type="text" name="user_name" class="form-input" placeholder="이름">
-          </div>
+            <div class="form-group">
+              <label class="form-label">성명</label>
+              <input type="text" name="user_name" class="form-input" placeholder="이름">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">입사일</label>
-            <input type="text" name="st_day" class="form-input daySet" placeholder="YYYY-MM-DD" style="text-align:left;">
-          </div>
+            <div class="form-group">
+              <label class="form-label">입사일</label>
+              <input type="text" name="st_day" class="form-input mono daySet" placeholder="YYYY-MM-DD" style="text-align:left;">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">전화번호</label>
-            <input type="text" name="user_phone" class="form-input" placeholder="010-0000-0000">
-          </div>
+            <div class="form-group">
+              <label class="form-label">전화번호</label>
+              <input type="text" name="user_phone" class="form-input mono" placeholder="010-0000-0000">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">등급</label>
-            <select name="user_level" class="form-select">
-              <option value="기본">기본</option>
-              <!-- 필요하면 추가 -->
-              <!-- <option value="관리자">관리자</option> -->
-            </select>
-          </div>
+            <div class="form-group">
+              <label class="form-label">등급</label>
+              <select name="user_level" class="form-select">
+                <option value="기본">기본</option>
+                <!-- 필요하면 추가 -->
+                <!-- <option value="관리자">관리자</option> -->
+              </select>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">부서</label>
-            <input type="text" name="user_busu" class="form-input" placeholder="부서">
-          </div>
+            <div class="form-group">
+              <label class="form-label">부서</label>
+              <input type="text" name="user_busu" class="form-input" placeholder="부서">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">직책</label>
-            <input type="text" name="user_jick" class="form-input" placeholder="직책">
+            <div class="form-group">
+              <label class="form-label">직책</label>
+              <input type="text" name="user_jick" class="form-input" placeholder="직책">
+            </div>
           </div>
         </div>
 
         <div class="modal-btns">
-          <button type="submit" id="saveCorrStatus" class="btn btn-save">저장</button>
-          <button type="button" id="closeModal" class="btn btn-close">닫기</button>
+          <button type="button" id="closeModal" class="ops-btn">닫기</button>
+          <button type="submit" id="saveCorrStatus" class="ops-btn primary">저장</button>
         </div>
       </form>
     </div>
@@ -402,13 +158,32 @@
     var dataTable;
     var selectedRowData = null;
 
+    // 데모: 상단 요약 (표시 전용)
+    function renderUserSummary(rows) {
+      rows = Array.isArray(rows) ? rows : [];
+      var year = String(new Date().getFullYear()), busu = {}, thisYear = 0, last = "";
+      rows.forEach(function (r) {
+        if (r.user_busu) busu[r.user_busu] = 1;
+        var d = String(r.st_day || "");
+        if (d.indexOf(year) === 0) thisYear++;
+        if (d > last) last = d;
+      });
+      $("#kpi-total").text(rows.length);
+      $("#kpi-busu").text(Object.keys(busu).length);
+      $("#kpi-year").text(thisYear);
+      $("#kpi-year-sub").text(year + "년 입사일 기준");
+      $("#kpi-last").text(last ? last.substr(0, 10) : "-");
+      var who = rows.filter(function (r) { return String(r.st_day || "") === last && last; })[0];
+      $("#kpi-last-sub").text(who ? who.user_name + " · " + (who.user_busu || "-") : " ");
+    }
+
     $(function () {
 
       // ✅ Tabulator
       dataTable = new Tabulator('#dataTable', {
-        height: "705px",
+        height: "100%",
         layout: "fitColumns",
-        headerHozAlign: "center",
+        headerHozAlign: "left",
         ajaxConfig: { method: 'POST' },
         ajaxLoader: false,
         ajaxURL: "/line/user/userInsert/select",
@@ -417,30 +192,32 @@
         ajaxResponse: function (url, params, response) {
           // footer count
           try{
-            const cnt = Array.isArray(response) ? response.length : (response?.data?.length || 0);
-            $("#footer-info").text((cnt || 0) + " rows");
+            const rows = Array.isArray(response) ? response : (response?.data || []);
+            $("#footer-info").html("총 <strong>" + (rows.length || 0) + "</strong>명");
+            renderUserSummary(rows);
           }catch(e){}
           return response;
         },
         columns: [
-          { title: "NO", formatter: "rownum", hozAlign: "center", width: 70 },
+          { title: "#", formatter: "rownum", hozAlign: "right", headerHozAlign: "right", width: 56, headerSort: false, cssClass: "c-mono" },
 
           { title: "user_code", field: "user_code", width: 240, hozAlign: "center", visible: false },
 
-          { title: "아이디", field: "user_id", width: 170, hozAlign: "center", headerFilter: "input" },
+          { title: "아이디", field: "user_id", widthGrow: 2, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터", cssClass: "c-mono c-strong" },
           { title: "비밀번호", field: "user_pw", width: 170, hozAlign: "center", visible: false },
-          { title: "성명", field: "user_name", width: 170, hozAlign: "center", headerFilter: "input" },
-          { title: "입사일", field: "st_day", width: 200, hozAlign: "center", headerFilter: "input" },
-          { title: "전화번호", field: "user_phone", width: 170, hozAlign: "center", headerFilter: "input" },
-          { title: "등급", field: "user_level", width: 150, hozAlign: "center", headerFilter: "input" },
-          { title: "부서", field: "user_busu", width: 300, hozAlign: "left", headerFilter: "input" },
-          { title: "직책", field: "user_jick", width: 300, hozAlign: "left", headerFilter: "input" }
+          { title: "성명", field: "user_name", widthGrow: 2, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터", cssClass: "c-strong" },
+          { title: "입사일", field: "st_day", widthGrow: 2, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터", cssClass: "c-mono" },
+          { title: "전화번호", field: "user_phone", widthGrow: 2, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터", cssClass: "c-mono" },
+          { title: "등급", field: "user_level", widthGrow: 1, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터" },
+          { title: "부서", field: "user_busu", widthGrow: 3, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터" },
+          { title: "직책", field: "user_jick", widthGrow: 3, hozAlign: "left", headerFilter: "input", headerFilterPlaceholder: "필터" }
         ],
 
         rowClick: function (e, row) {
           $('#dataTable .tabulator-row').removeClass('row_select');
           row.getElement().classList.add('row_select');
           selectedRowData = row.getData();
+          $("#footer-sel").text((selectedRowData.user_name || "-") + " (" + (selectedRowData.user_id || "-") + ")");
         },
 
         rowDblClick: function (e, row) {
@@ -500,6 +277,7 @@
             alert('삭제되었습니다.');
             dataTable.setData("/line/user/userInsert/select", {});
             selectedRowData = null;
+            $("#footer-sel").text("-");
           },
           error: function () {
             alert('삭제 중 오류가 발생했습니다.');

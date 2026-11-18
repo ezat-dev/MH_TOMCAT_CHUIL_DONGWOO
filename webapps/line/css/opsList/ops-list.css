@@ -1,0 +1,136 @@
+/* ===== 데모: 목록형 관리 화면 공통 (낙하품 관리 · 부적합품 관리) — 고밀도 운영 화면 ===== */
+:root {
+  --ops-fg: oklch(24% 0.012 255); --ops-fg2: oklch(46% 0.012 255); --ops-fg3: oklch(64% 0.01 255);
+  --ops-line: oklch(91.5% 0.006 255); --ops-line2: oklch(95.5% 0.004 255); --ops-hover: oklch(97.5% 0.003 255);
+  --ops-bg: oklch(98.6% 0.002 255);
+  --ops-accent: oklch(55% 0.13 255); --ops-accent-tint: oklch(55% 0.13 255 / 0.07);
+  --ops-ok: oklch(60% 0.12 150); --ops-warn: oklch(64% 0.13 75); --ops-bad: oklch(56% 0.15 25);
+  --ops-bad-tint: oklch(56% 0.15 25 / 0.04);
+  --ops-sans: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --ops-mono: "IBM Plex Mono", Consolas, "Malgun Gothic", monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body.ops { margin: 0; background: var(--ops-bg); color: var(--ops-fg); font-family: var(--ops-sans); font-size: 13px; min-height: 100vh; }
+.ops .mono { font-family: var(--ops-mono); font-variant-numeric: tabular-nums slashed-zero; }
+.ops .muted { color: var(--ops-fg3); }
+
+/* ── 헤더 + 툴바 ── */
+.ops-head { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--ops-line); }
+.ops-head-in { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 24px; flex-wrap: wrap; }
+.ops-title { margin: 0 16px 0 0; font-size: 18px; font-weight: 600; color: var(--ops-fg); white-space: nowrap; }
+.ops-sep { width: 1px; height: 20px; background: var(--ops-line); margin: 0 4px; }
+.ops-label { font-size: 12px; color: var(--ops-fg2); white-space: nowrap; }
+.ops-spacer { flex: 1; }
+
+.ops-input {
+  height: 32px; padding: 0 8px; min-width: 132px;
+  border: 1px solid var(--ops-line); border-radius: 6px; background: #fff; color: var(--ops-fg);
+  font-family: var(--ops-mono); font-size: 13px; font-variant-numeric: tabular-nums; outline: none;
+}
+.ops-input:focus { border-color: var(--ops-accent); box-shadow: 0 0 0 2px var(--ops-accent-tint); }
+
+.ops-btn {
+  height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--ops-line); border-radius: 6px; background: #fff; color: var(--ops-fg);
+  font-family: var(--ops-sans); font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+  transition: background-color 80ms, border-color 80ms;
+}
+.ops-btn:hover { background: var(--ops-hover); border-color: oklch(86% 0.008 255); }
+.ops-btn svg { width: 14px; height: 14px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ops-btn.primary { background: var(--ops-accent); border-color: var(--ops-accent); color: #fff; }
+.ops-btn.primary:hover { background: oklch(50% 0.13 255); }
+.ops-btn.danger { color: var(--ops-bad); }
+.ops-btn:focus-visible { outline: 2px solid var(--ops-accent); outline-offset: 1px; }
+
+/* ── 페이지 ── */
+.ops-page { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ── 지표 스트립: 첫 칸이 핵심 지표 ── */
+.ops-kpi { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); background: #fff; border: 1px solid var(--ops-line); border-radius: 8px; }
+.ops-kpi > div { padding: 12px 16px; border-left: 1px solid var(--ops-line2); min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.ops-kpi > div:first-child { border-left: 0; }
+.ops-kpi .kpi-label { font-size: 12px; font-weight: 500; color: var(--ops-fg2); }
+.ops-kpi .kpi-value { font-family: var(--ops-mono); font-size: 22px; font-weight: 500; line-height: 1.2; color: var(--ops-fg); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ops-kpi .kpi-value.text { font-family: var(--ops-sans); font-size: 18px; }
+.ops-kpi .kpi-sub { font-size: 12px; color: var(--ops-fg3); }
+.ops-kpi .hero .kpi-label { color: var(--ops-fg); font-weight: 600; }
+.ops-kpi .hero .kpi-value { font-size: 28px; }
+.ops-kpi .kpi-value.bad { color: var(--ops-bad); }
+
+/* ── 표 카드 ── */
+.ops-card { background: #fff; border: 1px solid var(--ops-line); border-radius: 8px; overflow: hidden; }
+.ops-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--ops-line); }
+.ops-card-head h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ops-fg); }
+.ops-card-head .note { font-size: 12px; color: var(--ops-fg3); }
+.ops-card-foot { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; border-top: 1px solid var(--ops-line); font-size: 12px; color: var(--ops-fg3); }
+.ops-card-foot strong { font-family: var(--ops-mono); font-weight: 500; color: var(--ops-fg); font-variant-numeric: tabular-nums; }
+
+/* ── Tabulator ── */
+.ops-table.tabulator, .ops-table .tabulator { border: 0 !important; border-radius: 0 !important; background: #fff !important; font-family: var(--ops-sans) !important; font-size: 13px !important; box-shadow: none !important; }
+.ops-table .tabulator-tableholder { background: #fff !important; }
+.ops-table .tabulator-header { background: #fff !important; border-bottom: 1px solid var(--ops-line) !important; color: var(--ops-fg2) !important; }
+.ops-table .tabulator-col, .ops-table .tabulator-col-group-cols .tabulator-col, .ops-table .tabulator-col.tabulator-col-group {
+  background: #fff !important; border-right: 1px solid var(--ops-line2) !important; color: var(--ops-fg2) !important;
+  font-size: 12px !important; font-weight: 500 !important; text-transform: none !important; letter-spacing: 0 !important;
+}
+.ops-table .tabulator-col.tabulator-col-group > .tabulator-col-content { border-bottom: 1px solid var(--ops-line2); }
+.ops-table .tabulator-col-title { padding: 2px 4px !important; }
+.ops-table .tabulator-col .tabulator-col-content { padding: 6px 8px !important; }
+.ops-table .tabulator-col:hover { background: var(--ops-hover) !important; }
+.ops-table .tabulator-row { min-height: 36px !important; border-bottom: 1px solid var(--ops-line2) !important; background: #fff; transition: background-color 80ms !important; }
+.ops-table .tabulator-row.tabulator-row-even { background: #fff; }
+.ops-table .tabulator-row:hover { background: var(--ops-hover) !important; }
+.ops-table .tabulator-row.row_select, .ops-table .tabulator-row.tabulator-selected { background: var(--ops-accent-tint) !important; box-shadow: inset 2px 0 0 var(--ops-accent) !important; }
+.ops-table .tabulator-cell { height: 36px !important; padding: 0 8px !important; line-height: 36px !important; border-right: 1px solid var(--ops-line2) !important; color: var(--ops-fg); }
+.ops-table .tabulator-placeholder span { color: var(--ops-fg3) !important; font-size: 13px !important; font-weight: 400 !important; }
+
+/* 셀 표시 */
+.ops .c-lot { font-family: var(--ops-mono); font-size: 12px; font-weight: 500; color: var(--ops-fg); font-variant-numeric: tabular-nums slashed-zero; }
+.ops .c-time { font-family: var(--ops-mono); font-size: 12px; color: var(--ops-fg2); font-variant-numeric: tabular-nums; }
+.ops .c-num { font-family: var(--ops-mono); font-weight: 500; color: var(--ops-fg); font-variant-numeric: tabular-nums; }
+.ops .c-none { color: var(--ops-line); }
+.ops .st { display: inline-flex; align-items: center; gap: 6px; font-family: var(--ops-mono); font-size: 12px; font-weight: 500; }
+.ops .st i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.ops .st.bad { color: var(--ops-bad); } .ops .st.ok { color: var(--ops-ok); } .ops .st.off { color: var(--ops-fg3); }
+.ops .st.off i { background: var(--ops-line); }
+
+/* ── 모달 ── */
+.modal-overlay, .pumbun-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500; align-items: center; justify-content: center;
+  background: oklch(20% 0.01 255 / 0.4); opacity: 0; transition: opacity 150ms;
+}
+.pumbun-overlay { z-index: 600; }
+.modal-overlay.show, .pumbun-overlay.show { display: flex; opacity: 1; }
+.modal-box, .pumbun-box {
+  background: #fff; border: 1px solid var(--ops-line); border-radius: 8px; width: 640px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16); padding: 0; font-family: var(--ops-sans);
+}
+.pumbun-box { width: 680px; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--ops-line); }
+.modal-head h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ops-fg); }
+.modal-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: var(--ops-fg2); font-size: 13px; }
+.modal-close:hover { background: var(--ops-hover); }
+.modal-body { padding: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-group { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--ops-fg2); }
+.form-input, .form-select {
+  width: 100%; height: 32px; padding: 0 8px; border: 1px solid var(--ops-line); border-radius: 6px; background: #fff;
+  color: var(--ops-fg); font-family: var(--ops-sans); font-size: 13px; outline: none;
+}
+.form-input.mono { font-family: var(--ops-mono); }
+.form-input:focus, .form-select:focus { border-color: var(--ops-accent); box-shadow: 0 0 0 2px var(--ops-accent-tint); }
+.form-input[type="number"] { -moz-appearance: textfield; font-family: var(--ops-mono); }
+.radio-row { display: flex; gap: 8px; }
+.radio-item { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--ops-line); border-radius: 6px; cursor: pointer; font-family: var(--ops-mono); font-size: 13px; }
+.radio-item:has(input:checked) { border-color: var(--ops-accent); background: var(--ops-accent-tint); color: var(--ops-accent); }
+.radio-item input { margin: 0; accent-color: var(--ops-accent); }
+.input-with-btn { display: flex; gap: 8px; }
+.input-with-btn .form-input { flex: 1; }
+.modal-btn-row { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--ops-line); }
+.modal-btn-row .ops-btn { min-width: 80px; justify-content: center; }
+.pumbun-search-row { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--ops-line); flex-wrap: wrap; }
+.pumbun-search-row .form-input { flex: 1; min-width: 120px; }
+.pumbun-box .ops-table { padding: 0; }

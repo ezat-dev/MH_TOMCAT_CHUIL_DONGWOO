@@ -10,14 +10,20 @@
 	<%@include file="../include/pluginpage.jsp" %>    
     <jsp:include page="../include/tabBar.jsp"/>
 </head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
     <style>
 :root {
-  --bg:#f3f5f8; --line:#e3e8ef; --line2:#eef1f5;
-  --ink:#0f172a; --ink2:#334155; --mute:#64748b; --mute2:#94a3b8; --accent:#2563eb;
+  --bg:oklch(98% 0.003 255); --line:oklch(91.5% 0.006 255); --line2:oklch(95.5% 0.004 255);
+  --ink:oklch(24% 0.012 255); --ink2:oklch(34% 0.012 255); --mute:oklch(46% 0.012 255); --mute2:oklch(64% 0.01 255); --accent:oklch(55% 0.13 255);
+  --sans:"IBM Plex Sans KR","Pretendard","Malgun Gothic","맑은 고딕",sans-serif;
+  --mono:"IBM Plex Mono",Consolas,"Malgun Gothic",monospace;
 }
 html, body { height:100%; margin:0; background:var(--bg); overflow:hidden; }
-body { font-family:"Pretendard","Malgun Gothic","맑은 고딕",sans-serif; color:var(--ink); font-size:13px; }
-.num { font-variant-numeric:tabular-nums; }
+body { font-family:var(--sans); color:var(--ink); font-size:13px; }
+.num { font-family:var(--mono); font-variant-numeric:tabular-nums slashed-zero; }
+.s-v.num { font-family:var(--sans); font-variant-numeric:tabular-nums; }
 
 /* 상단 바 */
 .topbar { background:#fff; border-bottom:1px solid var(--line); }
@@ -66,6 +72,9 @@ td.day .today { display:inline-block; margin-left:8px; font-size:11px; font-weig
 .cnt .tr { width:120px; height:6px; background:var(--line2); border-radius:3px; overflow:hidden; }
 .cnt .tr i { display:block; height:100%; background:#94a3b8; border-radius:3px; }
 .lot { color:var(--mute); }
+#tablelot_report { table-layout:fixed; }
+td.nm { max-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--ink2); }
+td.nm .more { margin-left:6px; font-size:12px; color:var(--mute2); }
 .lot em { font-style:normal; color:var(--mute2); margin:0 6px; }
 td.act { text-align:right; }
 .preview-btn, .save-btn { height:30px; padding:0 12px; border-radius:6px; font-size:12.5px; font-weight:600; font-family:inherit;
@@ -111,11 +120,13 @@ td.act { text-align:right; }
       <table id="tablelot_report">
         <thead>
           <tr>
-            <th style="width:60px">No</th>
-            <th>작업일</th>
-            <th>LOT 수</th>
-            <th>LOT 범위</th>
-            <th class="r">작업일보</th>
+            <th style="width:56px">No</th>
+            <th style="width:200px">작업일</th>
+            <th style="width:200px">LOT 수</th>
+            <th>제품명</th>
+            <th style="width:22%">거래처</th>
+            <th style="width:280px">LOT 범위</th>
+            <th class="r" style="width:220px">작업일보</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -185,6 +196,16 @@ function renderSummary(arr){
     $("#listSub").text(arr.length ? "총 " + arr.length + "일" : "");
 }
 
+// 쉼표 구분 이름 목록 → "앞 2개 외 N" (전체 목록은 툴팁)
+function nameCell(csv){
+    var list = String(csv || "").split(",").filter(function(s){ return s; });
+    var $td = $("<td class='nm'></td>").attr("title", list.join(", "));
+    if(!list.length) return $td.text("-");
+    $td.text(list.slice(0, 2).join(", "));
+    if(list.length > 2) $td.append($("<span class='more'></span>").text("외 " + (list.length - 2)));
+    return $td;
+}
+
 function fetchlot_report(){
     $.ajax({
         url: "/line/productionManagement/work_report/list",
@@ -198,7 +219,7 @@ function fetchlot_report(){
             var $tbody = $("#tablelot_report tbody").empty();
             renderSummary(arr || []);
             if(!arr || arr.length === 0){
-                $tbody.append('<tr class="empty"><td colspan="5">조회된 데이터가 없습니다.</td></tr>');
+                $tbody.append('<tr class="empty"><td colspan="7">조회된 데이터가 없습니다.</td></tr>');
                 return;
             }
 
@@ -216,6 +237,8 @@ function fetchlot_report(){
                           (r.w_date === todayStr ? "<span class='today'>작업중</span>" : "") + "</td>");
                 tr.append("<td><div class='cnt'><b class='num'>"+ cnt +"</b><span class='tr'><i style='width:" +
                           Math.max(3, cnt / maxCnt * 100) + "%'></i></span></div></td>");
+                tr.append(nameCell(r.item_names));
+                tr.append(nameCell(r.cust_names));
                 tr.append("<td class='lot num'>"+ (r.min_w_ci_lot || "") + "<em>~</em>" + (r.max_w_ci_lot || "") +"</td>");
 
                 var previewBtn = $("<button class='preview-btn' title='미리보기'>미리보기</button>");

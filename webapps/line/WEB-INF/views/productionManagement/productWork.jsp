@@ -24,7 +24,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
 body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  -webkit-font-smoothing:antialiased;overflow:hidden;display:flex;flex-direction:column;}
 .num{font-variant-numeric:tabular-nums;}
 
 /* ── 상단 필터바 ── */
@@ -51,7 +51,7 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .btn-primary:hover{background:#1d4ed8;}
 
 /* ── 페이지 레이아웃 ── */
-.page{height:calc(100vh - 52px);min-height:620px;padding:14px 20px;display:flex;flex-direction:column;gap:12px;}
+.page{flex:1;min-height:0;padding:14px 20px;display:flex;flex-direction:column;gap:12px;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
 .card-head{height:42px;padding:0 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .card-title{font-size:13px;font-weight:700;}
@@ -84,7 +84,8 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .legend i{width:10px;height:10px;border-radius:2px;display:inline-block;}
 
 .table-card{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
-#tableWrap{flex:1;min-height:0;}
+#tableWrap{flex:1;min-height:0;position:relative;}
+#tableWrap > #tableproduct_report{position:absolute;inset:0;}
 .card-foot{height:34px;padding:0 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;
   font-size:12px;color:var(--text-3);flex-shrink:0;background:var(--subtle);font-variant-numeric:tabular-nums;}
 .card-foot b{color:var(--text);font-weight:600;}
@@ -401,7 +402,7 @@ function updateCount(){
 function numFmt(cell){ var v = cell.getValue(); return (v===''||v==null) ? '' : fmt(v); }
 function initProductTable(){
   productTable = new Tabulator("#tableproduct_report", {
-    height: Math.max(240, document.getElementById('tableWrap').clientHeight) + 'px',
+    height: '100%',
     layout: "fitColumns",
     ajaxURL: "/line/productionManagement/product_report/list",
     ajaxConfig: "POST",
@@ -486,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function(){
   window.addEventListener('resize', function(){
     clearTimeout(rt);
     rt = setTimeout(function(){
-      if(productTable) productTable.setHeight(Math.max(240, document.getElementById('tableWrap').clientHeight));
+      if(productTable) productTable.redraw();
       if(dailyChart) dailyChart.reflow();
     }, 120);
   });

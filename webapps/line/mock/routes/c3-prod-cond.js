@@ -332,7 +332,14 @@
     return {
       data: days.map(function (d, i) {
         var os = all.filter(function (o) { return o.w_date === d && o.d370; }).sort(function (a, b) { return a.d370.localeCompare(b.d370); });
-        return { idx: i + 1, w_date: d, work_count: os.length, min_w_ci_lot: os.length ? os[0].w_ci_lot : '', max_w_ci_lot: os.length ? os[os.length - 1].w_ci_lot : '' };
+        // 제품명·거래처: 해당 일자 LOT 의 고유값을 LOT 많은 순으로 (DB 의 STRING_AGG 결과와 같은 쉼표 구분 문자열)
+        function agg(k) {
+          var c = {};
+          os.forEach(function (o) { if (o[k]) c[o[k]] = (c[o[k]] || 0) + 1; });
+          return Object.keys(c).sort(function (a, b) { return c[b] - c[a]; }).join(',');
+        }
+        return { idx: i + 1, w_date: d, work_count: os.length, min_w_ci_lot: os.length ? os[0].w_ci_lot : '', max_w_ci_lot: os.length ? os[os.length - 1].w_ci_lot : '',
+          item_names: agg('item_name'), cust_names: agg('cust_name') };
       })
     };
   });

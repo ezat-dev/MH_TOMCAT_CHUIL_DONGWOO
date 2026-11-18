@@ -12,461 +12,197 @@
   <jsp:include page="../include/tabBar.jsp"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/line/css/opsList/ops-list.css">
 
   <style>
-    /* ── 기본 리셋 ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ===== 데모: 작업지시관리 — 고밀도 운영 화면 (공통 ops-list.css + 이 화면 전용 규칙) ===== */
+    html, body.ops { height: 100%; }
+    body.ops { display: flex; flex-direction: column; overflow: hidden; line-height: 1.5; }
+    .ops-head { flex-shrink: 0; }
+    .ops-page { flex: 1; min-height: 0; }
+    .ops-input.dayselect { width: 120px; min-width: 0; }
+    .tb-range { color: var(--ops-fg3); }
 
-    :root {
-      --bg:        #eaecf0;
-      --surface:   #ffffff;
-      --surface2:  #f4f5f7;
-      --border:    #d0d4dc;
-      --border-dk: #b0b6c2;
-      --text-p:    #1a1e27;
-      --text-s:    #4a5060;
-      --text-m:    #8a919e;
+    /* 표 카드: 남은 높이를 채우고 표 안에서만 스크롤 */
+    .ht-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .ht-card #dataTable { flex: 1; min-height: 0; }
+    .ops-table .tabulator-header-filter input {
+      height: 24px !important; padding: 0 8px !important; margin-top: 4px;
+      border: 1px solid var(--ops-line) !important; border-radius: 4px !important; background: #fff !important;
+      font-family: var(--ops-sans) !important; font-size: 12px !important; font-weight: 400 !important; color: var(--ops-fg) !important;
+    }
+    .ops-table .tabulator-header-filter input:focus { border-color: var(--ops-accent) !important; outline: none !important; }
+    .ops-table .tabulator-header-filter input::placeholder { color: var(--ops-fg3); }
+    .ops-table .tabulator-cell.ht-num { text-align: right !important; }
+    .ops .c-lot.ri { color: var(--ops-warn); }
+    .ops .ht-sub { margin-left: 6px; font-size: 11px; color: var(--ops-fg3); }
+    .ops .st.run { color: var(--ops-accent); }
+    .ops .st.pend { color: var(--ops-fg3); }
+    .ops .st.pend i { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ops-fg3); }
 
-      /* 포인트: 네이비/짙은 청색 — 공장/산업 현장의 신뢰감 */
-      --navy:      #1e3a5f;
-      --navy-md:   #2c5282;
-      --navy-lt:   #ebf0f8;
-      --accent:    #2b5ea7;
-
-      /* 상태 색상 — 튀지 않게 */
-      --green:     #2d6a4f;
-      --green-lt:  #edf7f1;
-      --red:       #9b2335;
-      --red-lt:    #fdf1f2;
-      --amber:     #7d5a1a;
-      --amber-lt:  #fdf6e7;
-      --slate:     #3d4a5c;
-
-      --shadow-sm: 0 1px 4px rgba(0,0,0,.10);
-      --shadow-md: 0 3px 12px rgba(0,0,0,.13);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,.18);
-
-      --r:    6px;
-      --r-lg: 8px;
-      --ease: .13s ease;
-    }
-
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: var(--bg);
-      color: var(--text-p);
-      font-size: 13px;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* ─────────── TOPBAR ─────────── */
-    .topbar {
-      position: sticky; top: 0; z-index: 200;
-      background: var(--navy);
-      border-bottom: 2px solid var(--navy-md);
-      box-shadow: 0 2px 8px rgba(0,0,0,.25);
-    }
-    .topbar-inner {
-      max-width: 1820px; margin: 0 auto;
-      height: 52px; padding: 0 20px;
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    }
-
-    .tb-title {
-      font-size: 13px; font-weight: 800; letter-spacing: -.2px;
-      color: #ffffff; white-space: nowrap;
-      display: flex; align-items: center; gap: 8px; margin-right: 8px;
-    }
-    .tb-title-icon {
-      width: 26px; height: 26px; border-radius: 4px;
-      background: rgba(255,255,255,.15);
-      border: 1px solid rgba(255,255,255,.25);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px;
-    }
-
-    .tb-div { width:1px; height:18px; background:rgba(255,255,255,.2); flex-shrink:0; }
-
-    .tb-label {
-      font-size: 11px; font-weight: 700;
-      color: rgba(255,255,255,.7); white-space: nowrap;
-    }
-
-    /* 날짜 입력 */
-    .ctrl {
-      height: 32px; padding: 0 10px;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: var(--r);
-      background: rgba(255,255,255,.12);
-      color: #ffffff;
-      font-size: 12px; font-family: inherit; font-weight: 600;
-      outline: none; letter-spacing: .3px;
-      transition: border-color var(--ease), background var(--ease);
-    }
-    .ctrl:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.20); }
-    .ctrl::placeholder { color: rgba(255,255,255,.4); font-weight: 400; }
-
-    /* 버튼 */
-    .btn {
-      height: 32px; padding: 0 13px; border-radius: var(--r);
-      font-size: 12px; font-weight: 700; font-family: inherit;
-      display: inline-flex; align-items: center; gap: 5px;
-      cursor: pointer; border: 1px solid transparent;
-      transition: filter var(--ease), background var(--ease), box-shadow var(--ease);
-      white-space: nowrap; user-select: none;
-    }
-    .btn:active  { filter: brightness(.92); }
-    .btn:hover   { filter: brightness(1.08); }
-    .btn img     { width: 14px; height: 14px; opacity: .9; }
-    .btn svg     { width: 13px; height: 13px; flex-shrink: 0; }
-
-    .btn-search { background: #3d6494;    color: #fff; border-color: #2e5280; }
-    .btn-insert { background: #2d6a4f;    color: #fff; border-color: #235a40; }
-    .btn-delete { background: rgba(255,255,255,.08); color: #ffb3ba; border-color: rgba(255,100,100,.35); }
-    .btn-delete:hover { background: rgba(155,35,53,.35); }
-    .btn-re     { background: #6b4e1a;    color: #fde8b0; border-color: #5a3f12; }
-    .btn-pdf    { background: #4a3580;    color: #e0d4ff; border-color: #3a2a6a; }
-    .btn-excel  { background: #1f5c3a;    color: #b8f0d0; border-color: #174d30; }
-
-    /* 행수 배지 */
-    .row-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 3px 10px; border-radius: 3px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.18);
-      font-size: 11px; font-weight: 700;
-      color: rgba(255,255,255,.75);
-      font-variant-numeric: tabular-nums;
-    }
-    .badge-dot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: #7ecca0;
-      animation: blink 2.5s infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    /* ─────────── PAGE ─────────── */
-    .page-wrap { max-width: 1820px; margin: 0 auto; padding: 16px 20px 28px; }
-
-    /* ─────────── CARD ─────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-    .card-header {
-      padding: 10px 16px;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .card-title {
-      font-size: 12px; font-weight: 800; color: var(--text-p);
-      display: flex; align-items: center; gap: 7px;
-    }
-    .card-title::before {
-      content:''; width: 3px; height: 13px; border-radius: 2px;
-      background: var(--navy-md); display: inline-block;
-    }
-    .card-hint { font-size: 11px; color: var(--text-m); }
-
-    /* ─────────── TABULATOR ─────────── */
-    #dataTable { padding: 10px; }
-    .tabulator { border: none !important; font-size: 13px !important; font-family: 'Noto Sans KR', sans-serif !important; }
-    .tabulator .tabulator-header { background: #f0f2f6 !important; border-bottom: 2px solid #c8cdd8 !important; }
-    .tabulator .tabulator-header .tabulator-col {
-      background: #f0f2f6 !important;
-      border-right: 1px solid #d8dce6 !important;
-      color: var(--text-s) !important;
-      font-size: 11px !important; font-weight: 800 !important;
-    }
-    .tabulator .tabulator-header .tabulator-col:last-child { border-right: none !important; }
-    .tabulator-row { border-bottom: 1px solid #ebeef4 !important; }
-    .tabulator-row:hover { background: #f5f7fb !important; }
-    .tabulator-row.row_select {
-      background: var(--navy-lt) !important;
-      border-left: 3px solid var(--navy-md) !important;
-    }
-    .tabulator-cell { color: var(--text-p) !important; }
-    .tabulator .tabulator-header-filter input {
-      height: 25px !important; font-size: 12px !important; border-radius: 4px !important;
-      border: 1px solid var(--border) !important; padding: 0 7px !important; background: #fff !important;
-    }
-    .tabulator .tabulator-header-filter input:focus {
-      border-color: var(--navy-md) !important; outline: none !important;
-    }
-
-    /* LOT 태그 — 단정하게 */
-    .tag-lot {
-      display: inline-block; padding: 1px 8px; border-radius: 3px;
-      font-size: 11px; font-weight: 700; letter-spacing: .3px;
-      font-family: 'Courier New', monospace;
-    }
-    .tag-ci { background: #eaf0f9; color: var(--navy-md); border: 1px solid #c0d0e8; }
-    .tag-ri { background: var(--amber-lt); color: var(--amber); border: 1px solid #e8d4a0; }
-
-    /* ─────────── 모달 공통 ─────────── */
+    /* ── 모달 공통 (작업 지시서 · 제품 선택) ── */
     .modal-ov {
-      display: none; position: fixed; inset: 0;
-      background: rgba(10,18,30,.60);
-      z-index: 9000; align-items: center; justify-content: center; padding: 20px;
+      display: none; position: fixed; inset: 0; z-index: 9000; padding: 24px;
+      align-items: center; justify-content: center; background: oklch(20% 0.01 255 / 0.4);
     }
     .modal-ov.show { display: flex; }
-
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--border-dk);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-lg);
-      padding: 0;
-      position: relative; overflow: hidden;
-      animation: slideIn .18s ease;
+    .ops .modal-box {
+      width: 560px; max-width: 95vw; max-height: 90vh; padding: 0; overflow: hidden;
+      display: flex; flex-direction: column;
+      background: #fff; border: 1px solid var(--ops-line); border-radius: 8px; box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16);
     }
-    @keyframes slideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
-
-    /* 모달 상단 헤더 바 */
-    .modal-titlebar {
-      background: var(--navy);
-      padding: 12px 48px 12px 18px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .modal-titlebar-icon {
-      width: 28px; height: 28px; border-radius: 4px;
-      background: rgba(255,255,255,.15);
-      border: 1px solid rgba(255,255,255,.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; flex-shrink: 0;
-    }
-    .modal-titlebar-text { flex: 1; }
-    .modal-titlebar-title {
-      font-size: 13px; font-weight: 800; color: #ffffff; letter-spacing: -.2px;
-    }
-    .modal-titlebar-sub { font-size: 10px; color: rgba(255,255,255,.55); margin-top: 1px; }
-    .modal-titlebar.re-bar { background: #5a3f12; }
-
-    .modal-body { padding: 20px 20px 18px; }
-
-    /* 닫기 */
+    .modal-titlebar { flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--ops-line); }
+    .modal-titlebar-icon { display: none; }
+    .modal-titlebar-text { flex: 1; min-width: 0; }
+    .modal-titlebar-title { font-size: 15px; font-weight: 600; color: var(--ops-fg); display: flex; align-items: center; gap: 8px; }
+    .modal-titlebar-sub { font-size: 12px; color: var(--ops-fg3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .modal-titlebar.re-bar .modal-titlebar-title::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ops-warn); }
     .mclose {
-      position: absolute; right: 12px; top: 10px;
-      width: 28px; height: 28px; border-radius: 4px;
-      border: 1px solid rgba(255,255,255,.2);
-      background: rgba(255,255,255,.10);
-      color: rgba(255,255,255,.8); cursor: pointer;
-      font-size: 16px; font-weight: 700; line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      transition: background var(--ease), color var(--ease);
+      width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      border: 0; border-radius: 6px; background: transparent; color: var(--ops-fg2); font-size: 18px; line-height: 1; cursor: pointer;
     }
-    .mclose:hover { background: rgba(155,35,53,.5); color: #fff; }
+    .mclose:hover { background: var(--ops-hover); color: var(--ops-fg); }
+    #corrForm { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .ops .modal-body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; }
+    .modal-footer { flex-shrink: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--ops-line); }
+    .modal-footer .ops-btn { min-width: 80px; justify-content: center; }
 
-    /* 폼 레이아웃 */
-    .form-section { margin-bottom: 14px; }
-    .sec-label {
-      font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase;
-      color: var(--text-m); margin-bottom: 9px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
-    .sec-label.amber-sec { color: var(--amber); }
-    .sec-label.amber-sec::after { background: linear-gradient(90deg, #e8d4a0, var(--border)); }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    .form-group.full { grid-column: 1 / -1; }
-
-    .f-label { font-size: 11px; font-weight: 700; color: var(--text-s); }
-    .f-label .req  { color: var(--red); margin-left: 2px; }
-    .f-label .hint { color: var(--accent); font-weight: 700; }
-
-
+    .form-section + .form-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ops-line2); }
+    .sec-label { margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--ops-fg2); display: flex; align-items: center; gap: 6px; }
+    .sec-label.amber-sec::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ops-warn); }
+    .f-label { font-size: 12px; font-weight: 500; color: var(--ops-fg2); }
+    .f-label .req { color: var(--ops-bad); margin-left: 2px; }
+    .f-label .hint { color: var(--ops-fg3); font-weight: 400; margin-left: 4px; }
     .f-input {
-      height: 36px; padding: 0 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      background: var(--surface2);
-      font-size: 12px; font-family: inherit; color: var(--text-p);
-      outline: none;
-      transition: border-color var(--ease), box-shadow var(--ease);
+      width: 100%; height: 32px; padding: 0 8px; border: 1px solid var(--ops-line); border-radius: 6px; background: #fff;
+      color: var(--ops-fg); font-family: var(--ops-sans); font-size: 13px; outline: none;
     }
-    .f-input:focus { border-color: var(--navy-md); box-shadow: 0 0 0 2px rgba(44,82,130,.15); background: #fff; }
-    .f-input::placeholder { color: var(--text-m); }
-    .f-input[readonly] { background: #f0f2f5; color: var(--text-s); cursor: not-allowed; }
+    .f-input.mono { font-family: var(--ops-mono); font-variant-numeric: tabular-nums slashed-zero; }
+    .f-input.num { text-align: right; }
+    .f-input:focus { border-color: var(--ops-accent); box-shadow: 0 0 0 2px var(--ops-accent-tint); }
+    .f-input::placeholder { color: var(--ops-fg3); }
+    .f-input[readonly] { background: var(--ops-bg); color: var(--ops-fg2); cursor: default; }
+    .f-input.clickable { cursor: pointer; background: #fff; color: var(--ops-fg); padding-right: 56px;
+      background-image: linear-gradient(var(--ops-line), var(--ops-line)); background-size: 1px 20px; background-position: calc(100% - 48px) center; background-repeat: no-repeat; }
+    .f-input.clickable:hover { border-color: oklch(80% 0.03 255); }
+    .pick-wrap { position: relative; }
+    .pick-wrap::after { content: "선택"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 500; color: var(--ops-accent); pointer-events: none; }
+    .mbtn-save-re { background: var(--ops-accent); border-color: var(--ops-accent); color: #fff; }
 
-    /* 품번 클릭 */
-    .f-input.clickable {
-      cursor: pointer !important;
-      border-color: #a0b8d8;
-      background: #f0f5fb !important;
-      color: var(--text-p) !important;
-    }
-    .f-input.clickable:hover {
-      border-color: var(--navy-md);
-      background: var(--navy-lt) !important;
-    }
-
-    /* 모달 버튼 */
-    .modal-footer { display: flex; gap: 8px; padding-top: 0px; border-top: 1px solid var(--border); margin-top: 16px; }
-    .modal-footer .mbtn { flex:1; height: 38px; justify-content: center; font-size: 12px; border-radius: var(--r); }
-    .mbtn-save {
-      background: var(--navy); color: #fff; border-color: #162e4d;
-      box-shadow: 0 2px 6px rgba(30,58,95,.30);
-    }
-    .mbtn-save:hover { background: var(--navy-md); }
-    .mbtn-save-re {
-      background: #6b4e1a; color: #fde8b0; border-color: #5a3f12;
-      box-shadow: 0 2px 6px rgba(107,78,26,.30);
-    }
-    .mbtn-cancel {
-      background: var(--surface2); color: var(--text-s); border-color: var(--border);
-    }
-    .mbtn-cancel:hover { background: #e8eaef; }
-
-    /* ─── 제품 선택 모달 ─── */
-    #pcodeModal { z-index: 10000; align-items: flex-start; overflow-y: auto; }
-    .pcode-box { width: 98vw; max-width: 1780px; margin: 20px auto; }
-    .pcode-search {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-      padding: 12px 0 13px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
-    }
-    .pcode-search .ctrl-body {
-      height: 32px; padding: 0 10px;
-      border: 1px solid var(--border); border-radius: var(--r);
-      background: var(--surface2); color: var(--text-p);
-      font-size: 12px; font-family: inherit; outline: none; width: 190px;
-    }
-    .pcode-search .ctrl-body:focus { border-color: var(--navy-md); }
-    .pcode-lbl { font-size: 11px; font-weight: 700; color: var(--text-s); white-space: nowrap; }
-
-    /* pcodeTabu 탭 오버라이드 */
-    #pcodeTabu .tabulator-row:hover { background: #f2f6fc !important; }
-    #pcodeTabu .tabulator-row.row_select { background: var(--navy-lt) !important; border-left: 3px solid var(--navy-md) !important; }
+    /* 제품 선택 모달 */
+    #pcodeModal { z-index: 10000; }
+    .ops .pcode-box { width: 98vw; max-width: 1780px; }
+    .pcode-search { flex-shrink: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--ops-line); }
+    .pcode-lbl { font-size: 12px; color: var(--ops-fg2); white-space: nowrap; }
+    .pcode-search .ctrl-body { width: 180px; min-width: 0; font-family: var(--ops-sans); }
+    .pcode-search .ctrl-body + .pcode-lbl { margin-left: 8px; }
+    .pcode-body { flex: 1; min-height: 0; padding: 0; overflow: hidden; }
+    #pcodeTabu .tabulator-col-title { white-space: normal !important; text-overflow: clip !important; line-height: 1.3; }
 
     /* 엑셀 로딩 */
-    #excelOverlay { display:none; position:fixed; inset:0; background:rgba(10,18,30,.50); z-index:19998; }
+    #excelOverlay { display: none; position: fixed; inset: 0; background: oklch(20% 0.01 255 / 0.3); z-index: 19998; }
     #excelLoading {
-      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      background:var(--surface); padding:26px 44px;
-      border: 1px solid var(--border-dk); border-radius: var(--r-lg);
-      box-shadow:var(--shadow-lg); font-size:13px; font-weight:700; color:var(--text-p);
-      z-index:19999; text-align:center;
-    }
-    #excelLoading::before {
-      content:''; display:block; margin:0 auto 12px; width:26px; height:26px;
-      border:3px solid var(--border); border-top:3px solid var(--navy-md);
-      border-radius:50%; animation:spin 1s linear infinite;
-    }
-    @keyframes spin { to{ transform:rotate(360deg); } }
-
-    @media(max-width:960px){
-      .topbar-inner { height:auto; padding:10px 16px; gap:7px; }
-      .page-wrap    { padding:12px 14px 24px; }
-      .form-grid    { grid-template-columns:1fr; }
+      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 19999;
+      padding: 16px 24px; background: #fff; border: 1px solid var(--ops-line); border-radius: 8px;
+      box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16); font-family: var(--ops-sans); font-size: 13px; color: var(--ops-fg);
     }
   </style>
 </head>
-<body>
+<body class="ops">
 
-<!-- ═══════════ TOPBAR ═══════════ -->
-<div class="topbar">
-  <div class="topbar-inner">
+<!-- ═══════════ 헤더 + 툴바 ═══════════ -->
+<header class="ops-head">
+  <div class="ops-head-in">
+    <h1 class="ops-title">작업지시관리</h1>
 
-    <div class="tb-title">
-      <span class="tb-title-icon">🔥</span>
-      열처리 작업이력
-    </div>
-    <div class="tb-div"></div>
-
-    <!-- ★ 날짜 단일→범위로 변경 -->
-    <span class="tb-label">작업일자</span>
-    <input type="text" class="ctrl dayselect daySet" id="w_date"
-           style="width:130px;" placeholder="YYYY-MM-DD">
+    <span class="ops-label">작업일자</span>
+    <input type="text" class="ops-input ctrl dayselect daySet" id="w_date" placeholder="YYYY-MM-DD">
     <span class="tb-range">~</span>
-    <input type="text" class="ctrl dayselect daySet" id="w_date_end"
-           style="width:130px;" placeholder="YYYY-MM-DD">
-
-    <div class="tb-div"></div>
-
-    <button class="btn btn-search select-button">
-      <img src="/line/css/tabBar/search-icon.png" alt="">조회
-    </button>
-    <button class="btn btn-insert insert-button">
-      <img src="/line/css/tabBar/add-outline.png" alt="">추가
-    </button>
-    <button class="btn btn-delete delete-button">
-      <img src="/line/css/tabBar/xDel3.png" alt="">삭제
+    <input type="text" class="ops-input ctrl dayselect daySet" id="w_date_end" placeholder="YYYY-MM-DD">
+    <button class="ops-btn btn select-button" type="button">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>조회
     </button>
 
-    <div class="tb-div"></div>
+    <span class="ops-spacer"></span>
 
-    <button class="btn btn-re re_re">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-           stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="1 4 1 10 7 10"/>
-        <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
-      </svg>재처리
+    <button class="ops-btn btn re_re" type="button" title="선택한 LOT를 RI 재처리로 등록">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>재처리
     </button>
-
-    <button class="btn btn-pdf" id="lot_pdf">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="18" x2="12" y2="12"/>
-        <line x1="9"  y1="15" x2="15" y2="15"/>
-      </svg>작업지시 PDF
+    <button class="ops-btn btn" id="lot_pdf" type="button" title="선택한 행의 작업지시서 PDF">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>작업지시 PDF
     </button>
-
-    <button class="btn btn-excel excel-button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="12" x2="12" y2="18"/>
-        <line x1="9"  y1="15" x2="15" y2="15"/>
-      </svg>Download
+    <button class="ops-btn btn excel-button" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><line x1="5" y1="20" x2="19" y2="20"/></svg>엑셀
     </button>
-
-    <div style="margin-left:auto;">
-      <span class="row-badge">
-        <span class="badge-dot"></span>
-        <span id="rowCount">0 rows</span>
-      </span>
-    </div>
-
+    <span class="ops-sep"></span>
+    <button class="ops-btn btn danger delete-button" type="button">삭제</button>
+    <button class="ops-btn btn primary insert-button" type="button">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>작업지시 등록
+    </button>
   </div>
-</div>
+</header>
 
-<!-- ═══════════ PAGE ═══════════ -->
-<div class="page-wrap">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">작업 이력 목록</div>
-      <div class="card-hint">행 클릭 → 선택 &nbsp;|&nbsp; 더블클릭 → 수정</div>
+<!-- ═══════════ 페이지 ═══════════ -->
+<main class="ops-page">
+  <!-- 요약: 첫 칸이 핵심 지표 (조회 결과로 계산, 표시 전용) -->
+  <section class="ops-kpi" aria-label="작업지시 요약">
+    <div class="hero">
+      <span class="kpi-label">진행중</span>
+      <span class="kpi-value" id="kRun">—</span>
+      <span class="kpi-sub">바코드 스캔 후 투입 종료 전</span>
     </div>
-    <div id="dataTable"></div>
-  </div>
-</div>
+    <div>
+      <span class="kpi-label">대기</span>
+      <span class="kpi-value" id="kWait">—</span>
+      <span class="kpi-sub">스캔 전 작업지시</span>
+    </div>
+    <div>
+      <span class="kpi-label">완료</span>
+      <span class="kpi-value" id="kDone">—</span>
+      <span class="kpi-sub">투입 종료</span>
+    </div>
+    <div>
+      <span class="kpi-label">재처리 (RI)</span>
+      <span class="kpi-value" id="kRe">—</span>
+      <span class="kpi-sub">조회 기간 내</span>
+    </div>
+    <div>
+      <span class="kpi-label">계획 통수 합계</span>
+      <span class="kpi-value" id="kPlan">—</span>
+      <span class="kpi-sub">통</span>
+    </div>
+  </section>
+
+  <section class="ops-card ht-card">
+    <div class="ops-card-head">
+      <h2>작업지시 목록</h2>
+      <span class="note">클릭: 선택 · 더블클릭: 수정 · 재처리와 PDF는 선택한 행 기준</span>
+    </div>
+    <div id="dataTable" class="ops-table"></div>
+    <div class="ops-card-foot">
+      <span>총 <strong id="rowCount">0</strong>건</span>
+      <span>상태: <span class="st pend"><i></i>대기</span> · <span class="st run"><i></i>진행중</span> · <span class="st ok"><i></i>완료</span></span>
+    </div>
+  </section>
+</main>
 
 <!-- ═══════════ 작업 지시서 모달 ═══════════ -->
 <div id="modalContainer" class="modal-ov">
-  <div class="modal-box" id="mainModalBox" style="width:480px; max-width:95vw;">
-
-    <button class="mclose close" type="button">&times;</button>
+  <div class="modal-box" id="mainModalBox">
 
     <div class="modal-titlebar" id="mainTitleBar">
-      <div class="modal-titlebar-icon" id="mainModalIcon">🔥</div>
+      <div class="modal-titlebar-icon" id="mainModalIcon"></div>
       <div class="modal-titlebar-text">
         <div class="modal-titlebar-title" id="mainModalTitle">작업 지시서 등록</div>
         <div class="modal-titlebar-sub"   id="mainModalSub">신규 열처리 작업을 등록합니다</div>
       </div>
+      <button class="mclose close" type="button" aria-label="닫기">&times;</button>
     </div>
 
-    <div class="modal-body">
-      <form id="corrForm" autocomplete="off">
+    <form id="corrForm" autocomplete="off">
+      <div class="modal-body">
 
         <div class="form-section">
           <div class="sec-label">기본 정보</div>
@@ -474,31 +210,31 @@
 
             <div class="form-group">
               <label class="f-label">작업일 <span class="req">*</span></label>
-              <input type="text" name="w_date" class="f-input daySet" placeholder="YYYY-MM-DD">
+              <input type="text" name="w_date" class="f-input mono daySet" placeholder="YYYY-MM-DD">
             </div>
 
             <div class="form-group">
               <label class="f-label">ERP 작지번호</label>
-              <input type="text" name="erp_jack_no" class="f-input" placeholder="ERP 작지번호">
+              <input type="text" name="erp_jack_no" class="f-input mono" placeholder="ERP 작지번호">
             </div>
 
-            <div class="form-group full">
-              <label class="f-label">품번 <span class="req">*</span>
-                <span class="hint">&nbsp;▸ 클릭하여 선택</span>
-              </label>
-              <input type="text" name="w_pnum" class="f-input clickable"
-                     readonly onclick="pcodeSelect();" placeholder="클릭하여 제품을 선택하세요">
+            <div class="form-group">
+              <label class="f-label">품번 <span class="req">*</span><span class="hint">클릭하여 제품 선택</span></label>
+              <div class="pick-wrap">
+                <input type="text" name="w_pnum" class="f-input mono clickable"
+                       readonly onclick="pcodeSelect();" placeholder="제품 선택">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="f-label">투입계획통수</label>
+              <input type="text" name="w_plan_cnt" class="f-input mono num" placeholder="통">
             </div>
 
             <div class="form-group full">
               <label class="f-label">품명</label>
               <input type="text" name="w_pname" class="f-input" readonly
                      placeholder="품번 선택 시 자동 입력">
-            </div>
-
-            <div class="form-group full">
-              <label class="f-label">투입계획통수</label>
-              <input type="text" name="w_plan_cnt" class="f-input" placeholder="통 수 입력">
             </div>
 
           </div>
@@ -509,63 +245,56 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="f-label re_text">재처리 LOT (RI)</label>
-              <input type="text" name="w_ci_lot" class="f-input" style="display:none;" placeholder="재처리 LOT">
+              <input type="text" name="w_ci_lot" class="f-input mono" style="display:none;" placeholder="재처리 LOT">
             </div>
             <div class="form-group">
               <label class="f-label">원본 LOT (CI)</label>
-              <input type="text" name="w_old_lot" class="f-input" style="display:none;" placeholder="원본 CI LOT" readonly>
+              <input type="text" name="w_old_lot" class="f-input mono" style="display:none;" placeholder="원본 CI LOT" readonly>
             </div>
           </div>
         </div>
 
         <input type="text" name="w_rcode" style="display:none;">
+      </div>
 
-        <div class="modal-footer">
-          <button type="button" id="saveCorrStatus" class="btn mbtn-save modal-footer mbtn">저장</button>
-          <button type="button" id="closeModal" class="btn mbtn-cancel modal-footer mbtn">닫기</button>
-        </div>
-
-      </form>
-    </div>
+      <div class="modal-footer">
+        <button type="button" id="closeModal" class="ops-btn btn mbtn-cancel">닫기</button>
+        <button type="button" id="saveCorrStatus" class="ops-btn btn primary mbtn-save">저장</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <!-- ═══════════ 제품 선택 모달 ═══════════ -->
-<div id="pcodeModal" class="modal-ov" style="z-index:10000; align-items:flex-start; overflow-y:auto;">
+<div id="pcodeModal" class="modal-ov">
   <div class="modal-box pcode-box">
 
-    <button class="mclose closePcodeModal" type="button">&times;</button>
-
-    <div class="modal-titlebar" style="background:#1a3a60;">
-      <div class="modal-titlebar-icon">📋</div>
+    <div class="modal-titlebar">
       <div class="modal-titlebar-text">
         <div class="modal-titlebar-title">제품 선택</div>
         <div class="modal-titlebar-sub">더블클릭하여 제품을 선택합니다</div>
       </div>
+      <button class="mclose closePcodeModal" type="button" aria-label="닫기">&times;</button>
     </div>
 
-    <div class="modal-body">
-       <div class="pcode-search">
-        <span class="pcode-lbl">거래처명</span>
-        <input type="text" id="s_cname" class="ctrl-body pcodeModalEnter" placeholder="하단 검색 이용해 주세요" >
-        <span class="pcode-lbl">품번</span>
-        <input type="text" id="s_pnum"  class="ctrl-body pcodeModalEnter" placeholder="품번">
-        <span class="pcode-lbl">품명</span>
-        <input type="text" id="s_pname" class="ctrl-body pcodeModalEnter" placeholder="품명">
-        <button type="button" class="btn btn-search" style="height:32px;" onclick="getPcodeData();">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>조회
-        </button> 
-      </div>
+    <div class="pcode-search">
+      <span class="pcode-lbl">거래처명</span>
+      <input type="text" id="s_cname" class="ops-input ctrl-body pcodeModalEnter" placeholder="아래 표 필터 이용">
+      <span class="pcode-lbl">품번</span>
+      <input type="text" id="s_pnum"  class="ops-input ctrl-body pcodeModalEnter" placeholder="품번">
+      <span class="pcode-lbl">품명</span>
+      <input type="text" id="s_pname" class="ops-input ctrl-body pcodeModalEnter" placeholder="품명">
+      <button type="button" class="ops-btn btn" onclick="getPcodeData();">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>조회
+      </button>
+    </div>
 
-      <div id="pcodeTabu"></div>
+    <div class="modal-body pcode-body">
+      <div id="pcodeTabu" class="ops-table"></div>
+    </div>
 
-      <div style="display:flex; justify-content:flex-end; margin-top:12px;">
-        <button type="button" class="btn mbtn-cancel closePcodeModal"
-                style="height:34px; width:90px; justify-content:center; border:1px solid var(--border); background:var(--surface2); color:var(--text-s);">닫기</button>
-      </div>
+    <div class="modal-footer">
+      <button type="button" class="ops-btn btn mbtn-cancel closePcodeModal">닫기</button>
     </div>
   </div>
 </div>
@@ -611,7 +340,7 @@
     $('input[name="w_old_lot"]').hide();
     $('.re_text').hide();
     $('#mainTitleBar').removeClass('re-bar');
-    $('#mainModalIcon').text('🔥');
+    $('#mainModalIcon').text('');
     $('#mainModalTitle').text('작업 지시서 등록');
     $('#mainModalSub').text('신규 열처리 작업을 등록합니다');
     $('#saveCorrStatus').removeClass('mbtn-save-re').addClass('mbtn-save');
@@ -655,7 +384,7 @@
     var d = selectedRowData;
     resetModal();
     $('#mainTitleBar').addClass('re-bar');
-    $('#mainModalIcon').text('🔄');
+    $('#mainModalIcon').text('');
     $('#mainModalTitle').text('재처리 등록');
     $('#mainModalSub').text('CI → RI 재처리 작업을 등록합니다');
     $('#saveCorrStatus').removeClass('mbtn-save').addClass('mbtn-save-re');
@@ -752,45 +481,78 @@
   /* ── LOT 포매터 ── */
   function lotFormatter(cell) {
     var v = cell.getValue() || '';
-    if (!v) return '<span style="color:#aaa">-</span>';
+    if (!v) return '<span class="c-none">—</span>';
     var isRI = v.indexOf('RI') !== -1;
-    return '<span class="tag-lot ' + (isRI ? 'tag-ri' : 'tag-ci') + '">' + v + '</span>';
+    return '<span class="c-lot' + (isRI ? ' ri' : '') + '">' + v + '</span>' + (isRI ? '<span class="ht-sub">재처리</span>' : '');
+  }
+
+  /* ── 진행 상태 (표시 전용): 스캔 전 = 대기, 스캔 후 투입 종료 전 = 진행중, 투입 종료 = 완료 ── */
+  function workState(d) {
+    if (d.x111 || d.l20) return 'done';
+    return d.w_sdatetime ? 'run' : 'wait';
+  }
+  var WORK_STATE = { wait: ['pend', '대기'], run: ['run', '진행중'], done: ['ok', '완료'] };
+  function stateFormatter(cell) {
+    var s = WORK_STATE[workState(cell.getRow().getData())];
+    return '<span class="st ' + s[0] + '"><i></i>' + s[1] + '</span>';
+  }
+  function timeFormatter(cell) {
+    var v = cell.getValue();
+    return v ? '<span class="c-time">' + v + '</span>' : '<span class="c-none">—</span>';
+  }
+  /* 시각: 작업일자와 같은 날이면 HH:mm, 다른 날이면 MM-DD HH:mm (전체 값은 툴팁, 엑셀은 원본 그대로) */
+  function clockFormatter(cell) {
+    var v = String(cell.getValue() || '');
+    if (!v) return '<span class="c-none">—</span>';
+    var m = v.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if (!m) return '<span class="c-time">' + v + '</span>';
+    var sameDay = (cell.getRow().getData().w_date || '') === m[1] + '-' + m[2] + '-' + m[3];
+    return '<span class="c-time" title="' + v + '">' + (sameDay ? '' : m[2] + '-' + m[3] + ' ') + m[4] + ':' + m[5] + '</span>';
+  }
+  function numFormatter(cell) {
+    var v = cell.getValue();
+    return (v === null || v === undefined || v === '') ? '<span class="c-none">—</span>' : '<span class="c-num">' + v + '</span>';
+  }
+  function plainFormatter(cell) {
+    var v = cell.getValue();
+    return v ? $('<span>').text(v).html() : '<span class="c-none">—</span>';
   }
 
   /* ── 메인 Tabulator ── */
   function getHeatList() {
     heatListTable = new Tabulator('#dataTable', {
-      height: '700px',
-      layout: 'fitDataFill',
+      height: '100%',
+      layout: 'fitColumns',
       headerSort: false,
       reactiveData: true,
       columnHeaderVertAlign: 'middle',
       rowVertAlign: 'middle',
-      headerHozAlign: 'center',
+      headerHozAlign: 'left',
       renderHorizontal: 'virtual',
       selectable: true,
       selectableRangeMode: 'click',
       placeholder: '조회된 데이터가 없습니다.',
       columns: [
-        { title:'작업일자',       field:'w_date',        width:120, hozAlign:'center' },
-        { title:'작업LOT',        field:'w_ci_lot',      width:158, hozAlign:'center',
-          headerFilter:'input', headerFilterPlaceholder:'LOT 검색', formatter:lotFormatter },
-        { title:'ERP_작지번호',   field:'erp_jack_no',   width:150, hozAlign:'center',
-          headerFilter:'input', headerFilterPlaceholder:'작지번호' },
-        { title:'회사명',         field:'cust_name',     width:120, hozAlign:'center',
-          headerFilter:'input', headerFilterPlaceholder:'회사명' },
-        { title:'품번',           field:'item_no',       width:215, hozAlign:'left',
-          headerFilter:'input', headerFilterPlaceholder:'품번 검색' },
-        { title:'품명',           field:'item_name',     width:215, hozAlign:'left',
-          headerFilter:'input', headerFilterPlaceholder:'품명 검색' },
-        { title:'바코드 스캔 시간', field:'w_sdatetime', width:185, hozAlign:'center' },
-        { title:'투입시간',       field:'d370',          width:185, hozAlign:'center' },
-        { title:'투입종료시간',   field:'x111',          width:185, hozAlign:'center' },
-        { title:'계획통수(통)',   field:'w_plan_cnt',    width:110, hozAlign:'center' },
-        { title:'기준장입량',     field:'charge_weight', width:115, hozAlign:'center' },
-        { title:'제품.PNG',       field:'img_url_1',     width:100, hozAlign:'center' },
-        { title:'제품.PNG',       field:'img_url_2',     width:100, hozAlign:'center' },
-        { title:'작업완료시간',   field:'l20',           width:185, hozAlign:'center' }
+        { title:'상태',           field:'w_state_view',  width:80,  formatter:stateFormatter, download:false },
+        { title:'작업일자',       field:'w_date',        width:100, formatter:timeFormatter },
+        { title:'작업 LOT',       field:'w_ci_lot',      width:176,
+          headerFilter:'input', headerFilterPlaceholder:'필터', formatter:lotFormatter },
+        { title:'ERP 작지번호',   field:'erp_jack_no',   width:136, cssClass:'c-lot',
+          headerFilter:'input', headerFilterPlaceholder:'필터' },
+        { title:'회사명',         field:'cust_name',     width:104,
+          headerFilter:'input', headerFilterPlaceholder:'필터' },
+        { title:'품번',           field:'item_no',       width:136, cssClass:'c-lot',
+          headerFilter:'input', headerFilterPlaceholder:'필터' },
+        { title:'품명',           field:'item_name',     minWidth:150,
+          headerFilter:'input', headerFilterPlaceholder:'필터' },
+        { title:'바코드 스캔',    field:'w_sdatetime',   width:104, formatter:clockFormatter },
+        { title:'투입 시작',      field:'d370',          width:104, formatter:clockFormatter },
+        { title:'투입 종료',      field:'x111',          width:104, formatter:clockFormatter },
+        { title:'계획 통수',      field:'w_plan_cnt',    width:80,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num', formatter:numFormatter },
+        { title:'기준 장입량',    field:'charge_weight', width:88,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num', formatter:numFormatter },
+        { title:'제품 이미지 1',  field:'img_url_1',     width:120, formatter:plainFormatter, tooltip:true },
+        { title:'제품 이미지 2',  field:'img_url_2',     width:120, formatter:plainFormatter, tooltip:true },
+        { title:'작업 완료',      field:'l20',           width:104, formatter:clockFormatter }
       ],
       rowClick: function (e, row) {
         $('#dataTable .tabulator-row').removeClass('row_select');
@@ -827,10 +589,26 @@
       success: function (result) {
         var rows = result.data || [];
         heatListTable.setData(rows);
-        $('#rowCount').text(rows.length + ' rows');
+        $('#rowCount').text(rows.length);
+        updateSummary(rows);
       }
     });
   }
+
+  /* ── 요약 띠 (표시 전용) ── */
+  function updateSummary(rows) {
+    var c = { wait: 0, run: 0, done: 0 }, re = 0, plan = 0;
+    rows.forEach(function (d) {
+      c[workState(d)]++;
+      if ((d.w_ci_lot || '').indexOf('RI') !== -1) re++;
+      plan += Number(d.w_plan_cnt) || 0;
+    });
+    $('#kRun').text(c.run); $('#kWait').text(c.wait); $('#kDone').text(c.done);
+    $('#kRe').text(re); $('#kPlan').text(plan.toLocaleString());
+  }
+
+  /* 창 크기 변경 시 표 높이 다시 맞춤 */
+  $(window).on('resize', function () { if (heatListTable) heatListTable.redraw(); });
 
   /* ── 제품 선택 ── */
   function pcodeSelect() {
@@ -850,21 +628,21 @@
 
   function getPcodeList() {
     pcodeTabu = new Tabulator('#pcodeTabu', {
-      height: '500px',
+      height: '60vh',
       layout: 'fitDataFill',
       headerSort: false,
       reactiveData: true,
       columnHeaderVertAlign: 'middle',
       rowVertAlign: 'middle',
-      headerHozAlign: 'center',
+      headerHozAlign: 'left',
       placeholder: '조회된 데이터가 없습니다.',
       columns: [
-        { title:'패턴ID',       field:'recipe_id',     width:100, hozAlign:'center' },
+        { title:'패턴ID',       field:'recipe_id',     width:100, cssClass:'c-lot' },
         { 
         	  title:'거래처명', 
         	  field:'cust_name', 
         	  width:130, 
-        	  hozAlign:'center',
+        	  hozAlign:'left',
         	  headerFilter:"input",
         	  headerFilterPlaceholder:"검색",
         	  headerFilterFunc:"like"
@@ -887,21 +665,21 @@
         	  headerFilterPlaceholder:"검색",
         	  headerFilterFunc:"like"
         	},
-        { title:'퀜칭1존(℃)', field:'q1_zone',       width:90,  hozAlign:'center' },
-        { title:'퀜칭2존(℃)', field:'q2_zone',       width:90,  hozAlign:'center' },
-        { title:'퀜칭3존(℃)', field:'q3_zone',       width:95,  hozAlign:'center' },
-        { title:'퀜칭4존(℃)', field:'q4_zone',       width:95,  hozAlign:'center' },
-        { title:'퀜칭5존(℃)', field:'q5_zone',       width:90,  hozAlign:'center' },
-        { title:'퀜칭속도(Hz)',field:'q_speed',       width:95,  hozAlign:'center' },
-        { title:'템퍼1존(℃)', field:'t1_zone',       width:90,  hozAlign:'center' },
-        { title:'템퍼2존(℃)', field:'t2_zone',       width:90,  hozAlign:'center' },
-        { title:'템퍼3존(℃)', field:'t3_zone',       width:90,  hozAlign:'center' },
-        { title:'템퍼4존(℃)', field:'t4_zone',       width:90,  hozAlign:'center' },
-        { title:'템퍼5존(℃)', field:'t5_zone',       width:90,  hozAlign:'center' },
-        { title:'템퍼속도(Hz)',field:'t_speed',       width:100, hozAlign:'center' },
-        { title:'CP(%)',        field:'cp',            width:78,  hozAlign:'center' },
-        { title:'장입기준(kg)',field:'charge_weight', width:105, hozAlign:'center' },
-        { title:'퀜칭요구경도',field:'quench_high',   width:105, hozAlign:'center' },
+        { title:'퀜칭1존(℃)', field:'q1_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'퀜칭2존(℃)', field:'q2_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'퀜칭3존(℃)', field:'q3_zone',       width:95,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'퀜칭4존(℃)', field:'q4_zone',       width:95,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'퀜칭5존(℃)', field:'q5_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'퀜칭속도(Hz)',field:'q_speed',       width:95,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'템퍼1존(℃)', field:'t1_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'템퍼2존(℃)', field:'t2_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'템퍼3존(℃)', field:'t3_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'템퍼4존(℃)', field:'t4_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'템퍼5존(℃)', field:'t5_zone',       width:90,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'템퍼속도(Hz)',field:'t_speed',       width:100, hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'CP(%)',        field:'cp',            width:78,  hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'장입기준(kg)',field:'charge_weight', width:105, hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
+        { title:'퀜칭요구경도',field:'quench_high',   width:105, hozAlign:'right', headerHozAlign:'right', cssClass:'ht-num c-num' },
         { title:'레시피코드',  field:'recipe_code',   width:110, hozAlign:'center', visible:false }
       ],
       rowClick: function (e, row) {

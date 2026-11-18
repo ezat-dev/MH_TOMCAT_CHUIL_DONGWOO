@@ -7,439 +7,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>알람이력</title>
-    <%@include file="../include/pluginpage.jsp" %>    
+    <%@include file="../include/pluginpage.jsp" %>
     <jsp:include page="../include/tabBar.jsp"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="/line/css/opsList/ops-list.css">
 <style>
-:root {
-  --bg:        #f0f2f7;
-  --surface:   #ffffff;
-  --surface2:  #f7f8fc;
-  --border:    #e2e6ef;
-  --text-p:    #0f172a;
-  --text-s:    #64748b;
-  --text-m:    #94a3b8;
-  --red:       #dc2626;
-  --red-light: #fee2e2;
-  --red-mid:   #fca5a5;
-  --yellow:    #d97706;
-  --yel-light: #fef3c7;
-  --green:     #16a34a;
-  --grn-light: #dcfce7;
-  --accent:    #2563eb;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 16px rgba(0,0,0,.08);
-  --radius:    12px;
-}
+/* 데모: 한 화면 고정 — 페이지 스크롤 없이 표만 스크롤 */
+html, body.ops { height: 100%; }
+body.ops { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.ops-head { flex: 0 0 auto; }
+.ops-page { flex: 1 1 auto; min-height: 0; }
+.ops-card { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+#tableAlarmTab { flex: 1 1 auto; min-height: 0; }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+.ops-input { text-align: center; min-width: 156px; }
+.tilde { color: var(--ops-fg3); }
 
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-  background: var(--bg);
-  color: var(--text-p);
-  min-height: 100vh;
-}
+/* 지표: 진행 중(핵심) / 전체 / 해제 / 기간 */
+.ops-kpi.k4 { grid-template-columns: 1.4fr repeat(3, 1fr); }
 
-/* ===================== TOPBAR ===================== */
-.topbar {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(255,255,255,.96);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-.topbar-inner {
-  max-width: 1600px; margin: 0 auto;
-  padding: 0 24px;
-  height: 54px;
-  display: flex; align-items: center; gap: 10px;
-}
-.topbar-title {
-  font-size: 14px; font-weight: 800;
-  color: var(--text-p); letter-spacing: -.3px;
-  white-space: nowrap; margin-right: 6px;
-  display: flex; align-items: center; gap: 7px;
-}
-.topbar-title .blink-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--red);
-  animation: blink 1.4s ease-in-out infinite;
-  flex-shrink: 0;
-}
-@keyframes blink {
-  0%,100% { opacity: 1; box-shadow: 0 0 0 3px rgba(220,38,38,.15); }
-  50%      { opacity: .4; box-shadow: none; }
-}
-.tb-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
-.tb-label { font-size: 12px; font-weight: 700; color: var(--text-s); white-space: nowrap; }
-.ctrl {
-  height: 32px; padding: 0 10px;
-  border: 1px solid var(--border); border-radius: 8px;
-  background: var(--surface2); color: var(--text-p);
-  font-size: 13px; font-family: 'Noto Sans KR', sans-serif;
-  outline: none; transition: border-color .15s, box-shadow .15s;
-  min-width: 155px; text-align: center;
-}
-.ctrl:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
-.tilde { color: var(--text-m); font-weight: 800; padding: 0 3px; font-size: 14px; }
-
-/* 버튼 */
-.btn {
-  height: 32px; padding: 0 13px; border-radius: 8px;
-  font-size: 12px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700;
-  display: inline-flex; align-items: center; gap: 5px;
-  cursor: pointer; transition: filter .15s, transform .08s;
-  white-space: nowrap; border: 1px solid transparent;
-}
-.btn:active { transform: translateY(1px); }
-.btn svg { width: 13px; height: 13px; flex-shrink: 0; }
-.btn-search { background: linear-gradient(135deg,#64748b,#475569); color:#fff; border-color:#475569; box-shadow:0 2px 6px rgba(71,85,105,.3); }
-.btn-excel  { background: linear-gradient(135deg,#16a34a,#15803d); color:#fff; border-color:#15803d; }
-.btn:hover  { filter: brightness(1.08); }
-
-/* ===================== 페이지 ===================== */
-.page-wrap {
-  max-width: 1600px; margin: 0 auto;
-  padding: 16px 24px 28px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-
-/* ===================== KPI 배너 ===================== */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-@media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2,1fr); } }
-
-.kpi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 18px;
-  box-shadow: var(--shadow-sm);
-  display: flex; align-items: center; gap: 14px;
-  position: relative; overflow: hidden;
-  animation: fadeUp .3s ease both;
-}
-.kpi-card::before {
-  content: ''; position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-.kpi-card.kpi-total::before  { background: linear-gradient(90deg,#64748b,#94a3b8); }
-.kpi-card.kpi-active::before { background: linear-gradient(90deg,#dc2626,#f87171); }
-.kpi-card.kpi-clear::before  { background: linear-gradient(90deg,#16a34a,#4ade80); }
-.kpi-card.kpi-today::before  { background: linear-gradient(90deg,#2563eb,#60a5fa); }
-
-.kpi-card:nth-child(1) { animation-delay:.04s; }
-.kpi-card:nth-child(2) { animation-delay:.08s; }
-.kpi-card:nth-child(3) { animation-delay:.12s; }
-.kpi-card:nth-child(4) { animation-delay:.16s; }
-
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:none; }
-}
-
-.kpi-icon {
-  width: 38px; height: 38px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.kpi-icon svg { width: 18px; height: 18px; }
-.kpi-card.kpi-total  .kpi-icon { background:#f1f5f9; color:#64748b; }
-.kpi-card.kpi-active .kpi-icon { background:var(--red-light); color:var(--red); }
-.kpi-card.kpi-clear  .kpi-icon { background:var(--grn-light); color:var(--green); }
-.kpi-card.kpi-today  .kpi-icon { background:#dbeafe; color:var(--accent); }
-
-.kpi-info { display: flex; flex-direction: column; gap: 2px; }
-.kpi-label { font-size: 11px; font-weight: 700; color: var(--text-m); text-transform: uppercase; letter-spacing: .5px; }
-.kpi-value { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-p); line-height: 1; letter-spacing: -1px; }
-.kpi-sub   { font-size: 11px; color: var(--text-m); margin-top: 2px; }
-
-/* ===================== 메인 카드 ===================== */
-.main-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  animation: fadeUp .35s .2s ease both;
-}
-.main-card-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  flex-wrap: wrap;
-}
-.main-card-title {
-  font-size: 13px; font-weight: 800; color: var(--text-p); letter-spacing: -.2px;
-}
-.header-right {
-  display: flex; align-items: center; gap: 8px;
-}
-
-/* 검색 인풋 */
-.search-input {
-  height: 30px; padding: 0 10px 0 30px;
-  border: 1px solid var(--border); border-radius: 8px;
-  background: var(--surface2); color: var(--text-p);
-  font-size: 12px; font-family: 'Noto Sans KR', sans-serif;
-  outline: none; transition: border-color .15s, box-shadow .15s;
-  width: 180px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 9px center;
-}
-.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
-
-/* 상태 필터 칩 */
+/* 상태 필터 — 아웃라인 칩 */
+.ops-card-head { align-items: center; padding: 8px 16px; }
+.head-right { display: flex; align-items: center; gap: 8px; }
 .filter-chip {
-  height: 26px; padding: 0 11px; border-radius: 20px;
-  font-size: 11px; font-weight: 700; border: 1.5px solid var(--border);
-  background: var(--surface); color: var(--text-s);
-  cursor: pointer; transition: all .15s; white-space: nowrap;
+  height: 28px; padding: 0 8px 0 12px; display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--ops-line); border-radius: 6px; background: #fff; color: var(--ops-fg2);
+  font-family: var(--ops-sans); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
+  transition: background-color 80ms, border-color 80ms;
 }
-.filter-chip.active-all    { background:#475569; border-color:#475569; color:#fff; }
-.filter-chip.active-alarm  { background:var(--red); border-color:var(--red); color:#fff; }
-.filter-chip.active-clear  { background:var(--green); border-color:var(--green); color:#fff; }
+.filter-chip:hover { background: var(--ops-hover); }
+.filter-chip.active-all, .filter-chip.active-alarm, .filter-chip.active-clear {
+  border-color: var(--ops-accent); background: var(--ops-accent-tint); color: var(--ops-accent);
+}
+.count-badge { font-family: var(--ops-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ops-fg3); min-width: 16px; text-align: right; }
+.filter-chip[class*="active-"] .count-badge { color: var(--ops-accent); }
+#chip-alarm .count-badge { color: var(--ops-bad); }
 
-/* count badge */
-.count-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 18px; height: 18px; padding: 0 5px;
-  border-radius: 9px; font-size: 10px; font-weight: 700;
-  margin-left: 4px;
+.search-input {
+  height: 28px; width: 200px; padding: 0 8px 0 28px;
+  border: 1px solid var(--ops-line); border-radius: 6px; background: #fff; color: var(--ops-fg);
+  font-family: var(--ops-sans); font-size: 12px; outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239aa1ad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 8px center;
 }
+.search-input:focus { border-color: var(--ops-accent); box-shadow: 0 0 0 2px var(--ops-accent-tint); }
 
-/* ===================== TABULATOR 커스텀 ===================== */
-.main-card #tableAlarmTab {
-  font-family: 'Noto Sans KR', sans-serif !important;
-}
-
-/* Tabulator 전체 오버라이드 */
-#tableAlarmTab .tabulator {
-  border: none !important;
-  background: transparent !important;
-  font-size: 13px !important;
-}
-#tableAlarmTab .tabulator-header {
-  background: var(--surface2) !important;
-  border-bottom: 1px solid var(--border) !important;
-}
-#tableAlarmTab .tabulator-col {
-  background: var(--surface2) !important;
-  border-right: 1px solid var(--border) !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  color: var(--text-s) !important;
-  letter-spacing: .3px;
-}
-#tableAlarmTab .tabulator-col:last-child { border-right: none !important; }
-#tableAlarmTab .tabulator-col-title { padding: 8px 10px !important; }
-#tableAlarmTab .tabulator-row {
-  border-bottom: 1px solid var(--border) !important;
-  transition: background .1s !important;
-}
-#tableAlarmTab .tabulator-row:hover { background: #f8faff !important; }
-#tableAlarmTab .tabulator-cell {
-  border-right: 1px solid #f1f5f9 !important;
-  padding: 8px 10px !important;
-  font-size: 13px !important;
-  color: var(--text-p) !important;
-}
-#tableAlarmTab .tabulator-cell:last-child { border-right: none !important; }
-
-/* 진행중 행 강조 */
-#tableAlarmTab .tabulator-row.row-active {
-  background: linear-gradient(90deg, rgba(220,38,38,.06) 0%, rgba(255,255,255,0) 60%) !important;
-}
-#tableAlarmTab .tabulator-row.row-active .tabulator-cell {
-  color: #b91c1c !important;
-  font-weight: 600 !important;
-}
-
-/* 헤더필터 인풋 */
+/* 표 */
 #tableAlarmTab .tabulator-header-filter input {
-  border: 1px solid var(--border) !important;
-  border-radius: 6px !important;
-  font-size: 11px !important;
-  padding: 3px 7px !important;
-  background: var(--surface) !important;
-  color: var(--text-p) !important;
-  outline: none !important;
-  width: 100% !important;
+  height: 24px; border: 1px solid var(--ops-line) !important; border-radius: 4px !important;
+  font-family: var(--ops-sans); font-size: 12px !important; padding: 0 6px !important; background: #fff !important; outline: none;
 }
+#tableAlarmTab .tabulator-row.row-active { background: var(--ops-bad-tint) !important; box-shadow: inset 2px 0 0 var(--ops-bad); }
+#tableAlarmTab .tabulator-row.row-active:hover { background: oklch(56% 0.15 25 / 0.07) !important; }
 
-/* 상태 뱃지 */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 9px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
-}
-.badge-active {
-  background: var(--red-light); color: var(--red);
-}
-.badge-active::before {
-  content: ''; display: inline-block;
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--red);
-  animation: blink 1.4s ease-in-out infinite;
-}
-.badge-clear {
-  background: var(--grn-light); color: var(--green);
-}
-.badge-clear::before {
-  content: ''; display: inline-block;
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--green);
-}
-
-/* No 컬럼 */
-.cell-no {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; color: var(--text-m); font-weight: 600;
-}
-
-/* 시간 컬럼 */
-.cell-time {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; color: var(--text-s);
-}
-
-/* PLC 주소 */
-.cell-addr {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; font-weight: 600;
-  background: var(--surface2);
-  padding: 2px 8px; border-radius: 5px;
-  border: 1px solid var(--border);
-  display: inline-block;
-}
-
-/* 알람내용 */
-.cell-desc { font-weight: 500; text-align: left; }
-.cell-desc.active { color: #b91c1c; font-weight: 700; }
-
-/* 하단 카운트 바 */
-.footer-bar {
-  padding: 8px 16px;
-  border-top: 1px solid var(--border);
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: 12px; color: var(--text-m);
-}
-.footer-bar strong { color: var(--text-p); font-family: 'JetBrains Mono', monospace; }
+.cell-no   { font-family: var(--ops-mono); font-size: 12px; color: var(--ops-fg3); font-variant-numeric: tabular-nums; }
+.cell-time { font-family: var(--ops-mono); font-size: 12px; color: var(--ops-fg2); font-variant-numeric: tabular-nums; }
+.cell-addr { font-family: var(--ops-mono); font-size: 12px; color: var(--ops-fg); font-variant-numeric: tabular-nums slashed-zero; }
+.cell-desc { color: var(--ops-fg); }
+.cell-desc.active { font-weight: 500; }
+.cell-open { font-size: 12px; color: var(--ops-fg3); }
+.ops #tableAlarmTab .st { font-family: var(--ops-sans); }
 </style>
 </head>
-<body>
+<body class="ops">
 
-<!-- ===================== TOPBAR ===================== -->
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="topbar-title">
-      <span class="blink-dot"></span>알람 이력
-    </div>
-    <div class="tb-divider"></div>
-    <span class="tb-label">조회일자</span>
-    <input type="text" id="s_sdate" class="ctrl dayselect daySet" placeholder="시작일"/>
+<!-- ===== 헤더 + 툴바 ===== -->
+<header class="ops-head">
+  <div class="ops-head-in">
+    <h1 class="ops-title">알람 이력</h1>
+    <span class="ops-label">조회일자</span>
+    <input type="text" id="s_sdate" class="ops-input dayselect daySet" placeholder="시작일"/>
     <span class="tilde">~</span>
-    <input type="text" id="s_edate" class="ctrl dayselect daySet" placeholder="종료일"/>
-    <div class="tb-divider"></div>
-    <button class="btn btn-search select-button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>조회
+    <input type="text" id="s_edate" class="ops-input dayselect daySet" placeholder="종료일"/>
+    <button class="ops-btn primary select-button">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>조회
     </button>
-    <button class="btn btn-excel" id="btnExcel">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/>
-      </svg>Download
+    <span class="ops-spacer"></span>
+    <button class="ops-btn" id="btnExcel">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>엑셀
     </button>
   </div>
-</div>
+</header>
 
-<!-- ===================== PAGE ===================== -->
-<div class="page-wrap">
+<!-- ===== 본문 ===== -->
+<main class="ops-page">
 
-  <!-- KPI 카드 -->
-  <div class="kpi-row">
-    <div class="kpi-card kpi-total">
-      <div class="kpi-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-        </svg>
-      </div>
-      <div class="kpi-info">
-        <div class="kpi-label">전체 건수</div>
-        <div class="kpi-value" id="kpi-total">0</div>
-        <div class="kpi-sub">조회 기간 합계</div>
-      </div>
+  <!-- 지표 띠: 첫 칸이 핵심 -->
+  <section class="ops-kpi k4">
+    <div class="hero">
+      <span class="kpi-label">진행 중 알람</span>
+      <span class="kpi-value" id="kpi-active">0</span>
+      <span class="kpi-sub">미해제 · 조치 필요</span>
     </div>
-    <div class="kpi-card kpi-active">
-      <div class="kpi-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-      </div>
-      <div class="kpi-info">
-        <div class="kpi-label">진행 중</div>
-        <div class="kpi-value" id="kpi-active">0</div>
-        <div class="kpi-sub">미해제 알람</div>
-      </div>
+    <div>
+      <span class="kpi-label">전체 건수</span>
+      <span class="kpi-value" id="kpi-total">0</span>
+      <span class="kpi-sub">조회 기간 합계</span>
     </div>
-    <div class="kpi-card kpi-clear">
-      <div class="kpi-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-      </div>
-      <div class="kpi-info">
-        <div class="kpi-label">해제 완료</div>
-        <div class="kpi-value" id="kpi-clear">0</div>
-        <div class="kpi-sub">정상 해제</div>
-      </div>
+    <div>
+      <span class="kpi-label">해제 완료</span>
+      <span class="kpi-value" id="kpi-clear">0</span>
+      <span class="kpi-sub">정상 해제</span>
     </div>
-    <div class="kpi-card kpi-today">
-      <div class="kpi-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </div>
-      <div class="kpi-info">
-        <div class="kpi-label">조회 기간</div>
-        <div class="kpi-value" style="font-size:15px; margin-top:2px;" id="kpi-period">-</div>
-        <div class="kpi-sub" id="kpi-period-sub">-</div>
-      </div>
+    <div>
+      <span class="kpi-label">조회 기간</span>
+      <span class="kpi-value" style="font-size:16px;" id="kpi-period">-</span>
+      <span class="kpi-sub mono" id="kpi-period-sub">-</span>
     </div>
-  </div>
+  </section>
 
-  <!-- 테이블 카드 -->
-  <div class="main-card">
-    <div class="main-card-header">
-      <div class="main-card-title">알람 목록</div>
-      <div class="header-right">
-        <button class="filter-chip active-all"   id="chip-all"   onclick="setFilter('all')">전체<span class="count-badge" id="cnt-all"  style="background:#64748b;color:#fff;">0</span></button>
-        <button class="filter-chip"              id="chip-alarm" onclick="setFilter('alarm')">진행 중<span class="count-badge" id="cnt-alarm" style="background:var(--red-light);color:var(--red);">0</span></button>
-        <button class="filter-chip"              id="chip-clear" onclick="setFilter('clear')">해제 완료<span class="count-badge" id="cnt-clear" style="background:var(--grn-light);color:var(--green);">0</span></button>
-        <div class="tb-divider" style="height:18px;"></div>
-        <input type="text" class="search-input" id="tableSearch" placeholder="내용 검색...">
+  <!-- 표 카드 -->
+  <section class="ops-card">
+    <div class="ops-card-head">
+      <h2>알람 목록</h2>
+      <div class="head-right">
+        <button class="filter-chip active-all" id="chip-all"   onclick="setFilter('all')">전체<span class="count-badge" id="cnt-all">0</span></button>
+        <button class="filter-chip"            id="chip-alarm" onclick="setFilter('alarm')">진행 중<span class="count-badge" id="cnt-alarm">0</span></button>
+        <button class="filter-chip"            id="chip-clear" onclick="setFilter('clear')">해제 완료<span class="count-badge" id="cnt-clear">0</span></button>
+        <span class="ops-sep"></span>
+        <input type="text" class="search-input" id="tableSearch" placeholder="주소 · 내용 · 시간 검색">
       </div>
     </div>
 
-    <div id="tableAlarmTab"></div>
+    <div id="tableAlarmTab" class="ops-table"></div>
 
-    <div class="footer-bar">
+    <div class="ops-card-foot">
       <span id="footer-info">데이터를 조회하세요</span>
-      <span>마지막 조회: <strong id="footer-time">-</strong></span>
+      <span>마지막 조회 <strong id="footer-time">-</strong></span>
     </div>
-  </div>
+  </section>
 
-</div>
+</main>
 
 <script>
 let now_page_code = "b02";
@@ -453,13 +153,13 @@ $(function () {
 
   alarmTable = new Tabulator("#tableAlarmTab", {
     layout: "fitColumns",
-    height: "560px",
-    placeholder: '<div style="padding:40px;color:#94a3b8;font-size:13px;">조회된 데이터가 없습니다.</div>',
+    height: "100%",
+    placeholder: '<span>조회된 데이터가 없습니다.</span>',
     reactiveData: true,
     selectable: 1,
     columns: [
       {
-        title: "No", field: "idx", width: 70, hozAlign: "center",
+        title: "No", field: "idx", width: 84, hozAlign: "right",
         headerFilter: "input",
         formatter: function(cell){
           return '<span class="cell-no">' + (cell.getValue()||'') + '</span>';
@@ -484,7 +184,7 @@ $(function () {
         }
       },
       {
-        title: "발생시간", field: "a_stime", width: 170, hozAlign: "center",
+        title: "발생시간", field: "a_stime", width: 180, hozAlign: "center",
         headerFilter: "input",
         formatter: function(cell){
           var v = cell.getValue() || '';
@@ -492,23 +192,23 @@ $(function () {
         }
       },
       {
-        title: "해제시간", field: "a_etime", width: 170, hozAlign: "center",
+        title: "해제시간", field: "a_etime", width: 180, hozAlign: "center",
         headerFilter: "input",
         formatter: function(cell){
           var v = cell.getValue() || '';
           return v ? '<span class="cell-time">' + v + '</span>'
-                   : '<span style="color:var(--text-m);font-size:12px;">미해제</span>';
+                   : '<span class="cell-open">—</span>';
         }
       },
       {
-        title: "상태", field: "status", width: 110, hozAlign: "center",
+        title: "상태", field: "status", width: 110, hozAlign: "left",
         headerFilter: "input",
         formatter: function(cell){
           var v = cell.getValue() || '';
           if(v === '진행 중'){
-            return '<span class="badge badge-active">진행 중</span>';
+            return '<span class="st bad"><i></i>진행 중</span>';
           } else {
-            return '<span class="badge badge-clear">해제</span>';
+            return '<span class="st off"><i></i>해제</span>';
           }
         }
       }
@@ -522,6 +222,10 @@ $(function () {
       }
     }
   });
+
+  // 창 크기 변경 시 표 높이 다시 맞춤
+  var rT = null;
+  $(window).on("resize", function(){ clearTimeout(rT); rT = setTimeout(function(){ alarmTable.redraw(true); }, 120); });
 
   // 검색
   $("#tableSearch").on("keyup", function(){
@@ -605,6 +309,7 @@ function updateKpi(){
 
   document.getElementById('kpi-total').textContent  = total.toLocaleString();
   document.getElementById('kpi-active').textContent = active.toLocaleString();
+  document.getElementById('kpi-active').classList.toggle('bad', active > 0);
   document.getElementById('kpi-clear').textContent  = clear.toLocaleString();
 
   var s = $("#s_sdate").val() || '-';

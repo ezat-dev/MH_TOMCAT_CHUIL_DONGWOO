@@ -1,139 +1,183 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="../common_style.jsp" %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-.period-tab { display:flex; gap:6px; margin-bottom:16px; }
+/* ===== 데모: 알람 랭킹 — 고밀도 운영 화면 (무채색 + 파랑 1색, 상위 3위만 진하게) ===== */
+:root {
+  --al-fg: oklch(24% 0.012 255); --al-fg2: oklch(46% 0.012 255); --al-fg3: oklch(64% 0.01 255);
+  --al-line: oklch(91.5% 0.006 255); --al-line2: oklch(95.5% 0.004 255); --al-hover: oklch(97.5% 0.003 255);
+  --al-bg: oklch(98.6% 0.002 255);
+  --al-accent: var(--primary); --al-accent-tint: oklch(58% 0.13 250 / 0.07);
+  --al-sans: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --al-mono: "IBM Plex Mono", Consolas, "Malgun Gothic", monospace;
+}
+html, body { background: var(--al-bg); color: var(--al-fg); font-family: var(--al-sans); font-size: 13px; }
+.mono { font-family: var(--al-mono); font-variant-numeric: tabular-nums slashed-zero; }
+
+.page-wrap { height: 100vh; overflow: hidden; padding: 0; display: flex; flex-direction: column; }
+
+/* 헤더 + 기간 칩 */
+.al-head { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 8px 24px; background: #fff; border-bottom: 1px solid var(--al-line); flex-shrink: 0; flex-wrap: wrap; }
+.al-title { font-size: 18px; font-weight: 600; margin-right: 16px; white-space: nowrap; }
+.al-sep { width: 1px; height: 20px; background: var(--al-line); margin: 0 4px; }
+.al-spacer { flex: 1; }
+.al-upd { font-size: 12px; color: var(--al-fg3); font-family: var(--al-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.period-tab { display: flex; gap: 4px; }
 .tab-btn {
-  padding:6px 18px; border-radius:20px; border:1px solid var(--border);
-  background:var(--white); font-size:12px; font-weight:600; cursor:pointer; transition:all .13s;
+  height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--al-line); background: #fff;
+  font-family: var(--al-sans); font-size: 12px; font-weight: 500; color: var(--al-fg2); cursor: pointer;
+  transition: background-color 80ms, border-color 80ms;
 }
-.tab-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-
-.rank-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-@media(max-width:800px){ .rank-wrap { grid-template-columns:1fr; } }
-
-.chart-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-@media(max-width:800px){ .chart-wrap { grid-template-columns:1fr; } }
-
-.rank-list { display:flex; flex-direction:column; gap:7px; }
-.rank-item {
-  display:flex; align-items:center; gap:12px;
-  padding:10px 14px; border-radius:9px; border:1px solid var(--border); background:var(--white);
-  transition:all .13s;
-}
-.rank-item:hover { box-shadow:var(--shadow-md); border-color:var(--primary-m); }
-.rank-no {
-  width:26px; height:26px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:12px; font-weight:800; flex-shrink:0;
-}
-.rk-1 { background:#FFD700; color:#7B5800; }
-.rk-2 { background:#C0C0C0; color:#4A4A4A; }
-.rk-3 { background:#CD7F32; color:#fff; }
-.rk-n { background:var(--bg); color:var(--muted); }
-.rank-info { flex:1; min-width:0; }
-.rank-name  { font-size:13px; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.rank-sub   { font-size:11px; color:var(--muted); margin-top:1px; }
-.rank-bar-wrap { width:100px; flex-shrink:0; }
-.rank-bar-bg { height:7px; background:var(--bg); border-radius:4px; overflow:hidden; margin-bottom:3px; }
-.rank-bar-fill { height:100%; border-radius:4px; }
-.rank-cnt { font-size:11px; color:var(--muted); text-align:right; }
-
-.kpi-mini-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
-.kpi-mini { background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 16px;text-align:center;box-shadow:var(--shadow); }
-.kpi-mini-val { font-size:24px; font-weight:800; }
-.kpi-mini-lbl { font-size:11px; color:var(--muted); margin-top:2px; }
-
-.chart-box { background:var(--white); border:1px solid var(--border); border-radius:12px;
-  padding:16px 18px; box-shadow:var(--shadow); }
-.chart-box-title { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:12px; }
-
-.loading-msg { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
-.range-box { display:none; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-.range-box.show { display:flex; }
+.tab-btn:hover { background: var(--al-hover); color: var(--al-fg); }
+.tab-btn.active { border-color: var(--al-accent); color: var(--al-accent); background: var(--al-accent-tint); }
+.range-box { display: none; align-items: center; gap: 8px; }
+.range-box.show { display: flex; }
 .range-input {
-  padding:6px 10px; border:1px solid var(--border); border-radius:8px;
-  font-size:12px; font-weight:700; color:var(--text); outline:none;
-  font-family:'Malgun Gothic','맑은 고딕',sans-serif;
+  height: 28px; padding: 0 8px; border: 1px solid var(--al-line); border-radius: 6px; background: #fff;
+  font-family: var(--al-mono); font-size: 12px; color: var(--al-fg); font-variant-numeric: tabular-nums; outline: none;
 }
-.range-input:focus { border-color:var(--primary); }
+.range-input:focus { border-color: var(--al-accent); box-shadow: 0 0 0 2px var(--al-accent-tint); }
+.btn-outline, .btn-primary {
+  height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px;
+  font-family: var(--al-sans); font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+  transition: background-color 80ms, border-color 80ms;
+}
+.btn-outline { border: 1px solid var(--al-line); background: #fff; color: var(--al-fg); }
+.btn-outline:hover { background: var(--al-hover); border-color: oklch(86% 0.008 255); color: var(--al-fg); }
+.btn-primary { border: 1px solid var(--al-accent); background: var(--al-accent); color: #fff; }
+.btn-primary:hover { background: var(--primary-d); }
+.range-box .btn-primary { height: 28px; font-size: 12px; }
+.btn-outline svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 본문 */
+.al-body { flex: 1; min-height: 0; padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* 지표 띠: 첫 칸이 핵심 지표 */
+.kpi-mini-row { display: grid; grid-template-columns: 1fr 1.6fr 1.2fr; background: #fff; border: 1px solid var(--al-line); border-radius: 8px; flex-shrink: 0; }
+.kpi-mini { padding: 12px 16px; border-left: 1px solid var(--al-line2); display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; min-width: 0; }
+.kpi-mini:first-child { border-left: 0; }
+.kpi-mini-lbl { font-size: 12px; font-weight: 500; color: var(--al-fg2); }
+.kpi-mini-val { font-family: var(--al-mono); font-size: 22px; font-weight: 500; line-height: 1.25; font-variant-numeric: tabular-nums; color: var(--al-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-mini-val.text { font-family: var(--al-sans); font-size: 18px; }
+.kpi-mini:first-child .kpi-mini-lbl { color: var(--al-fg); font-weight: 600; }
+.kpi-mini:first-child .kpi-mini-val { font-size: 28px; }
+
+/* 패널 */
+.panel { background: #fff; border: 1px solid var(--al-line); border-radius: 8px; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.panel-head { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-bottom: 1px solid var(--al-line2); flex-shrink: 0; }
+.panel-title { font-size: 14px; font-weight: 600; }
+.panel-meta { margin-left: auto; font-size: 12px; color: var(--al-fg3); }
+.chart-body { position: relative; flex: 1; min-height: 0; }
+.chart-body canvas { position: absolute; inset: 8px 16px 8px 8px; width: calc(100% - 24px) !important; height: calc(100% - 16px) !important; }
+
+.grid-main { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr 0.8fr; grid-template-rows: 1fr 1fr; gap: 16px; }
+
+/* 랭킹 표 */
+.rank-list { flex: 1; min-height: 0; overflow: auto; }
+.rank-item {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) minmax(64px, 30%) 48px; align-items: center; gap: 12px;
+  height: 30px; padding: 0 16px; border-bottom: 1px solid var(--al-line2); transition: background-color 80ms;
+}
+.rank-item:last-child { border-bottom: 0; }
+.rank-item:hover { background: var(--al-hover); }
+.rank-no { font-family: var(--al-mono); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--al-fg3); text-align: right; }
+.rank-no.top { color: var(--al-fg); font-weight: 500; }
+.rank-name { font-size: 13px; color: var(--al-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-bar-bg { height: 6px; background: var(--al-line2); border-radius: 1px; overflow: hidden; }
+.rank-bar-fill { height: 100%; border-radius: 1px; }
+.rank-cnt { font-family: var(--al-mono); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--al-fg); text-align: right; }
+
+/* 등급 */
+.lv-stack { padding: 12px 16px 0; flex-shrink: 0; }
+.lv-stack-body { position: relative; height: 56px; }
+.lv-stack-body canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+.lv-stack-body { height: 24px; }
+.lv-legend { flex: 1; min-height: 0; overflow: auto; padding: 8px 0 0; }
+.lv-row { display: grid; grid-template-columns: 1fr 64px 64px; align-items: center; height: 32px; padding: 0 16px; border-bottom: 1px solid var(--al-line2); font-size: 13px; }
+.lv-row:last-child { border-bottom: 0; }
+.lv-row i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 8px; }
+.lv-row .mono { text-align: right; }
+
+.loading-msg { padding: 24px 16px; color: var(--al-fg3); font-size: 12px; }
 </style>
 <body>
 <div class="page-wrap">
-  <div class="page-header">
-    <div>
-      <div class="page-title">알람 랭킹</div>
-      <div class="page-sub">빈도 기준 알람 분석 · 실시간 연동</div>
+  <!-- 헤더 + 기간 -->
+  <div class="al-head">
+    <div class="al-title">알람 랭킹</div>
+    <div class="period-tab">
+      <button class="tab-btn" onclick="setPeriod('day',this)">오늘</button>
+      <button class="tab-btn" onclick="setPeriod('week',this)">이번 주</button>
+      <button class="tab-btn active" onclick="setPeriod('month',this)">이번 달</button>
+      <button class="tab-btn" onclick="setPeriod('all',this)">전체</button>
+      <button class="tab-btn" onclick="setPeriod('range',this)">기간 지정</button>
     </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:11px;color:var(--muted)" id="lastUpdate"></span>
-      <button class="btn-primary" onclick="curPeriod==='range'?loadDataRange():loadData()">🔄 새로고침</button>
+    <div class="range-box" id="rangeBox">
+      <input type="date" class="range-input" id="fromDate">
+      <span style="color:var(--al-fg3)">~</span>
+      <input type="date" class="range-input" id="toDate">
+      <button class="btn-primary" onclick="loadDataRange()">조회</button>
     </div>
+    <div class="al-spacer"></div>
+    <span class="al-upd" id="lastUpdate"></span>
+    <div class="al-sep"></div>
+    <button class="btn-outline" onclick="curPeriod==='range'?loadDataRange():loadData()"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>새로고침</button>
   </div>
 
-  <div class="period-tab">
-    <button class="tab-btn" onclick="setPeriod('day',this)">오늘</button>
-    <button class="tab-btn" onclick="setPeriod('week',this)">이번 주</button>
-    <button class="tab-btn active" onclick="setPeriod('month',this)">이번 달</button>
-    <button class="tab-btn" onclick="setPeriod('all',this)">전체</button>
-    <button class="tab-btn" onclick="setPeriod('range',this)">기간 지정</button>
-  </div>
-  <div class="range-box" id="rangeBox">
-    <input type="date" class="range-input" id="fromDate">
-    <span style="color:var(--muted);font-weight:700">~</span>
-    <input type="date" class="range-input" id="toDate">
-    <button class="btn-primary" onclick="loadDataRange()">조회</button>
-  </div>
-
-  <!-- KPI 미니 -->
-  <div class="kpi-mini-row">
-    <div class="kpi-mini">
-      <div class="kpi-mini-val" id="kpiTotal" style="color:var(--primary)">-</div>
-      <div class="kpi-mini-lbl">기간 내 전체 알람</div>
-    </div>
-    <div class="kpi-mini" id="kpiTopItem">
-      <div class="kpi-mini-val" style="color:var(--red)">-</div>
-      <div class="kpi-mini-lbl">최다 발생 항목</div>
-    </div>
-    <div class="kpi-mini" id="kpiTopPlc">
-      <div class="kpi-mini-val" style="color:var(--orange)">-</div>
-      <div class="kpi-mini-lbl">최다 발생 PLC</div>
-    </div>
-  </div>
-
-  <!-- 차트 -->
-  <div class="chart-wrap">
-    <div class="chart-box">
-      <div class="chart-box-title">알람 항목 TOP 10 (건수)</div>
-      <canvas id="chartItem" height="260"></canvas>
-    </div>
-    <div class="chart-box">
-      <div class="chart-box-title">PLC별 알람 TOP 10 (건수)</div>
-      <canvas id="chartPlc" height="260"></canvas>
-    </div>
-  </div>
-
-  <!-- 랭킹 리스트 -->
-  <div class="rank-wrap">
-    <div class="card">
-      <div class="card-title">알람 항목 TOP 10</div>
-      <div class="rank-list" id="itemRanking">
-        <div class="loading-msg">로딩 중…</div>
+  <div class="al-body">
+    <!-- 지표 띠 -->
+    <div class="kpi-mini-row">
+      <div class="kpi-mini">
+        <div class="kpi-mini-val" id="kpiTotal">-</div>
+        <div class="kpi-mini-lbl">기간 내 전체 알람</div>
+      </div>
+      <div class="kpi-mini" id="kpiTopItem">
+        <div class="kpi-mini-val">-</div>
+        <div class="kpi-mini-lbl">최다 발생 항목</div>
+      </div>
+      <div class="kpi-mini" id="kpiTopPlc">
+        <div class="kpi-mini-val">-</div>
+        <div class="kpi-mini-lbl">최다 발생 PLC</div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">PLC별 알람 TOP 10</div>
-      <div class="rank-list" id="plcRanking">
-        <div class="loading-msg">로딩 중…</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 등급별 추이 차트 -->
-  <div class="card">
-    <div class="card-title">등급별 알람 발생 비율</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <canvas id="chartLvDist" height="200"></canvas>
-      <canvas id="chartLvBar"  height="200"></canvas>
+    <div class="grid-main">
+      <!-- 차트 -->
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">알람 항목 TOP 10</span><span class="panel-meta">건수</span></div>
+        <div class="chart-body"><canvas id="chartItem"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">PLC별 알람 TOP 10</span><span class="panel-meta">건수</span></div>
+        <div class="chart-body"><canvas id="chartPlc"></canvas></div>
+      </div>
+
+      <!-- 등급 -->
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">등급별 알람 발생 비율</span><span class="panel-meta">기간 내</span></div>
+        <div class="lv-stack"><div class="lv-stack-body"><canvas id="chartLvDist"></canvas></div></div>
+        <div class="lv-legend" id="lvLegend"></div>
+      </div>
+
+      <!-- 랭킹 리스트 -->
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">알람 항목 순위</span><span class="panel-meta">호기_알람 내용</span></div>
+        <div class="rank-list" id="itemRanking">
+          <div class="loading-msg">불러오는 중…</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">PLC별 순위</span><span class="panel-meta">상위 3위 강조</span></div>
+        <div class="rank-list" id="plcRanking">
+          <div class="loading-msg">불러오는 중…</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">등급별 건수</span><span class="panel-meta">건수</span></div>
+        <div class="chart-body"><canvas id="chartLvBar"></canvas></div>
+      </div>
     </div>
   </div>
 </div>
@@ -147,8 +191,12 @@ var curPeriod = 'month';
 var charts  = {};
 
 var LV_LABEL = {1:'위험',2:'경고',3:'주의',4:'정보'};
-var LV_COLOR = ['#7B2D8B','#DD6B20','#ECC94B','#4299E1'];
-var RANK_COLORS = ['#3182CE','#38A169','#DD6B20','#E53E3E','#805AD5','#00B5D8','#ED64A6','#ECC94B','#4299E1','#A0AEC0'];
+/* 데모: 등급은 의미색을 채도 낮춰 사용, 랭킹은 파랑 1색(상위 3위만 진하게) */
+var LV_COLOR = ['#C0473B','#4A5568','#A0AEC0','#E2E8F0'];
+var RANK_TOP = '#3182CE', RANK_REST = 'rgba(49,130,206,.35)';
+var RANK_COLORS = [RANK_TOP,RANK_TOP,RANK_TOP,RANK_REST,RANK_REST,RANK_REST,RANK_REST,RANK_REST,RANK_REST,RANK_REST];
+var CH_GRID = '#EEF1F5', CH_TICK = '#718096';
+var CH_FONT = { family:'"IBM Plex Mono", Consolas, monospace', size:11 };
 
 /* ── 날짜 필터 기준 ── */
 function periodStart(p){
@@ -261,19 +309,19 @@ function renderKpi(data){
   var byItem = countByItem(data);
   var topItemEl = document.getElementById('kpiTopItem');
   if(byItem.length > 0){
-    topItemEl.innerHTML = '<div class="kpi-mini-val" style="color:var(--red);font-size:18px">'+esc(byItem[0][0])+'</div>'
-      + '<div class="kpi-mini-lbl">최다 항목 ('+byItem[0][1]+'건)</div>';
+    topItemEl.innerHTML = '<div class="kpi-mini-val text">'+esc(byItem[0][0])+' <span class="mono" style="font-size:13px;color:var(--al-fg3)">'+byItem[0][1]+'건</span></div>'
+      + '<div class="kpi-mini-lbl">최다 발생 항목</div>';
   } else {
-    topItemEl.innerHTML = '<div class="kpi-mini-val" style="color:var(--red)">—</div><div class="kpi-mini-lbl">최다 발생 항목</div>';
+    topItemEl.innerHTML = '<div class="kpi-mini-val">—</div><div class="kpi-mini-lbl">최다 발생 항목</div>';
   }
 
   var byPlc = countBy(data, 'plcId');
   var topPlcEl = document.getElementById('kpiTopPlc');
   if(byPlc.length > 0){
-    topPlcEl.innerHTML = '<div class="kpi-mini-val" style="color:var(--orange);font-size:18px">'+esc(byPlc[0][0])+'</div>'
-      + '<div class="kpi-mini-lbl">최다 PLC ('+byPlc[0][1]+'건)</div>';
+    topPlcEl.innerHTML = '<div class="kpi-mini-val">'+esc(byPlc[0][0])+' <span style="font-size:13px;color:var(--al-fg3)">'+byPlc[0][1]+'건</span></div>'
+      + '<div class="kpi-mini-lbl">최다 발생 PLC</div>';
   } else {
-    topPlcEl.innerHTML = '<div class="kpi-mini-val" style="color:var(--orange)">—</div><div class="kpi-mini-lbl">최다 발생 PLC</div>';
+    topPlcEl.innerHTML = '<div class="kpi-mini-val">—</div><div class="kpi-mini-lbl">최다 발생 PLC</div>';
   }
 }
 
@@ -286,19 +334,16 @@ function renderRankLists(data){
 }
 
 function buildRankHtml(entries){
-  if(!entries.length) return '<div class="loading-msg">데이터 없음</div>';
+  if(!entries.length) return '<div class="loading-msg">선택한 기간에 발생한 알람이 없습니다</div>';
   var max = entries[0][1];
   return entries.map(function(e,i){
     var pct = Math.round(e[1]/max*100);
-    var rCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'rk-n';
-    var barColor = i < 3 ? 'var(--primary)' : 'var(--light)';
+    var barColor = i < 3 ? RANK_TOP : RANK_REST;
     return '<div class="rank-item">'
-      + '<div class="rank-no '+rCls+'">'+(i+1)+'</div>'
-      + '<div class="rank-info"><div class="rank-name">'+esc(e[0])+'</div></div>'
-      + '<div class="rank-bar-wrap">'
-      + '  <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div>'
-      + '  <div class="rank-cnt">'+e[1]+'건</div>'
-      + '</div>'
+      + '<div class="rank-no'+(i<3?' top':'')+'">'+(i+1)+'</div>'
+      + '<div class="rank-name"'+(i<3?' style="font-weight:500"':'')+'>'+esc(e[0])+'</div>'
+      + '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div>'
+      + '<div class="rank-cnt">'+e[1]+'</div>'
       + '</div>';
   }).join('');
 }
@@ -306,6 +351,17 @@ function buildRankHtml(entries){
 /* ── 차트 ── */
 function destroyChart(key){
   if(charts[key]){ charts[key].destroy(); charts[key]=null; }
+}
+
+function rankBarOpts(){
+  return {
+    responsive:true, maintainAspectRatio:false, animation:false, indexAxis:'y',
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ beginAtZero:true, grid:{color:CH_GRID}, border:{display:false}, ticks:{font:CH_FONT, color:CH_TICK, precision:0} },
+      y:{ grid:{display:false}, border:{display:false}, ticks:{font:{size:11}, color:'#4A5568', autoSkip:false} }
+    }
+  };
 }
 
 function renderCharts(data){
@@ -322,14 +378,10 @@ function renderCharts(data){
         label:'알람 건수',
         data: byItem.map(function(e){ return e[1]; }),
         backgroundColor: byItem.map(function(_,i){ return RANK_COLORS[i%RANK_COLORS.length]; }),
-        borderRadius:5
+        borderRadius:2, maxBarThickness:14
       }]
     },
-    options:{
-      responsive:false, maintainAspectRatio:false, animation:false, indexAxis:'y',
-      plugins:{ legend:{display:false} },
-      scales:{ x:{grid:{color:'#F0F4F8'}, ticks:{font:{size:10}}}, y:{ticks:{font:{size:11}}} }
-    }
+    options: rankBarOpts()
   });
 
   /* PLC 가로 바 */
@@ -342,57 +394,56 @@ function renderCharts(data){
         label:'알람 건수',
         data: byPlc.map(function(e){ return e[1]; }),
         backgroundColor: byPlc.map(function(_,i){ return RANK_COLORS[i%RANK_COLORS.length]; }),
-        borderRadius:5
+        borderRadius:2, maxBarThickness:14
       }]
     },
-    options:{
-      responsive:false, maintainAspectRatio:false, animation:false, indexAxis:'y',
-      plugins:{ legend:{display:false} },
-      scales:{ x:{grid:{color:'#F0F4F8'}, ticks:{font:{size:10}}}, y:{ticks:{font:{size:11}}} }
-    }
+    options: rankBarOpts()
   });
 
-  /* 등급 도넛 */
+  /* 등급 비율 — 100% 누적 가로 막대 (도넛 대체) */
   var lvCnt = {1:0,2:0,3:0,4:0};
   data.forEach(function(r){ var l=parseInt(r.level)||0; if(lvCnt[l]!==undefined) lvCnt[l]++; });
+  var LV_NAMES = ['위험(Lv1)','경고(Lv2)','주의(Lv3)','정보(Lv4)'];
+  var lvTotal = lvCnt[1]+lvCnt[2]+lvCnt[3]+lvCnt[4];
   destroyChart('lvDist');
   charts['lvDist'] = new Chart(document.getElementById('chartLvDist'), {
-    type:'doughnut',
+    type:'bar',
     data:{
-      labels:['위험(Lv1)','경고(Lv2)','주의(Lv3)','정보(Lv4)'],
-      datasets:[{
-        data:[lvCnt[1],lvCnt[2],lvCnt[3],lvCnt[4]],
-        backgroundColor:LV_COLOR, borderWidth:2, borderColor:'#fff'
-      }]
+      labels:['비율'],
+      datasets: LV_NAMES.map(function(n, i){
+        return { label:n, data:[lvTotal ? lvCnt[i+1]/lvTotal*100 : 0], backgroundColor:LV_COLOR[i], borderWidth:0, barPercentage:1, categoryPercentage:1 };
+      })
     },
     options:{
-      responsive:false, maintainAspectRatio:false, animation:false,
-      plugins:{ legend:{ position:'right', labels:{ font:{size:11}, padding:10 } } },
-      cutout:'55%'
+      responsive:true, maintainAspectRatio:false, animation:false, indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+' '+c.raw.toFixed(1)+'%'; } } } },
+      scales:{
+        x:{ stacked:true, min:0, max:100, display:false },
+        y:{ stacked:true, display:false }
+      }
     }
   });
+  var lg = document.getElementById('lvLegend');
+  if(lg) lg.innerHTML = LV_NAMES.map(function(n, i){
+    var pct = lvTotal ? (lvCnt[i+1]/lvTotal*100).toFixed(1) : '0.0';
+    return '<div class="lv-row"><span><i style="background:'+LV_COLOR[i]+'"></i>'+n+'</span>'
+      + '<span class="mono">'+lvCnt[i+1]+'</span><span class="mono" style="color:var(--al-fg3)">'+pct+'%</span></div>';
+  }).join('');
 
-  /* 등급 세로 바 */
+  /* 등급 건수 — 가로 바 */
   destroyChart('lvBar');
   charts['lvBar'] = new Chart(document.getElementById('chartLvBar'), {
     type:'bar',
     data:{
-      labels:['위험(Lv1)','경고(Lv2)','주의(Lv3)','정보(Lv4)'],
+      labels:LV_NAMES,
       datasets:[{
         label:'건수',
         data:[lvCnt[1],lvCnt[2],lvCnt[3],lvCnt[4]],
         backgroundColor:LV_COLOR,
-        borderRadius:6
+        borderRadius:2, maxBarThickness:18
       }]
     },
-    options:{
-      responsive:false, maintainAspectRatio:false, animation:false,
-      plugins:{ legend:{display:false} },
-      scales:{
-        x:{ grid:{display:false} },
-        y:{ beginAtZero:true, grid:{color:'#F0F4F8'}, ticks:{font:{size:10}} }
-      }
-    }
+    options: rankBarOpts()
   });
 }
 

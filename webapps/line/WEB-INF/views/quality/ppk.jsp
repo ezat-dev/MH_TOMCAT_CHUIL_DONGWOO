@@ -461,17 +461,58 @@
 		}
 
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/line/css/quality/capability.css">
+<script src="/line/js/quality/capability.js"></script>
+<script>
+/* 데모: 목록 조회 결과로 상단 요약(평균 Ppk·판정 분포)을 채우고, 목록의 Ppk 칸을 판정 색으로 — ppkData 원본은 그대로 */
+$(document).ajaxSuccess(function (e, xhr, opt) {
+    if (!opt || opt.url !== "/line/quality/ppk/allList") return;
+    var rows = ((xhr.responseJSON || {}).data || []), vals = [], cnt = { best: 0, good: 0, warn: 0, bad: 0 }, items = {}, last = "";
+    rows.forEach(function (r) {
+        var n = CPX.num(r.p_m_ppk);
+        items[r.p_pnum] = 1;
+        if ((r.p_chkdate || "") > last) last = r.p_chkdate;
+        if (n == null) return;
+        vals.push(n); cnt[CPX.judge(n).key]++;
+    });
+    var avg = vals.length ? vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : null;
+    function low(v) { return rows.filter(function (r) { return CPX.num(r.p_m_ppk) === v; })[0] || {}; }
+    var mn = vals.length ? Math.min.apply(null, vals) : null, mx = vals.length ? Math.max.apply(null, vals) : null;
+
+    CPX.hero(document.getElementById("cpxVal"), document.getElementById("cpxJudge"), document.getElementById("cpxScale"), avg);
+    $("#ppxCnt").text(rows.length);
+    $("#ppxBest").text(cnt.best); $("#ppxGood").text(cnt.good);
+    $("#ppxWarn").text(cnt.warn).attr("class", cnt.warn ? "is-warn" : "");
+    $("#ppxBad").text(cnt.bad).attr("class", cnt.bad ? "is-bad" : "");
+    $("#ppxUnder").text(cnt.warn + cnt.bad).attr("class", cnt.warn + cnt.bad ? "is-warn" : "");
+    $("#ppxMin").html(mn == null ? "—" : mn.toFixed(2) + "<small>" + (low(mn).p_pname || "") + "</small>").attr("class", CPX.judge(mn).cls);
+    $("#ppxMax").html(mx == null ? "—" : mx.toFixed(2) + "<small>" + (low(mx).p_pname || "") + "</small>");
+    $("#ppxItems").text(Object.keys(items).length);
+    $("#ppxLast").text(last || "—");
+    var tot = vals.length || 1;
+    $("#ppxDist").html(["best", "good", "warn", "bad"].filter(function (k) { return cnt[k]; }).map(function (k) {
+        return '<i class="d-' + k + '" style="width:' + (cnt[k] / tot * 100) + '%" title="' + CPX.judge(k === "best" ? 2 : k === "good" ? 1.4 : k === "warn" ? 1.1 : 0.5).text + ' ' + cnt[k] + '건"></i>';
+    }).join(""));
+});
+$(function () {
+    CPX.scale(document.getElementById("cpxScale"), null);
+    CPX.tagCells(document.getElementById("ppkListTable"), "p_m_ppk");
+});
+</script>
 
 <body>
-    <main class="main">
-        <div class="tab">
-        
+    <main class="main cpx">
+        <div class="tab cpx-toolbar">
+            <h1 class="cpx-title">Ppk 분석<span>장기 공정성능 · 월별 측정 이력 (행을 더블클릭하면 상세·그래프)</span></h1>
 
             <div class="button-container">
-            
+
                <div class="box1">
-	
-	            <label class="daylabel">조회일자 :</label>
+
+	            <label class="daylabel">조회연도</label>
 	            <input type="text" id="s_p_year" class="dayselect yearSet"/>
 			</div>
                 <button class="select-button">
@@ -493,13 +534,41 @@
             </div>
         </div>
 
-        <div class="view">
-        	<div id="ppkListTable"></div>
+        <!-- 결과 요약: 평균 Ppk → 판정 → 분포 → 보조 통계 -->
+        <section class="cpx-card cpx-summary">
+            <div class="cpx-hero">
+                <span class="k">평균 공정성능지수 Ppk</span>
+                <div class="v"><b id="cpxVal">—</b><span class="cpx-judge" id="cpxJudge">조회 전</span></div>
+                <div class="cpx-scale" id="cpxScale"></div>
+                <span class="cpx-sub">판정 기준 · 1.67 이상 우수 · 1.33 이상 양호 · 1.00 이상 개선 필요 · 1.00 미만 부족</span>
+            </div>
+            <dl class="cpx-stats">
+                <div><dt>측정 건수</dt><dd id="ppxCnt">—</dd></div>
+                <div><dt>우수 (≥1.67)</dt><dd id="ppxBest">—</dd></div>
+                <div><dt>양호 (≥1.33)</dt><dd id="ppxGood">—</dd></div>
+                <div><dt>개선 필요 (≥1.00)</dt><dd id="ppxWarn">—</dd></div>
+                <div><dt>부족 (&lt;1.00)</dt><dd id="ppxBad">—</dd></div>
+                <div><dt>최저 Ppk</dt><dd id="ppxMin">—</dd></div>
+                <div><dt>최고 Ppk</dt><dd id="ppxMax">—</dd></div>
+                <div><dt>기준 미달 (&lt;1.33)</dt><dd id="ppxUnder">—</dd></div>
+                <div><dt>품목 수</dt><dd id="ppxItems">—</dd></div>
+                <div><dt>최근 측정</dt><dd id="ppxLast">—</dd></div>
+                <div style="grid-column:1 / -1; border-left:0; padding-left:8px;"><div class="cpx-dist" id="ppxDist"></div></div>
+            </dl>
+        </section>
+
+        <div class="cpx-row">
+            <section class="cpx-card">
+                <header><h3>Ppk 측정 이력</h3><span class="cpx-note">지수 색 = 판정 · 더블클릭 시 상세 측정값 / 런차트 · 히스토그램</span></header>
+                <div class="view cpx-scroll">
+                    <div id="ppkListTable"></div>
+                </div>
+            </section>
         </div>
     </main>
     
 
-<div id="pumbunModal" class="pumbunModal">
+<div id="pumbunModal" class="pumbunModal cpx-modal">
   <div class="pumbun-modal-content">
     <span class="closePumbun">&times;</span>
     <!-- 추가, 수정 -->
@@ -522,7 +591,7 @@
   </div>
 </div>
 
-<div id="userModal" class="userModal">
+<div id="userModal" class="userModal cpx-modal">
   <div class="user-modal-content">
     <span class="closeUser">&times;</span>
     <!-- 추가, 수정 -->
@@ -547,7 +616,7 @@
   </div>
 </div>
 
-<div id="ppkModal" class="ppkModal">
+<div id="ppkModal" class="ppkModal cpx-modal">
   <div class="ppk-modal-content">
     <span class="closePpk">&times;</span>
     <!-- 추가, 수정 -->
@@ -566,7 +635,7 @@
   </div>
 </div>
 
-<div id="ppkGraphModal" class="ppkGraphModal">
+<div id="ppkGraphModal" class="ppkGraphModal cpx-modal">
   <div class="ppkGraph-modal-content">
     <span class="closePpkGraph">&times;</span>
     <!-- 추가, 수정 -->
@@ -726,8 +795,8 @@ function ppkData(){
 var ppkListTable;
 function ppkTable(){
 	ppkListTable = new Tabulator('#ppkListTable', {
-	    height: '600px',
-	    layout: 'fitData',
+	    height: '100%',
+	    layout: 'fitColumns',
 	    headerSort: false,
 	    reactiveData: true,
 	    columnHeaderVertAlign: "middle",
@@ -742,15 +811,15 @@ function ppkTable(){
 	    placeholder: "조회된 데이터가 없습니다.",
 	    columns: [
 	      { title: "cnt", field: "p_cnt", visible: false }, 
-	      { title: "일자",field: "p_ymon",width: 100, hozAlign: "center" },	
-	      { title: "품명",field: "p_pname",width: 200 },	
-	      { title: "품번",field: "p_pnum",width: 200 },	
-	      { title: "회사명",field: "cust_name",width: 200 },		      
-	      { title: "Ppk",field: "p_m_ppk",width: 120, hozAlign: "center" },
-	      { title: "측정일자",field: "p_chkdate",width: 150, hozAlign: "center" },
-	      { title: "측정자",field: "p_user_name",width: 120, hozAlign: "center" },
-	      { title: "상한값",field: "p_upp",width: 100, hozAlign: "center" },
-	      { title: "하한값",field: "p_low",width: 100, hozAlign: "center" },
+	      { title: "일자",field: "p_ymon",minWidth: 100, hozAlign: "center" },	
+	      { title: "품명",field: "p_pname",minWidth: 200 },	
+	      { title: "품번",field: "p_pnum",minWidth: 200 },	
+	      { title: "회사명",field: "cust_name",minWidth: 200 },		      
+	      { title: "Ppk",field: "p_m_ppk",minWidth: 120, hozAlign: "center" },
+	      { title: "측정일자",field: "p_chkdate",minWidth: 150, hozAlign: "center" },
+	      { title: "측정자",field: "p_user_name",minWidth: 120, hozAlign: "center" },
+	      { title: "상한값",field: "p_upp",minWidth: 100, hozAlign: "center" },
+	      { title: "하한값",field: "p_low",minWidth: 100, hozAlign: "center" },
 /*	      { title: "",field: "h_t_gb",width: 200, hozAlign: "center" },
 	      { title: "상한",field: "h_hard_up",width: 200, hozAlign: "center" },
 	      { title: "하한",field: "h_hard_dw",width: 200, hozAlign: "center" },*/

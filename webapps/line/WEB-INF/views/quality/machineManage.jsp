@@ -9,407 +9,148 @@
     <title>설비 보전관리</title>
     <%@include file="../include/pluginpage.jsp" %>
     <jsp:include page="../include/tabBar.jsp"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="/vendor/tabulator/5.6.1/tabulator.min.css" rel="stylesheet">
     <script src="/vendor/tabulator/5.6.1/tabulator.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="/line/css/opsList/ops-list.css">
 
     <style>
-        /* ── Variables ── */
-        :root {
-            --bg:            #f8f9fb;
-            --surface:       #ffffff;
-            --surface2:      #f1f4f8;
-            --border:        #e2e7ef;
-            --border-light:  #edf0f5;
-            --accent:        #2563eb;
-            --accent-light:  #eff4ff;
-            --accent-hover:  #1d4ed8;
-            --text-primary:  #1a202c;
-            --text-secondary:#4a5568;
-            --text-muted:    #9aa5b4;
-            --success:       #059669;
-            --success-bg:    #ecfdf5;
-            --success-border:#a7f3d0;
-            --danger:        #dc2626;
-            --danger-bg:     #fff5f5;
-            --danger-border: #fecaca;
-            --radius-sm:     6px;
-            --radius:        10px;
-            --radius-lg:     14px;
-            --shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-lg:     0 8px 30px rgba(0,0,0,0.14);
-        }
+    /* ===== 데모: 설비 보전관리 — 고밀도 운영 화면 (공통: ops-list.css) ===== */
+    html, body.ops { height: 100%; }
+    body.ops { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    .ops-page.mm { flex: 1; min-height: 0; }
+    .mm .ops-kpi { grid-template-columns: 1.4fr repeat(3, 1fr); }
+    .mm .ops-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .mm #dataTable { flex: 1; min-height: 0; }
+    .ops-head .range-sep { color: var(--ops-fg3); }
+    .ops-head .ops-input { width: 128px; min-width: 0; text-align: center; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* 표: 한 줄 고정, 상세내용은 말줄임 + 툴팁 */
+    .mm .tabulator-cell .c-desc { color: var(--ops-fg2); }
+    .mm .tabulator-cell .c-title { font-weight: 500; }
 
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: var(--bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-
-        /* ── Main ── */
-        .main {
-            padding: 24px 28px;
-            animation: fadeIn .35s ease both;
-        }
-
-        /* ── Page Header ── */
-        .page-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header-icon {
-            width: 40px; height: 40px;
-            background: var(--accent);
-            border-radius: var(--radius-sm);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.28);
-            flex-shrink: 0;
-            margin-right: 12px;
-        }
-        .header-icon svg {
-            width: 20px; height: 20px;
-            fill: none; stroke: #fff;
-            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        }
-        .page-title       { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
-        .page-breadcrumb  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-        /* ── Toolbar Card ── */
-        .toolbar-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-sm);
-            animation: slideDown .4s .05s ease both;
-        }
-        .toolbar-left  { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .toolbar-right { display: flex; align-items: center; gap: 8px; }
-
-        .field-group  { display: flex; align-items: center; gap: 8px; }
-        .field-label  {
-            font-size: 13px; font-weight: 600;
-            color: var(--text-secondary); white-space: nowrap;
-        }
-        .date-input {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            padding: 7px 11px;
-            width: 128px;
-            outline: none;
-            text-align: center;
-            transition: border-color .2s, box-shadow .2s;
-        }
-        .date-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-        }
-        .range-sep {
-            font-size: 14px; color: var(--text-muted); font-weight: 500;
-        }
-
-        .toolbar-divider { width: 1px; height: 28px; background: var(--border); margin: 0 2px; }
-
-        /* ── Buttons ── */
-        .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 13px; font-weight: 500;
-            padding: 7px 13px;
-            border-radius: var(--radius-sm);
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all .18s ease;
-            white-space: nowrap;
-        }
-        .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-        .btn-primary {
-            background: var(--accent); color: #fff; border-color: var(--accent);
-            box-shadow: 0 1px 4px rgba(37,99,235,0.25);
-        }
-        .btn-primary:hover {
-            background: var(--accent-hover); border-color: var(--accent-hover);
-            transform: translateY(-1px); box-shadow: 0 3px 8px rgba(37,99,235,0.35);
-        }
-        .btn-outline {
-            background: var(--surface); color: var(--text-secondary); border-color: var(--border);
-        }
-        .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-
-        .btn-danger-outline {
-            background: var(--surface); color: var(--danger); border-color: var(--danger-border);
-        }
-        .btn-danger-outline:hover { background: var(--danger-bg); border-color: var(--danger); }
-
-        .btn-success-outline {
-            background: var(--surface); color: var(--success); border-color: var(--success-border);
-        }
-        .btn-success-outline:hover { background: var(--success-bg); border-color: var(--success); }
-
-        /* ── Table Wrap ── */
-        .table-wrap {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            animation: slideDown .4s .1s ease both;
-        }
-
-        /* ── Tabulator Overrides ── */
-        .tabulator {
-            background: var(--surface) !important;
-            border: none !important;
-            font-family: 'Noto Sans KR', sans-serif !important;
-            font-size: 13px !important;
-        }
-        .tabulator .tabulator-header {
-            background: var(--surface2) !important;
-            border-bottom: 1px solid var(--border) !important;
-        }
-        .tabulator .tabulator-header .tabulator-col {
-            background: transparent !important;
-            border-right: 1px solid var(--border-light) !important;
-            color: var(--text-secondary) !important;
-            font-size: 11.5px !important;
-            font-weight: 600 !important;
-            letter-spacing: .3px !important;
-        }
-        .tabulator .tabulator-header .tabulator-col:hover { background: #e8edf5 !important; }
-        .tabulator-row {
-            background: var(--surface) !important;
-            border-bottom: 1px solid var(--border-light) !important;
-            transition: background .12s !important;
-        }
-        .tabulator-row:nth-child(even) { background: #fafbfd !important; }
-        .tabulator-row:hover           { background: var(--accent-light) !important; }
-        .tabulator-row.row_select      {
-            background: #dbeafe !important;
-            border-left: 3px solid var(--accent) !important;
-        }
-        .tabulator-row .tabulator-cell {
-            color: var(--text-primary) !important;
-            border-right: 1px solid var(--border-light) !important;
-            padding: 10px 14px !important;
-        }
-        .tabulator .tabulator-footer {
-            background: var(--surface2) !important;
-            border-top: 1px solid var(--border) !important;
-        }
-
-        /* ── Modal ── */
-        .modal {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(15,23,42,0.45);
-            backdrop-filter: blur(3px);
-            z-index: 9000;
-            align-items: center; justify-content: center;
-        }
-        .modal.show { display: flex; }
-
-        .modal-content {
-            background: var(--surface);
-            width: 480px; max-width: 95vw;
-            max-height: 90vh; overflow-y: auto;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            padding: 28px 28px 22px;
-            position: relative;
-            animation: popIn .3s cubic-bezier(.34,1.56,.64,1) both;
-        }
-        .modal-header {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 20px;
-        }
-        .modal-header-icon {
-            width: 34px; height: 34px;
-            background: var(--accent-light); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .modal-header-icon svg {
-            width: 16px; height: 16px;
-            stroke: var(--accent); fill: none;
-            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        }
-        .modal-title { font-size: 15px; font-weight: 700; }
-        .modal-close {
-            position: absolute; top: 16px; right: 18px;
-            width: 28px; height: 28px; border-radius: 6px;
-            border: none; background: var(--surface2);
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 15px; color: var(--text-muted);
-            transition: background .15s, color .15s;
-        }
-        .modal-close:hover { background: var(--danger-bg); color: var(--danger); }
-
-        .form-group { margin-bottom: 14px; }
-        .form-label {
-            display: block; font-size: 12px; font-weight: 600;
-            color: var(--text-secondary); margin-bottom: 5px; letter-spacing: .2px;
-        }
-        .form-input, .form-textarea {
-            width: 100%;
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 13px;
-            padding: 9px 11px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            outline: none; color: var(--text-primary);
-            background: var(--surface2);
-            transition: border-color .2s, box-shadow .2s;
-            resize: vertical;
-        }
-        .form-input:focus, .form-textarea:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-            background: #fff;
-        }
-        .form-input::placeholder,
-        .form-textarea::placeholder { color: var(--text-muted); }
-
-        .form-divider { border: none; border-top: 1px solid var(--border-light); margin: 12px 0 16px; }
-
-        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
-        .modal-actions .btn { flex: 1; justify-content: center; }
-
-        /* ── desc cell ── */
-        .desc-cell {
-            color: var(--text-secondary) !important;
-            font-size: 12.5px !important;
-            line-height: 1.5 !important;
-        }
-
-        /* ── Animations ── */
-        @keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
-        @keyframes slideDown {
-            from { opacity:0; transform:translateY(-8px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes popIn {
-            from { opacity:0; transform:scale(.92); }
-            to   { opacity:1; transform:scale(1); }
-        }
+    /* 모달 (기존 .modal / .show 토글 유지) */
+    .modal { display: none; position: fixed; inset: 0; z-index: 9000; align-items: center; justify-content: center; background: oklch(20% 0.01 255 / 0.4); }
+    .modal.show { display: flex; }
+    .modal .modal-content {
+      width: 640px; max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column;
+      background: #fff; border: 1px solid var(--ops-line); border-radius: 8px; box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16);
+      font-family: var(--ops-sans);
+    }
+    .modal #corrForm { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+    .modal .modal-body { overflow-y: auto; min-height: 0; }
+    .modal .modal-close { border: 0; background: transparent; font-family: var(--ops-sans); }
+    .modal .form-grid { grid-template-columns: 160px 1fr; }
+    .modal .form-textarea {
+      width: 100%; min-height: 200px; padding: 8px; resize: vertical; outline: none;
+      border: 1px solid var(--ops-line); border-radius: 6px; background: #fff; color: var(--ops-fg);
+      font-family: var(--ops-sans); font-size: 13px; line-height: 1.6;
+    }
+    .modal .form-textarea:focus { border-color: var(--ops-accent); box-shadow: 0 0 0 2px var(--ops-accent-tint); }
+    .modal .form-input::placeholder, .modal .form-textarea::placeholder { color: var(--ops-fg3); }
     </style>
 </head>
-<body>
-<main class="main">
+<body class="ops">
 
-    <!-- ── Page Header ── -->
-    <div class="page-header">
-        <div class="header-icon">
-            <svg viewBox="0 0 24 24">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-            </svg>
-        </div>
-        <div>
-            <div class="page-title">설비 보전관리</div>
-            <div class="page-breadcrumb">설비관리 · 보전항목 등록 및 이력 조회</div>
-        </div>
-    </div>
+<!-- ===== 헤더 + 툴바 ===== -->
+<header class="ops-head">
+  <div class="ops-head-in">
+    <h1 class="ops-title">설비 보전관리</h1>
+    <span class="ops-label">등록일자</span>
+    <input type="text" id="m_sdate" class="ops-input date-input" autocomplete="off">
+    <span class="range-sep">~</span>
+    <input type="text" id="m_edate" class="ops-input date-input" autocomplete="off">
+    <button class="ops-btn primary select-button">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      조회
+    </button>
+    <span class="ops-sep"></span>
+    <button class="ops-btn insert-button">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      추가
+    </button>
+    <button class="ops-btn danger delete-button">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      삭제
+    </button>
+    <span class="ops-spacer"></span>
+    <button class="ops-btn excel-button">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      엑셀
+    </button>
+  </div>
+</header>
 
-    <!-- ── Toolbar ── -->
-    <div class="toolbar-card">
-        <div class="toolbar-left">
-            <div class="field-group">
-                <span class="field-label">등록일자</span>
-                <input type="text" id="m_sdate" class="date-input">
-                <span class="range-sep">~</span>
-                <input type="text" id="m_edate" class="date-input">
-            </div>
-            <div class="toolbar-divider"></div>
-            <button class="btn btn-primary select-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                조회
-            </button>
-            <button class="btn btn-outline insert-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                추가
-            </button>
-            <button class="btn btn-danger-outline delete-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6"/><path d="M14 11v6"/>
-                </svg>
-                삭제
-            </button>
-        </div>
-        <div class="toolbar-right">
-            <button class="btn btn-success-outline excel-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Download
-            </button>
-        </div>
-    </div>
+<main class="ops-page mm">
 
-    <!-- ── Table ── -->
-    <div class="table-wrap">
-        <div id="dataTable"></div>
+  <!-- 요약: 조회 기간 보전 이력 건수가 첫 시선 -->
+  <section class="ops-kpi" aria-label="요약">
+    <div class="hero">
+      <span class="kpi-label">보전 이력</span>
+      <span class="kpi-value" id="mmTotal">—</span>
+      <span class="kpi-sub" id="mmRange">조회 기간</span>
     </div>
+    <div>
+      <span class="kpi-label">최근 30일</span>
+      <span class="kpi-value" id="mm30">—</span>
+      <span class="kpi-sub">건</span>
+    </div>
+    <div>
+      <span class="kpi-label">이번 달</span>
+      <span class="kpi-value" id="mmMonth">—</span>
+      <span class="kpi-sub">건</span>
+    </div>
+    <div>
+      <span class="kpi-label">최근 보전</span>
+      <span class="kpi-value" id="mmLast">—</span>
+      <span class="kpi-sub" id="mmLastSub">&nbsp;</span>
+    </div>
+  </section>
+
+  <section class="ops-card">
+    <div class="ops-card-head">
+      <h2>보전 이력</h2>
+      <span class="note">행 클릭 → 선택 · 더블클릭 → 수정</span>
+    </div>
+    <div id="dataTable" class="ops-table"></div>
+  </section>
 </main>
 
 
 <!-- ── 등록/수정 모달 ── -->
 <div id="modalContainer" class="modal">
-    <div class="modal-content">
-        <button class="modal-close close" type="button">✕</button>
-        <div class="modal-header">
-            <div class="modal-header-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                </svg>
-            </div>
-            <div class="modal-title">설비 보전항목 등록</div>
-        </div>
-
-        <form id="corrForm" autocomplete="off">
-            <input type="text" name="m_idx" value="0" style="display:none;">
-
-            <div class="form-group">
-                <label class="form-label">등록일</label>
-                <input type="text" name="m_date" class="form-input daySet" placeholder="YYYY-MM-DD">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">보전항목</label>
-                <input type="text" name="m_title" class="form-input" placeholder="보전항목을 입력하세요">
-            </div>
-
-            <hr class="form-divider">
-
-            <div class="form-group">
-                <label class="form-label">상세내용</label>
-                <textarea name="m_desc" class="form-textarea" rows="8" placeholder="상세 내용을 입력하세요…"></textarea>
-            </div>
-
-            <div class="modal-actions">
-                <button type="submit" id="saveCorrStatus" class="btn btn-primary">저장</button>
-                <button type="button" id="closeModal" class="btn btn-outline">닫기</button>
-            </div>
-        </form>
+  <div class="modal-content" role="dialog" aria-labelledby="mmModalTitle">
+    <div class="modal-head">
+      <h2 id="mmModalTitle">설비 보전항목 등록</h2>
+      <button class="modal-close close" type="button" aria-label="닫기">✕</button>
     </div>
+
+    <form id="corrForm" autocomplete="off">
+      <input type="text" name="m_idx" value="0" style="display:none;">
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">등록일</label>
+            <input type="text" name="m_date" class="form-input mono daySet" placeholder="YYYY-MM-DD">
+          </div>
+          <div class="form-group">
+            <label class="form-label">보전항목</label>
+            <input type="text" name="m_title" class="form-input" placeholder="보전항목을 입력하세요">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">상세내용</label>
+            <textarea name="m_desc" class="form-textarea" rows="10" placeholder="상세 내용을 입력하세요"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-btn-row">
+        <button type="button" id="closeModal" class="ops-btn">닫기</button>
+        <button type="submit" id="saveCorrStatus" class="ops-btn primary">저장</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 
@@ -528,8 +269,8 @@ function getMachineManageList() {
 /* ── Tabulator 초기화 ── */
 function getHeatList() {
     dataTable = new Tabulator('#dataTable', {
-        height: '700px',
-        layout: 'fitDataFill',
+        height: '100%',
+        layout: 'fitColumns',
         headerSort: false,
         reactiveData: true,
         columnHeaderVertAlign: "middle",
@@ -542,15 +283,22 @@ function getHeatList() {
             {
                 title: "등록일자", field: "m_date", width: 130, hozAlign: "center",
                 formatter: function (cell) {
-                    return '<span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;">' + (cell.getValue() || "") + '</span>';
+                    return '<span class="c-time">' + (cell.getValue() || "") + '</span>';
                 }
             },
-            { title: "보전항목", field: "m_title", width: 380, hozAlign: "left" },
+            {
+                title: "보전항목", field: "m_title", width: 380, hozAlign: "left",
+                formatter: function (cell) {
+                    cell.getElement().title = cell.getValue() || "";
+                    return '<span class="c-title">' + (cell.getValue() || "") + '</span>';
+                }
+            },
             {
                 title: "상세내용", field: "m_desc", widthGrow: 1, hozAlign: "left",
                 formatter: function (cell) {
                     const v = cell.getValue() || "";
-                    return '<span class="desc-cell">' + v + '</span>';
+                    cell.getElement().title = v;
+                    return '<span class="c-desc">' + v + '</span>';
                 }
             },
         ],
@@ -570,6 +318,29 @@ function getHeatList() {
             $('#modalContainer').addClass('show');
         }
     });
+    dataTable.on("dataLoaded", mmSummary);
+}
+
+/* ── 요약 스트립 (표시 전용) ── */
+function mmSummary(rows) {
+    rows = rows || [];
+    var today = todayDate(), month = today.slice(0, 7);
+    var d30 = new Date(); d30.setDate(d30.getDate() - 30);
+    var from30 = d30.getFullYear() + "-" + String(d30.getMonth() + 1).padStart(2, '0') + "-" + String(d30.getDate()).padStart(2, '0');
+    var n30 = 0, nMonth = 0, last = "";
+    rows.forEach(function (r) {
+        var d = String(r.m_date || "").slice(0, 10);
+        if (d >= from30 && d <= today) n30++;
+        if (d.slice(0, 7) === month) nMonth++;
+        if (d > last) last = d;
+    });
+    $("#mmTotal").text(rows.length);
+    $("#mmRange").text($("#m_sdate").val() + " ~ " + $("#m_edate").val());
+    $("#mm30").text(n30);
+    $("#mmMonth").text(nMonth);
+    $("#mmLast").text(last || "—");
+    var days = last ? Math.round((new Date(today) - new Date(last)) / 86400000) : null;
+    $("#mmLastSub").text(days == null ? "" : days === 0 ? "오늘" : days + "일 전");
 }
 </script>
 </body>

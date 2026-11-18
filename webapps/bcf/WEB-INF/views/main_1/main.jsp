@@ -91,8 +91,10 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 .sb-group-header:hover { background: var(--bg); }
 .sb-group-cat-icon {
   width: 20px; height: 20px; flex-shrink: 0;
-  font-size: 13px; display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center; color: var(--muted);
 }
+.sb-group-cat-icon .ic { width: 16px; height: 16px; }
+.sb-group-chevron .ic { width: 14px; height: 14px; }
 .sb-group-name {
   flex: 1; font-size: 12px; font-weight: 700; letter-spacing: .6px;
   color: var(--text); white-space: nowrap; transition: opacity .15s;
@@ -148,14 +150,16 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
   width: 3px; background: var(--primary);
   border-radius: 0 3px 3px 0;
 }
+/* 라인 아이콘 (스프라이트 <use>) — 색은 글자색을 따라감 */
+.ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75;
+  stroke-linecap: round; stroke-linejoin: round; display: block; flex-shrink: 0; }
 .sb-icon {
   width: 30px; height: 30px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; border-radius: 7px;
-  background: var(--bg); transition: background .13s;
+  border-radius: 7px; color: var(--muted); transition: color .13s;
 }
 .sb-item:hover .sb-icon,
-.sb-item.active .sb-icon { background: var(--primary-m); }
+.sb-item.active .sb-icon { color: var(--primary); }
 .sb-label { flex: 1; }
 .sb-badge {
   font-size: 10px; background: var(--red); color: #fff;
@@ -172,7 +176,7 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
   white-space: nowrap; overflow: hidden;
 }
 .btn-collapse:hover { background: var(--bg); }
-.collapse-icon { font-size: 14px; flex-shrink: 0; width: 30px; text-align: center; transition: transform .22s; }
+.collapse-icon { flex-shrink: 0; width: 30px; display: flex; justify-content: center; transition: transform .22s; }
 .sidebar.collapsed .collapse-icon { transform: rotate(180deg); }
 
 /* ══ 메인 영역 ══ */
@@ -256,6 +260,36 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
   <!-- ══ 사이드바 ══ -->
   <nav class="sidebar" id="sidebar">
 
+    <%-- 메뉴 아이콘: 단색 라인 아이콘 스프라이트 (Lucide 기반, 24px 그리드) --%>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+      <symbol id="i-network" viewBox="0 0 24 24"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8"/></symbol>
+      <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+      <symbol id="i-factory" viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1M12 18h1M7 18h1"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65M22 12.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+      <symbol id="i-trend" viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+      <symbol id="i-rank" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 6h12M7 11h8M7 16h4"/></symbol>
+      <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol>
+      <symbol id="i-clip-check" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+      <symbol id="i-clip-list" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></symbol>
+      <symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></symbol>
+      <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></symbol>
+      <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-list-check" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/></symbol>
+      <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-bar" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    </defs></svg>
+
     <div class="sb-logo" onclick="go('${pageContext.request.contextPath}/main_1/equip/monitor','통신 모니터링',null)">
       <img src="${pageContext.request.contextPath}/img/brand-logo.png" alt="로고">
     </div>
@@ -264,9 +298,9 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 
       <%-- 제품관리
       <div class="sb-group-header closed empty" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">📦</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-package"/></svg></span>
         <span class="sb-group-name">제품관리</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body closed">
       </div>
@@ -274,9 +308,9 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 
       <%-- 생산관리
       <div class="sb-group-header closed empty" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">🏭</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-factory"/></svg></span>
         <span class="sb-group-name">생산관리</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body closed">
       </div>
@@ -284,9 +318,9 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 
       <%-- 생산공정관리
       <div class="sb-group-header closed empty" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">⚙️</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-layers"/></svg></span>
         <span class="sb-group-name">생산공정관리</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body closed">
       </div>
@@ -294,87 +328,87 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 
       <!-- 모니터링 -->
       <div class="sb-group-header open" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">📡</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-activity"/></svg></span>
         <span class="sb-group-name">모니터링</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body open">
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/equip/monitor','통신 모니터링',this);return false;">
-          <div class="sb-icon">🖥️</div><span class="sb-label">통신 모니터링</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-network"/></svg></div><span class="sb-label">통신 모니터링</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/main/monitor','메인 모니터링',this);return false;">
-          <div class="sb-icon">🧭</div><span class="sb-label">메인 모니터링</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-dashboard"/></svg></div><span class="sb-label">메인 모니터링</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/equip/detail','설비 상세',this);return false;">
-          <div class="sb-icon">🔍</div><span class="sb-label">설비 상세</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-search"/></svg></div><span class="sb-label">설비 상세</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/work/list','작업LIST',this);return false;">
-          <div class="sb-icon">📋</div><span class="sb-label">작업LIST</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-list"/></svg></div><span class="sb-label">작업LIST</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/work/now1','공정현황-1',this);return false;">
-          <div class="sb-icon">🏭</div><span class="sb-label">공정현황-1</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-factory"/></svg></div><span class="sb-label">공정현황-1</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/work/now2','공정현황-2',this);return false;">
-          <div class="sb-icon">🏭</div><span class="sb-label">공정현황-2</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-layers"/></svg></div><span class="sb-label">공정현황-2</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/trend','트렌드',this);return false;">
-          <div class="sb-icon">📈</div><span class="sb-label">트렌드</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-trend"/></svg></div><span class="sb-label">트렌드</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/alarm/history','알람 이력',this);return false;">
-          <div class="sb-icon">🔔</div><span class="sb-label">알람 이력</span><span class="sb-badge" id="alarmBadge">0</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-bell"/></svg></div><span class="sb-label">알람 이력</span><span class="sb-badge" id="alarmBadge">0</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/alarm/ranking','알람 랭킹',this);return false;">
-          <div class="sb-icon">🏆</div><span class="sb-label">알람 랭킹</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-rank"/></svg></div><span class="sb-label">알람 랭킹</span>
         </a>
       </div>
 
       <!-- 설비보존관리 -->
       <div class="sb-group-header open" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">🔧</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-wrench"/></svg></span>
         <span class="sb-group-name">설비보존관리</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body open">
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/calib/status','정기보전',this);return false;">
-          <div class="sb-icon">🔧</div><span class="sb-label">정기보전</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-calendar"/></svg></div><span class="sb-label">정기보전</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/inspect/daily','일상점검일지',this);return false;">
-          <div class="sb-icon">📋</div><span class="sb-label">일상점검일지</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-clip-check"/></svg></div><span class="sb-label">일상점검일지</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/auxiliary/inspection','부대설비 점검표',this);return false;">
-          <div class="sb-icon">🏭</div><span class="sb-label">부대설비 점검표</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-clip-list"/></svg></div><span class="sb-label">부대설비 점검표</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/spare/parts','스페어파트',this);return false;">
-          <div class="sb-icon">🔩</div><span class="sb-label">스페어파트</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-package"/></svg></div><span class="sb-label">스페어파트</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/facility/backup','BACKUP-DATA',this);return false;">
-          <div class="sb-icon">💾</div><span class="sb-label">BACKUP-DATA</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-database"/></svg></div><span class="sb-label">BACKUP-DATA</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/consumable/ledger','유류·소모재 관리대장',this);return false;">
-          <div class="sb-icon">🛢️</div><span class="sb-label">유류·소모재 관리대장</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-droplet"/></svg></div><span class="sb-label">유류·소모재 관리대장</span>
         </a>
       </div>
 
       <!-- 품질관리 -->
       <div class="sb-group-header open" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">✅</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-check-circle"/></svg></span>
         <span class="sb-group-name">품질관리</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body open">
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/inspect/fproof','F/PROOF SAVE',this);return false;">
-          <div class="sb-icon">🛡️</div><span class="sb-label">F/PROOF SAVE</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-shield"/></svg></div><span class="sb-label">F/PROOF SAVE</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/inspect/fprooflist','F/PROOF LIST',this);return false;">
-          <div class="sb-icon">📋</div><span class="sb-label">F/PROOF LIST</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-list-check"/></svg></div><span class="sb-label">F/PROOF LIST</span>
         </a>
       </div>
 
       <!-- 경영정보 -->
       <div class="sb-group-header closed empty" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">📊</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-bar"/></svg></span>
         <span class="sb-group-name">경영정보</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body closed">
         <%-- <a class="sb-item coming-soon" href="#"><div class="sb-icon">·</div><span class="sb-label">준비중</span></a> --%>
@@ -382,29 +416,29 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 
       <!-- 기준정보 -->
       <div class="sb-group-header open" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">🗂️</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-folder"/></svg></span>
         <span class="sb-group-name">기준정보</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body open">
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/user/manage','사용자 관리',this);return false;">
-          <div class="sb-icon">👤</div><span class="sb-label">사용자 관리</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-users"/></svg></div><span class="sb-label">사용자 관리</span>
         </a>
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/user/permission','권한 부여',this);return false;">
-          <div class="sb-icon">🔐</div><span class="sb-label">권한 부여</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-lock"/></svg></div><span class="sb-label">권한 부여</span>
         </a>
         <%-- 제품 등록
         <a class="sb-item" href="#" onclick="go('${pageContext.request.contextPath}/main_1/management/productInsert','제품 등록',this);return false;">
-          <div class="sb-icon">🔐</div><span class="sb-label">제품 등록</span>
+          <div class="sb-icon"><svg class="ic"><use href="#i-package"/></svg></div><span class="sb-label">제품 등록</span>
         </a>
         --%>
       </div>
 
       <%-- 작업지시
       <div class="sb-group-header closed empty" onclick="toggleGroup(this)">
-        <span class="sb-group-cat-icon">📝</span>
+        <span class="sb-group-cat-icon"><svg class="ic"><use href="#i-clip-list"/></svg></span>
         <span class="sb-group-name">작업지시</span>
-        <span class="sb-group-chevron">▼</span>
+        <span class="sb-group-chevron"><svg class="ic"><use href="#i-chev-down"/></svg></span>
       </div>
       <div class="sb-group-body closed">
       </div>
@@ -414,7 +448,7 @@ html, body { height: 100%; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
 
     <div class="sb-footer">
       <button class="btn-collapse" onclick="toggleSidebar()">
-        <span class="collapse-icon">◀</span>
+        <span class="collapse-icon"><svg class="ic"><use href="#i-chev-left"/></svg></span>
         <span style="font-size:12px;white-space:nowrap">메뉴 접기</span>
       </button>
     </div>

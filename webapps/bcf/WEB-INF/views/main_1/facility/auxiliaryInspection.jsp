@@ -201,7 +201,112 @@ body.tablet-mode #noteCard1 .ax-textarea,
 body.tablet-mode #noteCard2 .ax-textarea {
   flex:1; min-height:0; resize:none; font-size:13px;
 }
+
+/* ══════════════════════════════════════════
+   데모 리뉴얼: 무채색 + 파랑 1색, 화면 꽉 채우기 (페이지 스크롤 없음, 표 안에서만 스크롤)
+══════════════════════════════════════════ */
+:root {
+  --ax-sans: 'IBM Plex Sans KR','Malgun Gothic','Segoe UI',sans-serif;
+  --ax-mono: 'IBM Plex Mono',Consolas,'Malgun Gothic',monospace;
+  --ax-line: #E3E7ED;
+  --ax-line-2: #EEF1F5;
+  --ax-head: #F6F8FA;
+  --ax-fg: #1F2933;
+  --ax-fg-2: #52606D;
+  --ax-fg-3: #8A96A3;
+  --ax-danger: oklch(55% 0.15 25);
+}
+html, body { font-family: var(--ax-sans); color: var(--ax-fg); }
+body { background: #F5F7FA; }
+
+/* 페이지: 100vh 플렉스 컬럼 */
+.page-wrap { display:flex; flex-direction:column; height:100vh; overflow:hidden; padding:12px 16px; box-sizing:border-box; }
+.page-header { flex:none; align-items:center; margin-bottom:8px; gap:8px; }
+.page-title  { font-size:18px; font-weight:600; letter-spacing:-.2px; }
+.page-sub    { font-size:12px; color:var(--ax-fg-3); margin-top:2px; }
+
+/* 버튼·입력: 흰 버튼 + 주요 버튼(저장) 1개 */
+.page-header .btn-outline,
+.btn-tablet-toggle {
+  height:32px; padding:0 12px; border-radius:6px; border:1px solid var(--ax-line);
+  background:#fff; color:var(--ax-fg); font-size:13px; font-weight:500;
+  display:inline-flex; align-items:center; gap:6px; transition:border-color .08s, color .08s;
+}
+.page-header .btn-outline:hover, .btn-tablet-toggle:hover { border-color:#C5CDD6; color:var(--ax-fg); }
+.btn-tablet-toggle.active { background:#fff; color:var(--primary); border-color:var(--primary); }
+.page-header .btn-primary { height:32px; padding:0 14px; border-radius:6px; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+.page-header .form-input  { height:32px; padding:0 8px; border-radius:6px; border-color:var(--ax-line); font-family:var(--ax-mono); font-size:12.5px; }
+.ax-ic { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+
+/* 카드: 1px 테두리, 그림자 없음 */
+.page-wrap .card { border-radius:8px; box-shadow:none; border-color:var(--ax-line); padding:12px; }
+
+/* 점검자 띠 */
+.page-wrap > .card.ax-meta { flex:none; margin-bottom:8px !important; padding:8px 12px !important; }
+.ax-meta .form-field { flex-direction:row; }
+.ax-meta .form-label { font-size:12px; font-weight:500 !important; color:var(--ax-fg-2); }
+.ax-meta .form-input { height:30px; padding:0 8px; border-radius:6px; border-color:var(--ax-line); font-size:13px; }
+#saveStatus { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ax-fg-2) !important; }
+#saveStatus::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--ax-fg-3); }
+#saveStatus:empty::before { display:none; }
+#saveStatus.is-ok::before  { background:oklch(60% 0.12 150); }
+#saveStatus.is-new::before { background:var(--primary); }
+
+/* 일반 모드: 주 영역이 남은 높이 채움 */
+#mainLayout { flex:1; min-height:0; }
+body:not(.tablet-mode) #sectionsWrap { flex:1; min-height:0; display:flex; flex-direction:column; }
+body:not(.tablet-mode) .ax-grid { flex:1; min-height:0; grid-template-rows:minmax(0,1fr); gap:8px; }
+body:not(.tablet-mode) #col2Wrap,
+body:not(.tablet-mode) #col3Wrap { min-height:0; gap:8px; }
+body:not(.tablet-mode) .ax-section { display:flex; flex-direction:column; min-height:0; }
+body:not(.tablet-mode) #sec-outdoor { height:100%; box-sizing:border-box; }
+body:not(.tablet-mode) #sec-comp,
+body:not(.tablet-mode) #sec-n2gas { flex:none; max-height:62%; }
+body:not(.tablet-mode) .ax-section > div[style*="overflow"] { flex:1; min-height:0; overflow:auto !important; }
+body:not(.tablet-mode) #outdoorTable { height:100%; }
+body:not(.tablet-mode) #noteCard1, body:not(.tablet-mode) #noteCard2 { min-height:0; }
+body:not(.tablet-mode) #noteCard1 .ax-textarea,
+body:not(.tablet-mode) #noteCard2 .ax-textarea { resize:none; min-height:0; }
+@media (max-width:900px) { body:not(.tablet-mode) .page-wrap { overflow-y:auto; } body:not(.tablet-mode) .ax-grid { grid-template-rows:none; } }
+
+/* 섹션 제목: 색 띠 대신 글자 + 아래 선 */
+.section-title { background:none; border-radius:0; padding:0 0 8px; margin-bottom:8px; border-bottom:1px solid var(--ax-line-2);
+  font-size:13px; font-weight:600; color:var(--ax-fg); flex:none; }
+.section-note { flex:none; font-size:11px; color:var(--ax-fg-3); margin:-2px 0 6px; }
+
+/* 표 */
+.ax-table { font-size:12px; font-variant-numeric:tabular-nums; }
+.ax-table th { background:var(--ax-head); color:var(--ax-fg-2); font-weight:500; font-size:11px; border-color:var(--ax-line); padding:6px 4px; }
+.ax-table td { border-color:var(--ax-line); color:var(--ax-fg); }
+.ax-table td.left { font-size:12px; color:var(--ax-fg); }
+.ax-table .sub-cell { font-family:var(--ax-mono); font-size:10.5px; color:var(--ax-fg-3); }
+.ax-table td.group-cell { background:var(--ax-head); color:var(--ax-fg-2); font-weight:500; }
+.ax-table tbody tr:hover td:not(.group-cell) { background:#F9FAFB; }
+
+/* O/X, ○/△/⊙: 배경 칠 대신 글자 — 이상만 빨강, 조치완료는 파랑 */
+.ox-cell, .tri-cell { height:24px; border-radius:4px; font-family:var(--ax-mono); font-weight:500; transition:background .08s; }
+.ox-cell:hover, .tri-cell:hover { background:var(--ax-line-2); }
+.ox-cell.val-O, .tri-cell.val-ok   { background:none; color:var(--ax-fg-2); }
+.ox-cell.val-X, .tri-cell.val-warn { background:none; color:var(--ax-danger); font-weight:700; }
+.tri-cell.val-done { background:none; color:var(--primary); }
+.ox-cell.val-O:hover, .ox-cell.val-X:hover { background:var(--ax-line-2); }
+
+/* 수치 입력: mono */
+.num-input, .ax-input { font-family:var(--ax-mono); font-size:12px; color:var(--ax-fg); }
+.num-input:focus, .ax-input:focus { background:#EEF4FB; }
+
+/* 노트 */
+.ax-note-title { font-size:13px; font-weight:600; margin-bottom:6px; color:var(--ax-fg); flex:none; }
+.ax-note-title small { font-weight:400; color:var(--ax-fg-3); margin-left:6px; font-size:11px; }
+.ax-textarea { border-color:var(--ax-line); border-radius:6px; font-size:12.5px; line-height:1.6; }
+
+/* 태블릿 탭 */
+.ax-tab { border-radius:6px; font-weight:500; border-color:var(--ax-line); color:var(--ax-fg-2); }
+.ax-tab.active { background:#fff; color:var(--primary); border-color:var(--primary); }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <body>
 <div class="page-wrap">
 
@@ -212,17 +317,17 @@ body.tablet-mode #noteCard2 .ax-textarea {
       <div class="page-sub">옥외부대설비 · 콤프레샤 · N₂ GAS 일일 점검</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="btn-tablet-toggle" id="btnTablet" onclick="toggleTabletMode()">📱 태블릿 모드</button>
+      <button class="btn-tablet-toggle" id="btnTablet" onclick="toggleTabletMode()">태블릿 모드</button>
       <input class="form-input" type="date" id="inspectDate" style="width:150px">
-      <button class="btn-outline" onclick="loadData()">🔍 조회</button>
-      <button class="btn-primary" id="btnSave" onclick="saveData()" data-perm="edit">💾 저장</button>
-      <button class="btn-outline" onclick="doExcel()">📥 엑셀</button>
+      <button class="btn-outline" onclick="loadData()"><svg class="ax-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>조회</button>
+      <button class="btn-primary" id="btnSave" onclick="saveData()" data-perm="edit">저장</button>
+      <button class="btn-outline" onclick="doExcel()"><svg class="ax-ic" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>엑셀</button>
       <button class="btn-outline" onclick="openInspectorMgr()">사용자 관리</button>
     </div>
   </div>
 
   <!-- 점검자 -->
-  <div class="card" style="margin-bottom:12px;padding:12px 16px">
+  <div class="card ax-meta" style="margin-bottom:12px;padding:12px 16px">
     <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
       <div class="form-field" style="margin:0;display:flex;align-items:center;gap:8px">
         <label class="form-label" style="margin:0;white-space:nowrap;font-weight:700">주간 점검자</label>
@@ -271,8 +376,8 @@ body.tablet-mode #noteCard2 .ax-textarea {
             </div>
           </div>
           <div class="card" id="noteCard1" style="padding:12px 14px">
-            <div style="font-size:12px;font-weight:700;margin-bottom:6px">※ 점검시 유의사항
-              <small style="font-weight:400;color:var(--muted);margin-left:6px">(저장 시 다음 날 자동 인계)</small>
+            <div class="ax-note-title">점검시 유의사항
+              <small>저장 시 다음 날 자동 인계</small>
             </div>
             <textarea class="ax-textarea" id="notes" placeholder="유의사항을 입력하세요"></textarea>
           </div>
@@ -288,8 +393,8 @@ body.tablet-mode #noteCard2 .ax-textarea {
             </div>
           </div>
           <div class="card" id="noteCard2" style="padding:12px 14px">
-            <div style="font-size:12px;font-weight:700;margin-bottom:6px">※ 특기사항
-              <small style="font-weight:400;color:var(--muted);margin-left:6px">(저장 시 다음 날 자동 인계)</small>
+            <div class="ax-note-title">특기사항
+              <small>저장 시 다음 날 자동 인계</small>
             </div>
             <textarea class="ax-textarea" id="specialNotes" placeholder="특기사항을 입력하세요"></textarea>
           </div>
@@ -322,8 +427,9 @@ body.tablet-mode #noteCard2 .ax-textarea {
 </div>
 
 <script src="/bcf/mock/mock-loader.js"></script>
+<script src="/vendor/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-var base = '${pageContext.request.contextPath}';
+var base ='${pageContext.request.contextPath}';
 var canEdit = true;
 /* 소형 화면(모바일) 첫 방문 시 태블릿 모드 자동 활성화 */
 var _savedMode = localStorage.getItem('ax_tablet_mode');
@@ -438,7 +544,7 @@ function applyTabletMode() {
 
   if (tabletMode) {
     document.body.classList.add('tablet-mode');
-    if (btn)  { btn.classList.add('active'); btn.innerHTML = '💻 일반 모드'; }
+    if (btn)  { btn.classList.add('active'); btn.innerHTML = '일반 모드'; }
     if (tabs) tabs.style.display = 'flex';
     // noteCard1/2를 notesColumn으로 이동 (세로 반반)
     if (nc1 && notesCol) notesCol.appendChild(nc1);
@@ -454,7 +560,7 @@ function applyTabletMode() {
     setTabletHeight();  /* JS로 높이 직접 계산 */
   } else {
     document.body.classList.remove('tablet-mode');
-    if (btn)  { btn.classList.remove('active'); btn.innerHTML = '📱 태블릿 모드'; }
+    if (btn)  { btn.classList.remove('active'); btn.innerHTML = '태블릿 모드'; }
     if (tabs) tabs.style.display = 'none';
     // noteCard1 → col2Wrap 복귀, noteCard2 → col3Wrap 복귀
     if (nc1 && col2 && nc1.parentElement !== col2) col2.appendChild(nc1);
@@ -682,8 +788,8 @@ function buildN2GasTable() {
   var h = '<thead><tr>'
     + '<th style="width:22px">No</th>'
     + '<th>점검사항</th>'
-    + '<th style="width:34px">주</th>'
-    + '<th style="width:34px">야</th>'
+    + '<th style="width:46px">주</th>'
+    + '<th style="width:46px">야</th>'
     + '</tr></thead><tbody>';
   N2GAS_ITEMS.forEach(function(item, i) {
     var no = i + 1;
@@ -732,8 +838,10 @@ function loadData() {
       applyComp();
       applyN2Gas();
 
-      var status = res.isNew ? '📄 새 기록 (유의사항/특기사항은 이전 기록에서 인계됨)' : '✅ 저장된 기록';
-      document.getElementById('saveStatus').textContent = status;
+      var status = res.isNew ? '새 기록 · 유의사항/특기사항은 이전 기록에서 인계됨' : '저장된 기록';
+      var st = document.getElementById('saveStatus');
+      st.textContent = status;
+      st.className = res.isNew ? 'is-new' : 'is-ok';
     });
 }
 
@@ -818,7 +926,9 @@ function saveData() {
   }).then(function(r){ return r.json(); })
     .then(function(res){
       if (!res.success) { alert(res.error || '저장 실패'); return; }
-      document.getElementById('saveStatus').textContent = '✅ 저장 완료';
+      var st = document.getElementById('saveStatus');
+      st.textContent = '저장 완료';
+      st.className = 'is-ok';
     });
 }
 
@@ -943,7 +1053,30 @@ function escH(s) {
 function doExcel() {
   var date = document.getElementById('inspectDate').value;
   if (!date) { alert('날짜를 선택하세요.'); return; }
-  location.href = base + '/auxiliary/inspection/excel?date=' + date;
+  // 데모: 서버 엑셀 생성 대신 화면의 점검표 3개 + 유의/특기사항을 xlsx 로 내려받는다
+  function sheetOf(id) {
+    var tbl = document.getElementById(id);
+    var c = tbl.cloneNode(true);
+    var src = tbl.querySelectorAll('input,select,textarea'), dst = c.querySelectorAll('input,select,textarea');
+    for (var i = 0; i < dst.length; i++) {
+      var s = src[i];
+      var v = (s.type === 'checkbox' || s.type === 'radio') ? (s.checked ? 'V' : '')
+            : (s.tagName === 'SELECT' ? ((s.options[s.selectedIndex] || {}).text || '') : s.value);
+      dst[i].parentNode.replaceChild(document.createTextNode(v), dst[i]);
+    }
+    return XLSX.utils.table_to_sheet(c, { raw: true });
+  }
+  function selText(id) { var s = document.getElementById(id); return s && s.selectedIndex > 0 ? s.options[s.selectedIndex].text : ''; }
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, sheetOf('outdoorTable'), '옥외부대설비');
+  XLSX.utils.book_append_sheet(wb, sheetOf('compTable'), '콤프레샤');
+  XLSX.utils.book_append_sheet(wb, sheetOf('n2gasTable'), 'N2 GAS');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+    ['점검일', date], ['주간 점검자', selText('dayInspector')], ['야간 점검자', selText('nightInspector')], [],
+    ['점검시 유의사항', document.getElementById('notes').value],
+    ['특기사항', document.getElementById('specialNotes').value]
+  ]), '비고');
+  XLSX.writeFile(wb, '부대설비점검표_' + date + '.xlsx');
 }
 </script>
 </body>

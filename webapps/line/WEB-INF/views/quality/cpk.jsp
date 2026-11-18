@@ -255,27 +255,67 @@
 
 
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/line/css/quality/capability.css">
+<script src="/line/js/quality/capability.js"></script>
+<script>
+/* 데모: 조회 결과로 상단 요약(Cpk·판정·통계)을 채우고 관리도 선 색을 정리 — dataSearch 원본은 그대로 */
+$(document).ajaxSuccess(function (e, xhr, opt) {
+    if (!opt || opt.url !== "/line/quality/cpk/standard/list") return;
+    var r = xhr.responseJSON || {}, c = r.cpkValueCalcData || {}, s = (r.standardData || [])[0] || {}, f = CPX.fmt;
+    var sg = (r.cpkValueData || []).length;
+    CPX.hero(document.getElementById("cpxVal"), document.getElementById("cpxJudge"), document.getElementById("cpxScale"), c.cpk);
+    $("#cpxItem").text(s.h_pname ? s.h_pname + " · " + (s.h_pnum || "") : "—").attr("title", s.h_gang || "");
+    $("#cpxSpec").text(CPX.num(s.h_hard_dw) == null ? "—" : s.h_hard_dw + " ~ " + s.h_hard_up);
+    $("#cpxMean").text(f(c.cl_x));
+    $("#cpxSigma").text(f(c.r_d2, 3));
+    $("#cpxCp").text(f(c.cp)).attr("class", CPX.judge(c.cp).cls);
+    $("#cpxK").text(f(c.k, 3));
+    $("#cpxN").html(sg + "<small>× " + (c.n || "—") + "</small>");
+    $("#cpxXcl").text(CPX.num(c.lcl_x) == null ? "—" : f(c.lcl_x) + " ~ " + f(c.ucl_x));
+    $("#cpxRcl").text(CPX.num(c.cl_r) == null ? "—" : f(c.cl_r) + " / " + f(c.ucl_r));
+    $("#cpxPeriod").text(($("#s_sdate").val() || "").slice(5) + " ~ " + ($("#s_edate").val() || "").slice(5));
+    $("#cpxRows").text(sg ? "부분군 " + sg + "개" : "");
+
+    var K = CPX.C;
+    CPX.styleSeries("xBar", {
+        X_AVG: { color: K.fg, lineWidth: 1.5 },
+        X_CL:  { color: K.fg3, dashStyle: "Dash", lineWidth: 1 },
+        X_UCL: { color: K.accent, dashStyle: "ShortDash", lineWidth: 1 },
+        X_LCL: { color: K.accent, dashStyle: "ShortDash", lineWidth: 1 },
+        X_MAX: { color: K.bad, lineWidth: 1 },
+        X_MIN: { color: K.bad, lineWidth: 1 }
+    });
+    CPX.styleSeries("rBar", {
+        R_RANGE: { color: K.fg, lineWidth: 1.5 },
+        R_CL:  { color: K.fg3, dashStyle: "Dash", lineWidth: 1 },
+        R_UCL: { color: K.accent, dashStyle: "ShortDash", lineWidth: 1 }
+    });
+});
+$(function () { CPX.scale(document.getElementById("cpxScale"), null); });
+</script>
 
 <body>
-    <main class="main">
-        <div class="tab">
-        
+    <main class="main cpx">
+        <div class="tab cpx-toolbar">
+            <h1 class="cpx-title">Cpk 분석<span>단기 공정능력 · X̄-R 관리도</span></h1>
 
             <div class="button-container">
-            
+
                <div class="box1">
-	
-	            <label class="daylabel">조회일자 :</label>
+
+	            <label class="daylabel">조회일자</label>
 	            <input type="text" id="s_sdate" class="dayselect daySet"/>
-	           <label style="margin-bottom:10px; margin-left:3px; margin-right:3px; display:inline-block;">~</label>
+	           <span class="cpx-sep">~</span>
 
 
 	            <input type="text" id="s_edate" class="dayselect daySet"/>
-			   <label style="margin: 0 3px 13px 3px;">품번</label>
+			   <label class="daylabel">품번</label>
 
-			      
-				<input type="text" name="w_pnum" class="dayselect" 
-				style="cursor:pointer; border-color:red; padding:8px; margin-bottom:10px;" onclick="pumbunSelect();">
+
+				<input type="text" name="w_pnum" class="dayselect cpx-pick" placeholder="품번 선택" onclick="pumbunSelect();">
 			</div>
                 <button class="select-button">
                     <img src="/line/css/tabBar/search-icon.png" alt="select" class="button-image">조회
@@ -296,23 +336,64 @@
             </div>
         </div>
 
-        <div class="view">
-        	<div id="standardTable"></div>
+        <!-- 결과 요약: Cpk → 판정 → 보조 통계 → 기준정보 -->
+        <section class="cpx-card cpx-summary">
+            <div class="cpx-hero">
+                <span class="k">공정능력지수 Cpk</span>
+                <div class="v"><b id="cpxVal">—</b><span class="cpx-judge" id="cpxJudge">조회 전</span></div>
+                <div class="cpx-scale" id="cpxScale"></div>
+                <span class="cpx-sub">판정 기준 · 1.67 이상 우수 · 1.33 이상 양호 · 1.00 이상 개선 필요 · 1.00 미만 부족</span>
+            </div>
+            <dl class="cpx-stats">
+                <div><dt>품목</dt><dd class="txt" id="cpxItem">—</dd></div>
+                <div><dt>규격 (LSL ~ USL)</dt><dd id="cpxSpec">—</dd></div>
+                <div><dt>평균 X̄</dt><dd id="cpxMean">—</dd></div>
+                <div><dt>표준편차 σ (R̄/d2)</dt><dd id="cpxSigma">—</dd></div>
+                <div><dt>Cp</dt><dd id="cpxCp">—</dd></div>
+                <div><dt>치우침 k</dt><dd id="cpxK">—</dd></div>
+                <div><dt>부분군 × 크기 n</dt><dd id="cpxN">—</dd></div>
+                <div><dt>X̄ 관리한계 (LCL ~ UCL)</dt><dd id="cpxXcl">—</dd></div>
+                <div><dt>R̄ / UCL</dt><dd id="cpxRcl">—</dd></div>
+                <div><dt>조회 기간</dt><dd id="cpxPeriod">—</dd></div>
+            </dl>
+            <div class="cpx-std">
+                <div class="view cpx-scroll">
+                    <div id="standardTable"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="cpx-row c2">
+            <section class="cpx-card">
+                <header><h3>X̄ 관리도</h3><span class="cpx-note">부분군 평균 · 점선 관리한계 · 빨강 규격한계</span></header>
+                <!-- 하이차트 - 1 -->
+                <div id="xBar" class="cpx-chart"></div>
+            </section>
+            <section class="cpx-card">
+                <header><h3>R 관리도</h3><span class="cpx-note">부분군 범위 · 점선 관리한계</span></header>
+                <!-- 하이차트 - 2 -->
+                <div id="rBar" class="cpx-chart"></div>
+            </section>
         </div>
-        	<!-- 하이차트 - 1 -->
-        	<div id="xBar"></div>
-        	<!-- 하이차트 - 2 -->
-        	<div id="rBar"></div>
-        <div class="view">
-            <div id="dataTable"></div>
-             <div id="cpkCalcTable" style="margin-left:160px;"></div> 
 
-	
-		</div>
+        <div class="cpx-row c2">
+            <section class="cpx-card">
+                <header><h3>측정 데이터</h3><span class="cpx-note" id="cpxRows"></span></header>
+                <div class="view cpx-scroll">
+                    <div id="dataTable"></div>
+                </div>
+            </section>
+            <section class="cpx-card">
+                <header><h3>계산 내역</h3><span class="cpx-note">관리도 계수 · 관리한계 · 공정능력</span></header>
+                <div class="view cpx-scroll">
+                    <div id="cpkCalcTable"></div>
+                </div>
+            </section>
+        </div>
     </main>
-    
 
-<div id="pumbunModal" class="pumbunModal">
+
+<div id="pumbunModal" class="pumbunModal cpx-modal">
   <div class="pumbun-modal-content">
     <span class="closePumbun">&times;</span>
     <!-- 추가, 수정 -->
@@ -595,7 +676,7 @@ function getCpkDataList(){
 	
 	
 	cpkListTable = new Tabulator('#dataTable', {
-		    height: '400px',
+		    height: '100%',
 		    layout: 'fitDataFill',	    
 		    headerSort: false,
 		    reactiveData: true,
@@ -635,7 +716,7 @@ function getCpkDataList(){
 var cpkCalcTable;
 function getCpkCalcList(){
 	cpkCalcTable = new Tabulator('#cpkCalcTable', {
-		    height: '400px',
+		    height: '100%',
 		    layout: 'fitDataFill',
 		    headerSort: false,
 		    reactiveData: true,
@@ -733,7 +814,7 @@ function getXbar(){
             panKey:"shift",
             zoomType:"x",
 			styleMode: true,
-			height:200
+			height:null
     	},
     	title: {
     		text:null
@@ -886,7 +967,7 @@ function getRbar(){
             panKey:"shift",
             zoomType:"x",
 			styleMode: true,
-			height:200
+			height:null
     	},
     	title: {
     		text:null

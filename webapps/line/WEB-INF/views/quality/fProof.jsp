@@ -9,521 +9,130 @@
     <title>F/PROOF</title>
     <%@include file="../include/pluginpage.jsp" %>
     <jsp:include page="../include/tabBar.jsp"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
     <link href="/vendor/tabulator/5.6.1/tabulator.min.css" rel="stylesheet">
     <script src="/vendor/tabulator/5.6.1/tabulator.min.js"></script>
+    <link rel="stylesheet" href="/line/css/opsList/ops-list.css">
 
     <style>
-        /* ── Reset & Variables ── */
-        :root {
-            --bg:           #f8f9fb;
-            --surface:      #ffffff;
-            --surface2:     #f1f4f8;
-            --border:       #e2e7ef;
-            --border-light: #edf0f5;
-            --accent:       #2563eb;
-            --accent-light: #eff4ff;
-            --accent-hover: #1d4ed8;
-            --text-primary: #1a202c;
-            --text-secondary:#4a5568;
-            --text-muted:   #9aa5b4;
-            --success:      #059669;
-            --success-bg:   #ecfdf5;
-            --danger:       #dc2626;
-            --danger-bg:    #fff5f5;
-            --warning:      #d97706;
-            --radius-sm:    6px;
-            --radius:       10px;
-            --radius-lg:    14px;
-            --shadow-sm:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow:       0 4px 12px rgba(0,0,0,0.08);
-            --shadow-lg:    0 8px 30px rgba(0,0,0,0.14);
-        }
+/* ===== 데모: F/PROOF — 월간 인터록 점검표 (고밀도 운영 화면) ===== */
+.fp-page { height: calc(100vh - 57px); /* 헤더 56 + 아래 테두리 1 */ display: flex; flex-direction: column; gap: 16px; padding: 16px 24px 24px; }
+.fp-page .ops-kpi { flex-shrink: 0; grid-template-columns: 1.4fr repeat(4, 1fr); }
+.fp-page .ops-kpi .kpi-sub b { font-family: var(--ops-mono); font-weight: 500; color: var(--ops-fg2); font-variant-numeric: tabular-nums; }
+.ops-head .ops-input.month-input { width: 112px; min-width: 0; text-align: left; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+.fp-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.fp-card .ops-card-head { align-items: center; }
+.fp-legend { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--ops-fg3); }
+.fp-body { flex: 1; min-height: 0; overflow: hidden; }
+#dataList { height: 100%; }
 
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: var(--bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
+/* 일자별 OK/NG: 글자만, NG 는 점 + 빨강, 오늘 열은 옅은 강조 */
+.ops-table .tabulator-cell.fp-day { padding: 0 !important; text-align: center; font-family: var(--ops-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ops-fg3); }
+.ops-table .tabulator-col.fp-day .tabulator-col-content { padding: 6px 0 !important; }
+.ops-table .tabulator-col.fp-day .tabulator-col-title { padding: 0 !important; text-align: center; font-family: var(--ops-mono); font-variant-numeric: tabular-nums; }
+.ops-table .tabulator-cell.fp-day.cell-ok { color: var(--ops-ok) !important; font-weight: 500; }
+.ops-table .tabulator-cell.fp-day.cell-ng { color: var(--ops-bad) !important; font-weight: 600; background: var(--ops-bad-tint); }
+.ops-table .tabulator-col.fp-today { background: var(--ops-accent-tint) !important; color: var(--ops-accent) !important; box-shadow: inset 0 -2px 0 var(--ops-accent); }
+.ops-table .tabulator-cell.fp-today { background: oklch(55% 0.13 255 / 0.035); }
+.ops-table .tabulator-cell.fp-today.cell-ng { background: var(--ops-bad-tint); }
+.ops-table .tabulator-cell.fp-text { color: var(--ops-fg2); }
+.ops-table .tabulator-cell .c-lot { font-size: 12px; }
 
-        /* ── Main ── */
-        .main {
-            padding: 24px 28px;
-            animation: fadeIn .35s ease both;
-        }
+/* 행 안 업로드 버튼 / 점검방법 파일 링크 */
+.img-upload-btn { height: 24px; padding: 0 8px; border: 1px solid var(--ops-line); border-radius: 4px; background: #fff; color: var(--ops-fg2);
+  font-family: var(--ops-sans); font-size: 12px; cursor: pointer; transition: background-color 80ms, border-color 80ms; }
+.img-upload-btn:hover { background: var(--ops-hover); border-color: oklch(86% 0.008 255); color: var(--ops-fg); }
+.file-link { font-family: var(--ops-mono); font-size: 12px; color: var(--ops-accent); text-decoration: none; }
+.file-link:hover { text-decoration: underline; }
 
-        /* ── Page Header ── */
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .page-header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .header-icon {
-            width: 40px; height: 40px;
-            background: var(--accent);
-            border-radius: var(--radius-sm);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.28);
-            flex-shrink: 0;
-        }
-        .header-icon svg {
-            width: 20px; height: 20px;
-            fill: none; stroke: #fff;
-            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        }
-        .page-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -.3px;
-        }
-        .page-breadcrumb {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
+/* 행 추가 모달 (#modalContainer.modal + .show 구조 유지) */
+#modalContainer.modal { display: none; position: fixed; inset: 0; z-index: 9000; align-items: center; justify-content: center; background: oklch(20% 0.01 255 / 0.4); }
+#modalContainer.modal.show { display: flex; }
+#modalContainer .modal-content { position: relative; width: 400px; max-width: 95vw; padding: 0; background: #fff; border: 1px solid var(--ops-line); border-radius: 8px;
+  box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16); font-family: var(--ops-sans); }
+#modalContainer .modal-head .modal-close { border: 0; background: transparent; }
+#modalContainer .form-input { font-family: var(--ops-mono); }
 
-        /* ── Toolbar Card ── */
-        .toolbar-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-sm);
-            animation: slideDown .4s .05s ease both;
-        }
-        .toolbar-left  { display: flex; align-items: center; gap: 10px; }
-        .toolbar-right { display: flex; align-items: center; gap: 8px; }
-
-        /* ── Field Group ── */
-        .field-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .field-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            white-space: nowrap;
-        }
-        .month-input {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            padding: 7px 12px;
-            width: 130px;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-            text-align: center;
-        }
-        .month-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-        }
-        .month-input::placeholder { color: var(--text-muted); }
-
-        /* ── Divider ── */
-        .toolbar-divider {
-            width: 1px; height: 28px;
-            background: var(--border);
-            margin: 0 2px;
-        }
-
-        /* ── Buttons ── */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 7px 13px;
-            border-radius: var(--radius-sm);
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all .18s ease;
-            white-space: nowrap;
-        }
-        .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-            box-shadow: 0 1px 4px rgba(37,99,235,0.25);
-        }
-        .btn-primary:hover {
-            background: var(--accent-hover);
-            border-color: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(37,99,235,0.35);
-        }
-        .btn-outline {
-            background: var(--surface);
-            color: var(--text-secondary);
-            border-color: var(--border);
-        }
-        .btn-outline:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: var(--accent-light);
-        }
-        .btn-danger-outline {
-            background: var(--surface);
-            color: var(--danger);
-            border-color: #fecaca;
-        }
-        .btn-danger-outline:hover {
-            background: var(--danger-bg);
-            border-color: var(--danger);
-        }
-        .btn-success-outline {
-            background: var(--surface);
-            color: var(--success);
-            border-color: #a7f3d0;
-        }
-        .btn-success-outline:hover {
-            background: var(--success-bg);
-            border-color: var(--success);
-        }
-
-        /* ── Table Wrap ── */
-        .table-wrap {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            animation: slideDown .4s .1s ease both;
-        }
-
-        /* ── Tabulator Overrides ── */
-        .tabulator {
-            background: var(--surface) !important;
-            border: none !important;
-            font-family: 'Noto Sans KR', sans-serif !important;
-            font-size: 13px !important;
-        }
-        .tabulator .tabulator-header {
-            background: var(--surface2) !important;
-            border-bottom: 1px solid var(--border) !important;
-        }
-        .tabulator .tabulator-header .tabulator-col {
-            background: transparent !important;
-            border-right: 1px solid var(--border-light) !important;
-            color: var(--text-secondary) !important;
-            font-size: 11.5px !important;
-            font-weight: 600 !important;
-            letter-spacing: .3px !important;
-        }
-        .tabulator .tabulator-header .tabulator-col:hover {
-            background: #e8edf5 !important;
-        }
-        .tabulator-row {
-            background: var(--surface) !important;
-            border-bottom: 1px solid var(--border-light) !important;
-            transition: background .12s !important;
-        }
-        .tabulator-row:nth-child(even) {
-            background: #fafbfd !important;
-        }
-        .tabulator-row:hover {
-            background: var(--accent-light) !important;
-        }
-        .tabulator-row.tabulator-selected,
-        .tabulator-row.row_select {
-            background: #dbeafe !important;
-            border-left: 3px solid var(--accent) !important;
-        }
-        .tabulator-row .tabulator-cell {
-            color: var(--text-primary) !important;
-            border-right: 1px solid var(--border-light) !important;
-            padding: 9px 10px !important;
-        }
-        .tabulator .tabulator-footer {
-            background: var(--surface2) !important;
-            border-top: 1px solid var(--border) !important;
-            color: var(--text-muted) !important;
-        }
-        /* OK/NG 셀 색상 */
-        .cell-ok  { color: var(--success) !important; font-weight: 600 !important; }
-        .cell-ng  { color: var(--danger)  !important; font-weight: 600 !important; }
-
-        /* 업로드 버튼 in cell */
-        .img-upload-btn {
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 11px;
-            font-weight: 500;
-            padding: 3px 9px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all .15s;
-        }
-        .img-upload-btn:hover {
-            background: var(--accent-light);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        .file-link {
-            color: var(--accent);
-            font-size: 12px;
-            text-decoration: none;
-        }
-        .file-link:hover { text-decoration: underline; }
-
-        /* ── Modal ── */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15,23,42,0.45);
-            backdrop-filter: blur(3px);
-            z-index: 9000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.show { display: flex; }
-
-        .modal-content {
-            background: var(--surface);
-            width: 380px;
-            max-width: 95vw;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            padding: 28px 28px 22px;
-            position: relative;
-            animation: popIn .3s cubic-bezier(.34,1.56,.64,1) both;
-        }
-        .modal-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 22px;
-        }
-        .modal-header-icon {
-            width: 34px; height: 34px;
-            background: var(--accent-light);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .modal-header-icon svg {
-            width: 16px; height: 16px;
-            stroke: var(--accent); fill: none;
-            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        }
-        .modal-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        .modal-close {
-            position: absolute;
-            top: 16px; right: 18px;
-            width: 28px; height: 28px;
-            border-radius: 6px;
-            border: none;
-            background: var(--surface2);
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px;
-            color: var(--text-muted);
-            transition: background .15s, color .15s;
-        }
-        .modal-close:hover { background: #fecaca; color: var(--danger); }
-
-        .form-group { margin-bottom: 16px; }
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            letter-spacing: .2px;
-        }
-        .form-input {
-            width: 100%;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            padding: 9px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            outline: none;
-            color: var(--text-primary);
-            background: var(--surface2);
-            transition: border-color .2s, box-shadow .2s;
-        }
-        .form-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-            background: #fff;
-        }
-        .form-input::placeholder { color: var(--text-muted); }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .modal-actions .btn { flex: 1; justify-content: center; }
-
-        /* ── PDF Viewer ── */
-        #pdfViewerModal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15,23,42,0.65);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 9500;
-        }
-        .pdf-modal-inner {
-            position: relative;
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            box-shadow: var(--shadow-lg);
-            animation: popIn .3s ease both;
-        }
-        .pdf-close-btn {
-            position: absolute;
-            top: 12px; right: 14px;
-            width: 30px; height: 30px;
-            border-radius: 6px;
-            border: none;
-            background: var(--surface2);
-            cursor: pointer;
-            font-size: 15px;
-            color: var(--text-secondary);
-            display: flex; align-items: center; justify-content: center;
-            transition: background .15s, color .15s;
-        }
-        .pdf-close-btn:hover { background: #fecaca; color: var(--danger); }
-
-        /* ── Animations ── */
-        @keyframes fadeIn {
-            from { opacity: 0; } to { opacity: 1; }
-        }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(.92); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-
-        select { font-family: 'Noto Sans KR', sans-serif; }
+/* PDF 뷰어 */
+#pdfViewerModal { display: none; position: fixed; inset: 0; z-index: 9500; justify-content: center; align-items: center; background: oklch(20% 0.01 255 / 0.55); }
+#pdfViewerModal .pdf-modal-inner { position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--ops-line); border-radius: 8px; overflow: hidden;
+  box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.2); }
+#pdfViewerModal .pdf-head { display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 8px 0 16px; border-bottom: 1px solid var(--ops-line); }
+#pdfViewerModal .pdf-head h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ops-fg); }
+#pdfViewerModal .pdf-close-btn { width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: var(--ops-fg2); font-size: 13px; cursor: pointer; }
+#pdfViewerModal .pdf-close-btn:hover { background: var(--ops-hover); }
+#pdfFrame { width: 1000px; max-width: 92vw; height: 800px; max-height: calc(92vh - 44px); border: 0; display: block; }
     </style>
 </head>
-<body>
-<main class="main">
+<body class="ops">
 
-    <!-- ── Page Header ── -->
-    <div class="page-header">
-        <div class="page-header-left">
-            <div class="header-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-                </svg>
-            </div>
-            <div>
-                <div class="page-title">F/PROOF</div>
-                <div class="page-breadcrumb">품질관리 · F/Proof 점검</div>
-            </div>
-        </div>
-    </div>
+<!-- ── 헤더 + 툴바 ── -->
+<header class="ops-head">
+  <div class="ops-head-in">
+    <h1 class="ops-title">F/PROOF</h1>
+    <span class="ops-label">검색 월</span>
+    <input type="text" id="y_m" class="ops-input month-input monthSet month-search" placeholder="YYYY-MM">
+    <button class="ops-btn primary select-button">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>조회
+    </button>
+    <span class="ops-spacer"></span>
+    <button class="ops-btn" id="btnExcel">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>엑셀
+    </button>
+    <span class="ops-sep"></span>
+    <button class="ops-btn danger delete-button">행 삭제</button>
+    <button class="ops-btn insert-button">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>행 추가
+    </button>
+  </div>
+</header>
 
-    <!-- ── Toolbar ── -->
-    <div class="toolbar-card">
-        <div class="toolbar-left">
-            <div class="field-group">
-                <span class="field-label">검색 월</span>
-                <input type="text" id="y_m" class="month-input monthSet month-search" placeholder="YYYY-MM">
-            </div>
-            <div class="toolbar-divider"></div>
-            <button class="btn btn-primary select-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                조회
-            </button>
-            <button class="btn btn-outline insert-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                행 추가
-            </button>
-            <button class="btn btn-danger-outline delete-button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6"/><path d="M14 11v6"/>
-                </svg>
-                행 삭제
-            </button>
-        </div>
-        <div class="toolbar-right">
-            <button class="btn btn-success-outline" id="btnExcel">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Download
-            </button>
-        </div>
-    </div>
+<main class="fp-page">
+  <!-- 요약 띠: 조회 결과로 계산 (표시 전용) -->
+  <div class="ops-kpi">
+    <div class="hero"><span class="kpi-label">NG 판정</span><span class="kpi-value" id="fpNg">—</span><span class="kpi-sub" id="fpNgSub">이번 달 점검 기록 중</span></div>
+    <div><span class="kpi-label">점검 항목</span><span class="kpi-value" id="fpRows">—</span><span class="kpi-sub" id="fpRowsSub">설비 —</span></div>
+    <div><span class="kpi-label">점검 일수</span><span class="kpi-value" id="fpDays">—</span><span class="kpi-sub" id="fpDaysSub">기록이 있는 날</span></div>
+    <div><span class="kpi-label">OK 비율</span><span class="kpi-value" id="fpRate">—</span><span class="kpi-sub" id="fpRateSub">기록 —</span></div>
+    <div><span class="kpi-label">점검방법 미등록</span><span class="kpi-value" id="fpNoDoc">—</span><span class="kpi-sub">첨부 파일 없는 항목</span></div>
+  </div>
 
-    <!-- ── Table ── -->
-    <div class="table-wrap">
-        <div id="dataList"></div>
+  <section class="ops-card fp-card">
+    <div class="ops-card-head">
+      <h2>인터록 점검표</h2>
+      <div class="fp-legend">
+        <span class="st ok"><i></i>OK</span>
+        <span class="st bad"><i></i>NG</span>
+        <span>일자 칸을 눌러 OK / NG 입력 · 저장은 즉시</span>
+      </div>
     </div>
+    <div class="fp-body"><div id="dataList" class="ops-table"></div></div>
+  </section>
 </main>
 
 
 <!-- ── 행 추가 모달 ── -->
 <div id="modalContainer" class="modal">
     <div class="modal-content">
-        <button class="modal-close close" type="button">✕</button>
-        <div class="modal-header">
-            <div class="modal-header-icon">
-                <svg viewBox="0 0 24 24">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-            </div>
-            <div class="modal-title">F/Proof 행 추가</div>
+        <div class="modal-head">
+            <h2 class="modal-title">F/Proof 행 추가</h2>
+            <button class="modal-close close" type="button" aria-label="닫기">✕</button>
         </div>
         <form id="corrForm" autocomplete="off" enctype="multipart/form-data">
             <input type="hidden" name="id" id="modalId">
             <input type="hidden" name="year" id="modalYear">
-            <div class="form-group">
-                <label class="form-label">년 / 월</label>
-                <input type="text" class="form-input monthSet month-modal" name="y_month" placeholder="예: 2025-07">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">년 / 월</label>
+                    <input type="text" class="form-input monthSet month-modal" name="y_month" placeholder="예: 2025-07">
+                </div>
             </div>
-            <div class="modal-actions">
-                <button type="submit" id="saveCorrStatus" class="btn btn-primary">저장</button>
-                <button type="button" id="closeModal" class="btn btn-outline">닫기</button>
+            <div class="modal-btn-row">
+                <button type="button" id="closeModal" class="ops-btn">닫기</button>
+                <button type="submit" id="saveCorrStatus" class="ops-btn primary">저장</button>
             </div>
         </form>
     </div>
@@ -533,8 +142,11 @@
 <!-- ── PDF Viewer ── -->
 <div id="pdfViewerModal">
     <div class="pdf-modal-inner">
-        <button class="pdf-close-btn" onclick="document.getElementById('pdfViewerModal').style.display='none';">✕</button>
-        <iframe id="pdfFrame" style="width:1000px;height:800px;border:none;display:block;margin-top:8px;"></iframe>
+        <div class="pdf-head">
+            <h2>점검방법</h2>
+            <button class="pdf-close-btn" aria-label="닫기" onclick="document.getElementById('pdfViewerModal').style.display='none';">✕</button>
+        </div>
+        <iframe id="pdfFrame"></iframe>
     </div>
 </div>
 
@@ -628,12 +240,15 @@ $(document).ready(function () {
 /* ── Tabulator 생성 ── */
 function getDataList() {
     const dayColumns = [];
+    const today = fpTodayCol();
     for (let i = 1; i <= 31; i++) {
         dayColumns.push({
-            title: i + "일",
+            title: String(i),
             field: "m_" + i,
             hozAlign: "center",
-            width: 70,
+            width: 32,
+            minWidth: 28,
+            cssClass: "fp-day" + (i === today ? " fp-today" : ""),
             editor: "select",
             editorParams: { values: ["OK", "NG"] },
             headerSort: false,
@@ -648,16 +263,16 @@ function getDataList() {
 
     const columns = [
         { title: "ID",      field: "id",       visible: false, frozen: true },
-        { title: "No",      formatter: "rownum", width: 55, hozAlign: "center", frozen: true },
+        { title: "#",       formatter: "rownum", width: 44, hozAlign: "right", frozen: true, cssClass: "c-time" },
         { title: "년/월",   field: "y_m", visible: false,      width: 110, hozAlign: "center", frozen: true,
-          formatter: function(cell){ return `<span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${cell.getValue()||""}</span>`; }
+          formatter: function(cell){ return `<span class="c-time">${cell.getValue()||""}</span>`; }
         },
-        { title: "설비",    field: "mch_name", width: 110, frozen: true, editor: "input" },
-        { title: "규격",    field: "standard", width: 120, frozen: true, editor: "input" },
-        { title: "점검항목",field: "up_down",  width: 120, frozen: true, editor: "input" },
+        { title: "설비",    field: "mch_name", width: 96, frozen: true, editor: "input" },
+        { title: "규격",    field: "standard", width: 112, frozen: true, editor: "input", cssClass: "c-time", tooltip: true },
+        { title: "점검항목",field: "up_down",  width: 140, frozen: true, editor: "input", tooltip: true },
         {
             title: "이미지",
-            width: 90,
+            width: 72,
             hozAlign: "center",
             formatter: function (cell) { return `<button class="img-upload-btn">업로드</button>`; },
             cellClick: function (e, cell) {
@@ -696,20 +311,21 @@ function getDataList() {
             title: "점검방법",
             field: "img_url",
             hozAlign: "left",
-            width: 220,
+            width: 180,
+            tooltip: true,
             formatter: function (cell) {
                 const fn = cell.getValue();
-                if (!fn) return "";
+                if (!fn) return '<span class="c-none">—</span>';
                 return '<a class="file-link" href="javascript:void(0);" onclick="openPdf(\'' + encodeURIComponent(fn) + '\')">' + fn + '</a>';
             }
         },
-        { title: "이상시 조치내용",field: "memo_f",  width: 220,  editor: "input" },
+        { title: "이상 시 조치내용",field: "memo_f",  width: 180,  editor: "input", tooltip: true, cssClass: "fp-text" },
        
         ...dayColumns
     ];
 
     dataTable = new Tabulator("#dataList", {
-        height: "700px",
+        height: "100%",
         layout: "fitColumns",
         headerHozAlign: "center",
         columnHeaderVertAlign: "middle",
@@ -739,6 +355,48 @@ function getDataList() {
             });
         }
     });
+
+    // 데모: 요약 띠 갱신 (표시 전용) + 창 크기 변경 시 표 높이 다시 맞춤
+    dataTable.on("dataProcessed", fpKpi);
+    dataTable.on("dataChanged", fpKpi);
+    window.addEventListener("resize", function () { dataTable.redraw(); });
+}
+
+/* ── 데모: 오늘 열 (조회 월이 이번 달일 때만) ── */
+function fpTodayCol() {
+    const now = new Date();
+    const ym = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+    return $("#y_m").val() === ym ? now.getDate() : 0;
+}
+
+/* ── 데모: 요약 띠 — NG / 점검 항목 / 점검 일수 / OK 비율 / 점검방법 미등록 ── */
+function fpKpi() {
+    const rows = dataTable ? dataTable.getData() : [];
+    let ok = 0, ng = 0, ngRows = 0, noDoc = 0;
+    const days = new Set(), mch = new Set();
+    rows.forEach(function (r) {
+        let rowNg = false;
+        for (let i = 1; i <= 31; i++) {
+            const v = r["m_" + i];
+            if (v === "OK") { ok++; days.add(i); }
+            else if (v === "NG") { ng++; rowNg = true; days.add(i); }
+        }
+        if (rowNg) ngRows++;
+        if (!r.img_url) noDoc++;
+        if (r.mch_name) mch.add(r.mch_name);
+    });
+    const ym = ($("#y_m").val() || "").split("-");
+    const last = ym.length === 2 ? new Date(+ym[0], +ym[1], 0).getDate() : 31;
+    const total = ok + ng;
+
+    $("#fpNg").text(ng).toggleClass("bad", ng > 0);
+    $("#fpNgSub").html(ng > 0 ? "NG 항목 <b>" + ngRows + "</b>개" : "이번 달 NG 없음");
+    $("#fpRows").text(rows.length);
+    $("#fpRowsSub").html("설비 <b>" + mch.size + "</b>종");
+    $("#fpDays").html(days.size + '<span class="muted" style="font-size:14px">/' + last + "</span>");
+    $("#fpRate").text(total ? (ok / total * 100).toFixed(1) + "%" : "—");
+    $("#fpRateSub").html("기록 <b>" + total + "</b>칸");
+    $("#fpNoDoc").text(noDoc).toggleClass("bad", noDoc > 0);
 }
 
 /* ── PDF 뷰어 ── */

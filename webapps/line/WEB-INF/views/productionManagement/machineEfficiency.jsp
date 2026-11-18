@@ -9,19 +9,23 @@
     <title>설비 효율현황</title>
 	<%@include file="../include/pluginpage.jsp" %>
     <jsp:include page="../include/tabBar.jsp"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
     :root {
-        --bg: #f3f5f8; --card: #ffffff; --line: #e3e8ef; --line2: #eef1f5;
-        --ink: #0f172a; --ink2: #334155; --mute: #64748b; --mute2: #94a3b8;
-        --blue: #2563eb; --teal: #0d9488; --amber: #d97706; --red: #dc2626;
+        --bg: #f8f9fb; --card: #ffffff; --line: #e1e5ea; --line2: #eef0f3;
+        --ink: #1b222c; --ink2: #333c48; --mute: #5b6470; --mute2: #8d949e;
+        --blue: #3b6fc4; --teal: #3e9a5c; --amber: #b8862a; --red: #c2453d;
+        --sans: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+        --mono: "IBM Plex Mono", Consolas, "Malgun Gothic", monospace;
     }
     html, body { background: var(--bg); }
-    body { margin: 0; color: var(--ink); font-size: 13px;
-        font-family: "Pretendard", "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif; }
-    .oee { box-sizing: border-box; height: 100vh; min-height: 720px; padding: 14px 18px 16px;
-        display: grid; grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+    body { margin: 0; color: var(--ink); font-size: 13px; font-family: var(--sans); }
+    .oee { box-sizing: border-box; height: 100vh; min-height: 720px; padding: 16px 16px 16px;
+        display: grid; grid-template-rows: auto minmax(320px, 1fr) minmax(0, max-content);  /* 하단 표는 내용 높이만, 남는 높이는 차트로 */ gap: 12px; }
     .oee *, .oee *::before, .oee *::after { box-sizing: border-box; }
-    .num { font-variant-numeric: tabular-nums; }
+    .num { font-family: var(--mono); font-variant-numeric: tabular-nums slashed-zero; }
 
     /* 헤더 */
     .hd { display: flex; align-items: center; gap: 12px; }
@@ -36,28 +40,38 @@
 
     /* 카드 */
     .row { display: grid; gap: 12px; min-height: 0; }
-    .row.r1 { grid-template-columns: 320px minmax(0, 1fr); }
-    .row.r2 { grid-template-columns: minmax(0, 1fr) 380px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+    .row.r1 { grid-template-columns: 400px minmax(0, 1fr); }
+    .row.r2 { grid-template-columns: minmax(0, 1fr) 400px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px;
         display: flex; flex-direction: column; min-height: 0; min-width: 0; }
-    .card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: var(--ink2);
+    .card h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--ink);
         display: flex; align-items: center; justify-content: space-between; }
-    .card h3 small { font-size: 12px; font-weight: 500; color: var(--mute2); }
+    .card h3 small { font-size: 12px; font-weight: 400; color: var(--mute2); }
     .chart { flex: 1; min-height: 0; }
 
-    /* OEE 요약 */
-    .sum { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
-    .big { text-align: center; }
-    .big .v { font-size: 52px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
-    .big .v u { text-decoration: none; font-size: 20px; font-weight: 600; color: var(--mute); margin-left: 2px; }
-    .big .s { margin-top: 8px; font-size: 12.5px; color: var(--mute); }
-    .big .s b { font-weight: 600; }
-    .fac { display: flex; flex-direction: column; gap: 12px; }
-    .fac .lb { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--mute); margin-bottom: 5px; }
-    .fac .lb b { color: var(--ink); font-size: 14px; }
-    .fac .tr { position: relative; height: 6px; background: var(--line2); border-radius: 3px; }
-    .fac .tr i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
-    .fac .tr em { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--ink2); }
+    /* OEE 요약: 히어로 수치 + 손실 분해(계획시간 100% → 가동 → 성능 → 품질 = OEE) */
+    .sum { flex: 1; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+    .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line2); }
+    .hero .v { font-family: var(--mono); font-size: 44px; font-weight: 500; letter-spacing: -1px; line-height: 1; }
+    .hero .v u { text-decoration: none; font-family: var(--sans); font-size: 16px; font-weight: 400; color: var(--mute2); margin-left: 4px; }
+    .hero .meta { display: grid; grid-template-columns: auto auto; gap: 4px 12px; font-size: 12px; color: var(--mute); text-align: right; white-space: nowrap; }
+    .hero .meta b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+    .fac { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 12px; min-height: 0; }
+    .fac .lb { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--mute); margin-bottom: 4px; }
+    .fac .lb .nm { color: var(--ink2); font-weight: 500; font-size: 13px; }
+    .fac .lb .op { width: 12px; color: var(--mute2); font-family: var(--mono); }
+    .fac .lb .sp { flex: 1; }
+    .fac .lb b { font-family: var(--mono); font-weight: 500; color: var(--ink); font-size: 14px; }
+    .fac .lb .ls { font-family: var(--mono); font-size: 12px; color: var(--mute2); width: 64px; text-align: right; }
+    .fac .tr { position: relative; height: 12px; background: var(--line2); border-radius: 2px; }
+    .fac .tr i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 2px 0 0 2px; background: #9aa3ae; }
+    .fac .tr s { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #e7c9c6 0 3px, #f6e7e5 3px 6px); }
+    .fac .tr em { position: absolute; top: -2px; width: 2px; height: 16px; background: var(--ink2); }
+    .fac .res .tr i { background: var(--blue); }
+    .fac .res .lb .nm { color: var(--ink); font-weight: 600; }
+    .fac .bad b { color: var(--red); } .fac .warn b { color: var(--amber); }
+    .fac-note { margin-top: auto; font-size: 12px; color: var(--mute2); display: flex; gap: 12px; align-items: center; }
+    .fac-note i { display: inline-block; width: 12px; height: 8px; margin-right: 4px; vertical-align: 0; }
 
     /* 설비 테이블 */
     .tbl-wrap { flex: 1; min-height: 0; overflow: auto; }
@@ -67,7 +81,9 @@
     table.eq td { padding: 0 10px; height: 38px; border-bottom: 1px solid var(--line2); white-space: nowrap; text-align: right; }
     table.eq th:first-child, table.eq td:first-child, table.eq th:nth-child(2), table.eq td:nth-child(2) { text-align: left; }
     table.eq tr:last-child td { border-bottom: 0; }
-    .en { font-weight: 600; }
+    table.eq th, table.eq .en, table.eq .st { font-family: var(--sans); }
+    table.eq tbody tr:hover td { background: #f6f7f9; }
+    .en { font-weight: 500; }
     .st { font-size: 12px; font-weight: 600; }
     .st::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 0; }
     .st.run { color: var(--teal); } .st.stop { color: var(--red); } .st.wait { color: var(--amber); }
@@ -102,11 +118,16 @@
         <div class="card">
             <h3>종합 설비효율 (OEE) <small id="gTag"></small></h3>
             <div class="sum">
-                <div class="big">
-                    <div class="v num" id="oeeV">-</div>
-                    <div class="s" id="oeeS"></div>
+                <div class="hero">
+                    <div class="v" id="oeeV">-</div>
+                    <div class="meta" id="oeeS"></div>
                 </div>
                 <div class="fac" id="fac"></div>
+                <div class="fac-note">
+                    <span><i style="background:#9aa3ae"></i>남은 시간</span>
+                    <span><i style="background:repeating-linear-gradient(135deg,#e7c9c6 0 3px,#f6e7e5 3px 6px)"></i>단계별 손실</span>
+                    <span><i style="background:#333c48;width:2px"></i>목표</span>
+                </div>
             </div>
         </div>
         <div class="card">
@@ -137,12 +158,12 @@
 <script>
 let now_page_code = "c03";
 
-var C = { blue: '#2563eb', blueL: '#d6e2fb', teal: '#0d9488', amber: '#d97706', red: '#dc2626', mute: '#64748b', grid: '#eef1f5' };
+var C = { blue: '#3b6fc4', blueL: '#dbe3f1', teal: '#3e9a5c', amber: '#b8862a', red: '#c2453d', mute: '#5b6470', ink2: '#333c48', grid: '#eef0f3' };
 var period = 'today', charts = {};
 
 Highcharts.setOptions({
     lang: { thousandsSep: ',', numericSymbols: null },
-    chart: { style: { fontFamily: '"Pretendard","Malgun Gothic","맑은 고딕",sans-serif' }, animation: { duration: 400 } },
+    chart: { style: { fontFamily: '"IBM Plex Sans KR","Pretendard","Malgun Gothic","맑은 고딕",sans-serif' }, animation: { duration: 400 } },
     title: { text: null }, credits: { enabled: false }, exporting: { enabled: false }, legend: { enabled: false },
     tooltip: { backgroundColor: 'rgba(15,23,42,0.92)', borderWidth: 0, borderRadius: 6, shadow: false,
                style: { color: '#fff', fontSize: '12px' }, shared: true, useHTML: true }
@@ -173,17 +194,26 @@ function renderSummary(d) {
     var k = d.kpi, T = d.target, p = d.prev;
     $('#gTag').text('목표 ' + T.oee + '%');
     $('#oeeV').html(f1(k.oee) + '<u>%</u>').css('color', lvlColor(k.oee, T.oee));
-    var s = '생산 <b>' + f0(k.kg) + 'kg</b> · 비가동 <b>' + f0(k.down_min) + '분</b>';
-    if (p) {
-        var dd = k.oee - p.oee;
-        s = '전일 대비 <b style="color:' + (dd >= 0 ? C.teal : C.red) + '">' + (dd >= 0 ? '▲ ' : '▼ ') + f1(Math.abs(dd)) + '%p</b> · ' + s;
-    }
+    var gap = k.oee - T.oee;
+    var s = '<span>목표 대비</span><b style="color:' + (gap >= 0 ? C.teal : C.red) + '">' + (gap >= 0 ? '+' : '−') + f1(Math.abs(gap)) + '%p</b>';
+    if (p) { var dd = k.oee - p.oee; s += '<span>전일 대비</span><b>' + (dd >= 0 ? '+' : '−') + f1(Math.abs(dd)) + '%p</b>'; }
+    s += '<span>생산</span><b>' + f0(k.kg) + ' kg</b><span>비가동</span><b>' + f0(k.down_min) + ' 분</b>';
     $('#oeeS').html(s);
-    $('#fac').html([['시간가동률', k.a, T.a, 1], ['성능가동률', k.p, T.p, 1], ['양품률', k.q, T.q, 2]].map(function (x) {
-        return '<div><div class="lb"><span>' + x[0] + ' <span style="color:#94a3b8">· 목표 ' + x[2] + '%</span></span><b class="num">' +
-            Highcharts.numberFormat(x[1], x[3]) + '%</b></div>' +
-            '<div class="tr"><i style="width:' + Math.min(100, x[1]) + '%;background:' + lvlColor(x[1], x[2]) + '"></i><em style="left:' + x[2] + '%"></em></div></div>';
-    }).join(''));
+
+    // 계획 가동시간(100%)에서 단계별로 곱해 내려가며 손실 구간을 빗금으로 표시
+    var cum = 100, rows = [['시간가동률', k.a, T.a, 1], ['성능가동률', k.p, T.p, 1], ['양품률', k.q, T.q, 2]].map(function (x, i) {
+        var before = cum; cum = cum * x[1] / 100;
+        var st = x[1] >= x[2] ? '' : (x[1] >= x[2] - (x[2] >= 99 ? 0.5 : 5) ? 'warn' : 'bad');
+        return '<div class="' + st + '"><div class="lb"><span class="op">' + (i ? '×' : '') + '</span><span class="nm">' + x[0] + '</span>' +
+            '<span>목표 ' + x[2] + '%</span><span class="sp"></span><b>' + Highcharts.numberFormat(x[1], x[3]) + '%</b>' +
+            '<span class="ls">−' + f1(before - cum) + '%p</span></div>' +
+            '<div class="tr"><i style="width:' + cum + '%"></i><s style="left:' + cum + '%;width:' + (before - cum) + '%"></s>' +
+            '<em style="left:' + (before * x[2] / 100) + '%"></em></div></div>';
+    });
+    rows.push('<div class="res"><div class="lb"><span class="op">=</span><span class="nm">종합 설비효율</span><span>목표 ' + T.oee + '%</span>' +
+        '<span class="sp"></span><b>' + f1(k.oee) + '%</b><span class="ls">−' + f1(100 - k.oee) + '%p</span></div>' +
+        '<div class="tr"><i style="width:' + k.oee + '%"></i><em style="left:' + T.oee + '%"></em></div></div>');
+    $('#fac').html(rows.join(''));
 }
 
 function renderTrend(d) {
@@ -250,6 +280,8 @@ $(function () {
     var qp = (location.search.match(/period=(today|yesterday|3d)/) || [])[1];
     load(qp || 'today');
     var rt; $(window).on('resize', function () { clearTimeout(rt); rt = setTimeout(function () { for (var k in charts) charts[k].reflow(); }, 150); });
+    /* 하단 표가 채워지며 차트 칸 높이가 바뀌어도 차트를 칸에 맞춤 */
+    if (window.ResizeObserver) new ResizeObserver(function () { clearTimeout(rt); rt = setTimeout(function () { for (var k in charts) charts[k].reflow(); }, 50); }).observe(document.getElementById("cTrend"));
 });
 </script>
 </body>

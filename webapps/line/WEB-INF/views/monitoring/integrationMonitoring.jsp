@@ -1627,78 +1627,134 @@ border: 1px solid #000;
 .process-wrapper { gap: 8px; padding: 12px 10px; }
 .process-step { padding: 10px 8px; font-size: 13.5px; }
 .process-bottom-bar { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; padding: 0 4px; box-sizing: border-box; font-variant-numeric: tabular-nums; }
-html, body { overflow-x: hidden; }
+html, body { overflow: hidden; }  /* 데모: fit()으로 창에 맞추므로 스크롤 없음 */
 </style>
 <script>
-/* 데모: 설비 화면(설계 폭 1880px)을 창 너비에 맞춰 축소 → 가로 스크롤 없음 */
+/* 데모: 설비 화면(설계 폭 1880px)을 창 크기에 맞춰 축소/확대 → 스크롤 없음, 큰 화면에서도 꽉 차게
+   (높이는 알람 2행까지 들어가는 최소 설계 높이 DESIGN_H 기준으로 제한) */
 (function () {
-  var DESIGN_W = 1880;
+  var DESIGN_W = 1880, DESIGN_H = 1000;
   function fit() {
-    var z = Math.min(1, (window.innerWidth || DESIGN_W) / DESIGN_W);
+    var z = Math.min((window.innerWidth || DESIGN_W) / DESIGN_W, (window.innerHeight || DESIGN_H) / DESIGN_H);
     document.documentElement.style.zoom = z;
   }
   fit();
   window.addEventListener('resize', fit);
 })();
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
-/* ===== 데모: 통합모니터링 재설계 (설비 도면 제외) ===== */
-.abs { top: 8px; font-family: "Pretendard","Malgun Gothic","맑은 고딕",sans-serif; }
-.process-wrapper { gap: 0; padding: 0; background: #fff; border: 1px solid #e3e8ef; border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(15,23,42,.06); overflow: hidden; }
-.process-wrapper::before, .process-wrapper::after { display: none; }
-.process-step-wrapper { border-left: 1px solid #eef1f5; min-width: 92px; }
-.process-step-wrapper:first-child { border-left: 0; }
-.process-step { padding: 8px 6px 2px; font-size: 12.5px; font-weight: 600; color: #64748b; background: transparent;
-  border-radius: 0; box-shadow: none; animation: none; }
-.process-step.active-green { background: transparent; color: #2563eb !important; box-shadow: none; animation: none; filter: none; }
-.process-step.active-green::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #2563eb; margin-right: 5px; }
-.process-bottom-bar { margin: 0; height: 30px; border-radius: 0; background: transparent; box-shadow: none;
-  color: #0f172a; font-size: 14px; font-weight: 700; }
-.process-bottom-bar:empty::before { content: "—"; color: #cbd5e1; font-weight: 400; }
-.process-step-wrapper:hover .process-step { transform: none; box-shadow: none; }
-.process-step-wrapper:hover .process-bottom-bar { background: #f8fafc; }
+/* ===== 데모: 통합모니터링 재설계 — 고밀도 운영 대시보드 (설비 도면 제외) ===== */
+:root {
+  --imx-fg: oklch(24% 0.012 255); --imx-fg2: oklch(46% 0.012 255); --imx-fg3: oklch(64% 0.01 255);
+  --imx-line: oklch(91.5% 0.006 255); --imx-line2: oklch(95.5% 0.004 255); --imx-hover: oklch(97.5% 0.003 255);
+  --imx-accent: oklch(55% 0.13 255);
+  --imx-ok: oklch(60% 0.12 150); --imx-warn: oklch(64% 0.13 75); --imx-bad: oklch(56% 0.15 25);
+  --imx-sans: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --imx-mono: "IBM Plex Mono", Consolas, "Malgun Gothic", monospace;
+}
 
-.imx { width: 1860px; padding: 0 20px 20px; box-sizing: border-box; font-family: "Pretendard","Malgun Gothic","맑은 고딕",sans-serif; color: #0f172a; }
+/* 상단 LOT 바: 공정명 + LOT 번호(모노) */
+.abs { top: 8px; left: 20px; width: 1820px; transform: none; font-family: var(--imx-sans); }
+.process-wrapper { gap: 0; padding: 0; background: #fff; border: 1px solid var(--imx-line); border-radius: 8px; box-shadow: none; overflow: hidden; }
+.process-wrapper::before, .process-wrapper::after { display: none; }
+.process-step-wrapper { flex: 1 1 0; border-left: 1px solid var(--imx-line2); min-width: 0; }
+.process-step-wrapper:first-child { border-left: 0; }
+.process-step { padding: 12px 8px 4px; font-size: 12px; font-weight: 500; color: var(--imx-fg3); background: transparent;
+  border-radius: 0; box-shadow: none; animation: none; }
+.process-step.active-green { background: transparent; color: var(--imx-fg2) !important; box-shadow: none; animation: none; filter: none; }
+.process-step.active-green::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--imx-accent); margin-right: 4px; vertical-align: 1px; }
+.process-bottom-bar { margin: 0; height: 36px; border-radius: 0; background: transparent; box-shadow: none;
+  color: var(--imx-fg); font-family: var(--imx-mono); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums slashed-zero; }
+.process-bottom-bar:empty::before { content: "—"; color: var(--imx-line); font-weight: 400; }
+.process-step-wrapper:hover .process-step { transform: none; box-shadow: none; }
+.process-step-wrapper:hover .process-bottom-bar { background: var(--imx-hover); }
+
+/* 하단 패널 */
+.imx { width: 1860px; padding: 0 20px 24px; box-sizing: border-box; font-family: var(--imx-sans); font-size: 13px; color: var(--imx-fg); }
 .imx * { box-sizing: border-box; }
+.imx .mono, .imx-mt td, .imx-inv b, .imx-inv .s, .imx .dv, #tableAlarm td.t { font-family: var(--imx-mono); font-variant-numeric: tabular-nums slashed-zero; }
+.imx .u { font-family: var(--imx-sans); font-style: normal; font-size: 12px; font-weight: 400; color: var(--imx-fg3); margin-left: 2px; }
+
+/* 상태 바: 이상 건수가 첫 시선 */
+.imx-bar { display: flex; align-items: center; gap: 24px; height: 48px; padding: 0 4px; border-bottom: 1px solid var(--imx-line); }
+.imx-live { display: flex; align-items: center; gap: 8px; color: var(--imx-fg2); white-space: nowrap; }
+.imx-live i { width: 8px; height: 8px; border-radius: 50%; background: var(--imx-ok); }
+.imx-live .mono { color: var(--imx-fg); }
+.imx-kpi { display: flex; align-items: baseline; margin: 0; }
+.imx-kpi > div { display: flex; align-items: baseline; gap: 8px; padding: 0 16px; border-left: 1px solid var(--imx-line); }
+.imx-kpi dt { color: var(--imx-fg2); white-space: nowrap; }
+.imx-kpi dd { margin: 0; font-family: var(--imx-mono); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.imx-kpi dd small { font-size: 12px; color: var(--imx-fg3); }
+.imx-kpi .hero dt { color: var(--imx-fg); font-weight: 600; }
+.imx-kpi .hero dd { font-size: 24px; }
+.imx-kpi dd.warn { color: var(--imx-warn); } .imx-kpi dd.bad { color: var(--imx-bad); }
+.imx-legend { margin-left: auto; color: var(--imx-fg3); font-size: 12px; white-space: nowrap; }
+
 .imx-row { display: grid; gap: 16px; margin-top: 16px; }
 .imx-row.r1 { grid-template-columns: 1fr 1fr; }
-.imx-row.r2 { grid-template-columns: 1.15fr 0.85fr; }
-.imx-card { background: #fff; border: 1px solid #e3e8ef; border-radius: 10px; padding: 14px 18px 12px; min-width: 0; }
-.imx-card header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-.imx-card h3 { margin: 0; font-size: 17px; font-weight: 700; color: #334155; }
-.imx-note { font-size: 13px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.imx-note b { color: #0f172a; }
+.imx-row.r2 { grid-template-columns: 1fr 1fr; }
+.imx-card { background: #fff; border: 1px solid var(--imx-line); border-radius: 8px; padding: 12px 16px 8px; min-width: 0; }
+.imx-card header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.imx-card h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--imx-fg); }
+.imx-note { font-size: 12px; color: var(--imx-fg3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.imx-note b { color: var(--imx-fg); font-weight: 500; }
 
-table.imx-mt { width: 100%; border-collapse: collapse; table-layout: fixed; font-variant-numeric: tabular-nums; }
-table.imx-mt th { font-size: 14px; font-weight: 600; color: #64748b; padding: 6px 4px 8px; text-align: center; border-bottom: 1px solid #e3e8ef; white-space: nowrap; }
-table.imx-mt th:first-child { width: 46px; }
-table.imx-mt td { text-align: center; padding: 0 4px; white-space: nowrap; font-weight: 600; color: inherit !important; }
-table.imx-mt td:first-child { text-align: left; font-size: 13px; font-weight: 700; color: #94a3b8 !important; }
-table.imx-mt tr.pv td { height: 52px; font-size: 22px; font-weight: 700; color: #0f172a !important; }
-table.imx-mt tr.sp td { height: 34px; font-size: 15px; font-weight: 500; color: #94a3b8 !important; border-top: 1px solid #eef1f5; }
-table.imx-mt tr.pv td.dev-warn { color: #d97706 !important; background: #fff7e8; }
-table.imx-mt tr.pv td.dev-bad { color: #dc2626 !important; background: #fdeeee; }
+/* 온도 표: 숫자는 우측 정렬, 행 = PV / 3분 추이 / SP / 편차 */
+table.imx-mt { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.imx-mt th { white-space: nowrap; font-weight: 500 !important; }
+.imx-mt thead th { font-size: 12px !important; color: var(--imx-fg2) !important; padding: 4px 8px 8px !important; text-align: right !important; }
+.imx-mt thead th:first-child { width: 48px; }
+.imx-mt tbody th { font-size: 12px !important; color: var(--imx-fg3) !important; text-align: left !important; padding: 0 !important; }
+.imx-mt td { text-align: right !important; padding: 0 8px !important; white-space: nowrap; color: var(--imx-fg) !important; }
+.imx-mt tr.pv td { height: 44px; padding-top: 4px !important; font-size: 22px !important; font-weight: 500 !important; }
+.imx-mt tr.sk td { height: 32px; }
+.imx-mt tr.sp td { height: 28px; font-size: 13px !important; color: var(--imx-fg2) !important; }
+.imx-mt tr.dv td { height: 24px; padding-bottom: 4px !important; vertical-align: top; }
+.imx-mt tr.pv td.dev-warn, .imx-inv b.dev-warn { color: var(--imx-warn) !important; }
+.imx-mt tr.pv td.dev-bad, .imx-inv b.dev-bad { color: var(--imx-bad) !important; }
+.imx .dv { font-size: 12px !important; color: var(--imx-fg3) !important; }
+.imx .dv.warn { color: var(--imx-warn) !important; } .imx .dv.bad { color: var(--imx-bad) !important; font-weight: 500 !important; }
 
-.imx-inv { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); }
-.imx-inv > div { padding: 6px 10px 4px; border-left: 1px solid #eef1f5; display: flex; flex-direction: column; gap: 4px; }
+/* 스파크라인: 회색 띠 = 허용범위(주의 기준), 점선 = SP */
+.imx .sk svg { display: block; width: 100%; height: 24px; overflow: visible; }
+.imx .sk .band { fill: var(--imx-line2); }
+.imx .sk .ref { stroke: var(--imx-fg3); stroke-width: 1; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
+.imx .sk .ln { fill: none; stroke: var(--imx-fg2); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.imx .sk .ln.warn { stroke: var(--imx-warn); } .imx .sk .ln.bad { stroke: var(--imx-bad); }
+
+/* 인버터 */
+.imx-inv { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.imx-inv > div { padding: 4px 12px 8px; border-left: 1px solid var(--imx-line2); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .imx-inv > div:first-child { border-left: 0; padding-left: 0; }
-.imx-inv .n { font-size: 14px; color: #64748b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.imx-inv b { font-size: 26px; font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.imx-inv b.dev-warn { color: #d97706; } .imx-inv b.dev-bad { color: #dc2626; }
-.imx-inv .s { font-size: 14px; color: #94a3b8; } .imx-inv .s em { font-style: normal; color: #64748b; }
+.imx-inv .n { font-size: 12px; color: var(--imx-fg2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.imx-inv b { font-size: 22px; font-weight: 500; color: var(--imx-fg); white-space: nowrap; }
+.imx-inv .sk { display: block; height: 24px; }
+.imx-inv .s { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--imx-fg3); white-space: nowrap; }
+.imx-inv .s em { font-style: normal; color: var(--imx-fg2); }
 
-#tableAlarmWrapper { max-height: 128px; overflow: auto; }
-#tableAlarm { width: 100%; height: auto; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-#tableAlarm th, #tableAlarm td { font-size: 14px !important; padding: 0 8px !important; text-align: left !important; }
-#tableAlarm th { position: sticky; top: 0; background: #fff; color: #64748b; font-weight: 600; height: 30px; border-bottom: 1px solid #e3e8ef; }
-#tableAlarm td { height: 32px; border-bottom: 1px solid #eef1f5; color: #334155; font-weight: 500 !important; }
-#tableAlarm td.st { white-space: nowrap; }
-#tableAlarm tr.on td { color: #0f172a; font-weight: 600 !important; }
-#tableAlarm tr.on td.st { color: #dc2626; }
-#tableAlarm .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: #cbd5e1; vertical-align: 1px; }
-#tableAlarm tr.on .dot { background: #dc2626; }
-/* 원본 전역 table 스타일(파란 헤더·하늘색 셀·테두리) 무력화 */.imx table, .imx th, .imx td { border: 0 !important; background: transparent !important; box-shadow: none !important; }.imx table.imx-mt th, .imx #tableAlarm th { border-bottom: 1px solid #e3e8ef !important; color: #64748b !important; background: #fff !important; }.imx table.imx-mt tr.sp td { border-top: 1px solid #eef1f5 !important; }.imx #tableAlarm td { border-bottom: 1px solid #eef1f5 !important; }.imx table.imx-mt tr.pv td.dev-warn { background: #fff7e8 !important; }.imx table.imx-mt tr.pv td.dev-bad { background: #fdeeee !important; }
+/* 알람 */
+#tableAlarmWrapper { max-height: none; overflow: visible; }
+#tableAlarm { width: 100%; height: auto; border-collapse: collapse; table-layout: fixed; }
+#tableAlarm th, #tableAlarm td { font-size: 13px !important; padding: 0 8px !important; text-align: left !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#tableAlarm th { position: sticky; top: 0; z-index: 1; color: var(--imx-fg2) !important; font-weight: 500 !important; font-size: 12px !important; height: 28px; }
+#tableAlarm th.t, #tableAlarm td.t { text-align: right !important; }
+#tableAlarm td { height: 32px; color: var(--imx-fg2) !important; font-weight: 400 !important; }
+#tableAlarm td.t { font-size: 12px !important; }
+#tableAlarm tbody tr:hover td { background: var(--imx-hover) !important; transition: background-color 80ms; }
+#tableAlarm tr.on td { color: var(--imx-fg) !important; }
+#tableAlarm tr.on td.st { color: var(--imx-bad) !important; font-weight: 500 !important; }
+#tableAlarm .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; background: var(--imx-line); vertical-align: 1px; }
+#tableAlarm tr.on .dot { background: var(--imx-bad); }
+#tableAlarm td.empty { color: var(--imx-fg3) !important; }
+
+/* 원본 전역 table 스타일(파란 헤더·하늘색 셀·테두리) 무력화 */
+.imx table, .imx th, .imx td { border: 0 !important; background: transparent !important; box-shadow: none !important; }
+.imx .imx-mt thead th, .imx #tableAlarm th { border-bottom: 1px solid var(--imx-line) !important; background: #fff !important; }
+.imx .imx-mt tr.sp > * { border-top: 1px solid var(--imx-line2) !important; }
+.imx #tableAlarm td { border-bottom: 1px solid var(--imx-line2) !important; }
 </style>
 </head>
 <body>
@@ -2027,34 +2083,51 @@ table.imx-mt tr.pv td.dev-bad { color: #dc2626 !important; background: #fdeeee; 
   
 <!-- ===== 데모: 하단 패널 재설계 (설비 도면은 위 그대로) ===== -->
 <div class="imx">
+  <div class="imx-bar">
+    <div class="imx-live"><i></i>실시간 <span class="mono" id="imxClock">—</span></div>
+    <dl class="imx-kpi">
+      <div class="hero"><dt>온도·CP 이상</dt><dd id="kBad">—</dd></div>
+      <div><dt>주의</dt><dd id="kWarn">—</dd></div>
+      <div><dt>정상</dt><dd id="kOk">—</dd></div>
+      <div><dt>인버터 편차</dt><dd id="kInv">—</dd></div>
+      <div><dt>발생중 알람</dt><dd id="kAlarm">—</dd></div>
+      <div><dt>투입 공정</dt><dd><span id="kLot">—</span><small>/16</small></dd></div>
+    </dl>
+    <span class="imx-legend">편차 기준(주의/이상) · 온도 ±5/±10℃ · CP ±0.02/±0.04 · 인버터 ±1/±2 Hz</span>
+  </div>
+
   <div class="imx-row r1">
     <section class="imx-card">
-      <header><h3>소입 라인</h3><span class="imx-note">PV 현재값 · SP 설정값 · 편차 ±5℃ 초과 시 주황, ±10℃ 초과 시 빨강</span></header>
+      <header><h3>소입 라인</h3><span class="imx-note">온도 ℃ · 추이 최근 3분</span></header>
       <table class="imx-mt">
         <thead><tr><th></th><th>전세정기</th><th>1존</th><th>2존</th><th>3존</th><th>4존</th><th>5존</th><th>유조</th><th>CP-A</th></tr></thead>
         <tbody>
-          <tr class="pv"><td>PV</td>
-            <td class="F_WASH_PV" data-sp="F_WASH_SP">-</td><td class="Q_PV_1" data-sp="Q_SP_1">-</td><td class="Q_PV_2" data-sp="Q_SP_2">-</td>
-            <td class="Q_PV_3" data-sp="Q_SP_3">-</td><td class="Q_PV_4" data-sp="Q_SP_4">-</td><td class="Q_PV_5" data-sp="Q_SP_5">-</td>
-            <td class="OIL_PV" data-sp="OIL_SP">-</td><td class="CP_PV_1" data-sp="CP_SP_1" data-cp="1">-</td></tr>
-          <tr class="sp"><td>SP</td>
-            <td class="F_WASH_SP">-</td><td class="Q_SP_1">-</td><td class="Q_SP_2">-</td><td class="Q_SP_3">-</td>
-            <td class="Q_SP_4">-</td><td class="Q_SP_5">-</td><td class="OIL_SP">-</td><td class="CP_SP_1">-</td></tr>
+          <tr class="pv"><th>PV</th>
+            <td class="F_WASH_PV" data-sp="F_WASH_SP">—</td><td class="Q_PV_1" data-sp="Q_SP_1">—</td><td class="Q_PV_2" data-sp="Q_SP_2">—</td>
+            <td class="Q_PV_3" data-sp="Q_SP_3">—</td><td class="Q_PV_4" data-sp="Q_SP_4">—</td><td class="Q_PV_5" data-sp="Q_SP_5">—</td>
+            <td class="OIL_PV" data-sp="OIL_SP">—</td><td class="CP_PV_1" data-sp="CP_SP_1" data-cp="1">—</td></tr>
+          <tr class="sk"><th>추이</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr class="sp"><th>SP</th>
+            <td class="F_WASH_SP">—</td><td class="Q_SP_1">—</td><td class="Q_SP_2">—</td><td class="Q_SP_3">—</td>
+            <td class="Q_SP_4">—</td><td class="Q_SP_5">—</td><td class="OIL_SP">—</td><td class="CP_SP_1">—</td></tr>
+          <tr class="dv"><th>편차</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
         </tbody>
       </table>
     </section>
     <section class="imx-card">
-      <header><h3>소려 라인</h3><span class="imx-note">전체 온도 <span id="imxSummary"></span></span></header>
+      <header><h3>소려 라인</h3><span class="imx-note">온도 ℃ · 추이 최근 3분</span></header>
       <table class="imx-mt">
         <thead><tr><th></th><th>중간세정기</th><th>1존</th><th>2존</th><th>3존</th><th>4존</th><th>5존</th><th>방청</th><th>CP-B</th></tr></thead>
         <tbody>
-          <tr class="pv"><td>PV</td>
-            <td class="M_WASH_PV" data-sp="M_WASH_SP">-</td><td class="T_PV_1" data-sp="T_SP_1">-</td><td class="T_PV_2" data-sp="T_SP_2">-</td>
-            <td class="T_PV_3" data-sp="T_SP_3">-</td><td class="T_PV_4" data-sp="T_SP_4">-</td><td class="T_PV_5" data-sp="T_SP_5">-</td>
-            <td class="BC_PV" data-sp="BC_SP">-</td><td class="CP_PV_2" data-sp="CP_SP_2" data-cp="1">-</td></tr>
-          <tr class="sp"><td>SP</td>
-            <td class="M_WASH_SP">-</td><td class="T_SP_1">-</td><td class="T_SP_2">-</td><td class="T_SP_3">-</td>
-            <td class="T_SP_4">-</td><td class="T_SP_5">-</td><td class="BC_SP">-</td><td class="CP_SP_2">-</td></tr>
+          <tr class="pv"><th>PV</th>
+            <td class="M_WASH_PV" data-sp="M_WASH_SP">—</td><td class="T_PV_1" data-sp="T_SP_1">—</td><td class="T_PV_2" data-sp="T_SP_2">—</td>
+            <td class="T_PV_3" data-sp="T_SP_3">—</td><td class="T_PV_4" data-sp="T_SP_4">—</td><td class="T_PV_5" data-sp="T_SP_5">—</td>
+            <td class="BC_PV" data-sp="BC_SP">—</td><td class="CP_PV_2" data-sp="CP_SP_2" data-cp="1">—</td></tr>
+          <tr class="sk"><th>추이</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr class="sp"><th>SP</th>
+            <td class="M_WASH_SP">—</td><td class="T_SP_1">—</td><td class="T_SP_2">—</td><td class="T_SP_3">—</td>
+            <td class="T_SP_4">—</td><td class="T_SP_5">—</td><td class="BC_SP">—</td><td class="CP_SP_2">—</td></tr>
+          <tr class="dv"><th>편차</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
         </tbody>
       </table>
     </section>
@@ -2062,21 +2135,22 @@ table.imx-mt tr.pv td.dev-bad { color: #dc2626 !important; background: #fdeeee; 
 
   <div class="imx-row r2">
     <section class="imx-card">
-      <header><h3>인버터 제어</h3><span class="imx-note">주파수 PV / SP</span></header>
+      <header><h3>인버터 제어</h3><span class="imx-note">주파수 Hz · 추이 최근 3분</span></header>
       <div class="imx-inv">
-        <div><span class="n">전세정기</span><b class="IN_WASH_PV" data-sp="IN_WASH_SP" data-hz="1">-</b><span class="s">SP <em class="IN_WASH_SP">-</em></span></div>
-        <div><span class="n">소입로</span><b class="IN_Q_PV" data-sp="IN_Q_SP" data-hz="1">-</b><span class="s">SP <em class="IN_Q_SP">-</em></span></div>
-        <div><span class="n">소입유조</span><b class="IN_OIL_PV" data-sp="IN_OIL_SP" data-hz="1">-</b><span class="s">SP <em class="IN_OIL_SP">-</em></span></div>
-        <div><span class="n">아지테이터 FAN</span><b class="IN_DATA_PV" data-sp="IN_DATA_SP" data-hz="1">-</b><span class="s">SP <em class="IN_DATA_SP">-</em></span></div>
-        <div><span class="n">중간세정기</span><b class="IN_M_WASH_PV" data-sp="IN_M_WASH_SP" data-hz="1">-</b><span class="s">SP <em class="IN_M_WASH_SP">-</em></span></div>
-        <div><span class="n">소려로</span><b class="IN_T_PV" data-sp="IN_T_SP" data-hz="1">-</b><span class="s">SP <em class="IN_T_SP">-</em></span></div>
+        <div><span class="n">전세정기</span><b class="IN_WASH_PV" data-sp="IN_WASH_SP" data-hz="1">—</b><span class="sk"></span><span class="s"><span>SP <em class="IN_WASH_SP">—</em></span><span class="dv"></span></span></div>
+        <div><span class="n">소입로</span><b class="IN_Q_PV" data-sp="IN_Q_SP" data-hz="1">—</b><span class="sk"></span><span class="s"><span>SP <em class="IN_Q_SP">—</em></span><span class="dv"></span></span></div>
+        <div><span class="n">소입유조</span><b class="IN_OIL_PV" data-sp="IN_OIL_SP" data-hz="1">—</b><span class="sk"></span><span class="s"><span>SP <em class="IN_OIL_SP">—</em></span><span class="dv"></span></span></div>
+        <div><span class="n">아지테이터 FAN</span><b class="IN_DATA_PV" data-sp="IN_DATA_SP" data-hz="1">—</b><span class="sk"></span><span class="s"><span>SP <em class="IN_DATA_SP">—</em></span><span class="dv"></span></span></div>
+        <div><span class="n">중간세정기</span><b class="IN_M_WASH_PV" data-sp="IN_M_WASH_SP" data-hz="1">—</b><span class="sk"></span><span class="s"><span>SP <em class="IN_M_WASH_SP">—</em></span><span class="dv"></span></span></div>
+        <div><span class="n">소려로</span><b class="IN_T_PV" data-sp="IN_T_SP" data-hz="1">—</b><span class="sk"></span><span class="s"><span>SP <em class="IN_T_SP">—</em></span><span class="dv"></span></span></div>
       </div>
     </section>
     <section class="imx-card">
       <header><h3>최근 알람</h3><span class="imx-note" id="imxAlarmCnt"></span></header>
       <div id="tableAlarmWrapper">
         <table id="tableAlarm">
-          <thead><tr><th>알람내용</th><th>발생시간</th><th>상태</th></tr></thead>
+          <colgroup><col style="width:88px"><col><col style="width:112px"><col style="width:64px"></colgroup>
+          <thead><tr><th>상태</th><th>알람 내용</th><th class="t">발생</th><th class="t">해제</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -2251,6 +2325,7 @@ function valueDisplay(key, val) {
     // 🔥 일반 값 표시 + 단위 처리
     // =====================
     Array.from(els).forEach(el => {
+        if (el.closest(".imx")) { imxValue(el, key, val); return; }
         let displayValue = val;
 
         if (!isNaN(val) && val !== "" && val !== null) {
@@ -2281,22 +2356,72 @@ function valueDisplay(key, val) {
 // =====================
 // =====================
 // 데모: PV 와 SP 를 비교해 편차 색상 표시 (온도 ±5/±10℃, CP ±0.02/±0.04, Hz ±1/±2)
+//       + 최근 3분 추이 스파크라인, 상단 상태 바 집계
 // =====================
+var IMX_N = 180, imxHist = {}, imxAlarmOn = null;
+
+// 하단 패널 값: 소수 자릿수 고정(자리 흔들림 방지), 단위는 PV 에만 작게
+function imxValue(el, key, val) {
+    var n = Number(val);
+    if (val === "" || val == null || isNaN(n) || (key === "CP_SP_2" && n === 0)) { el.textContent = "—"; return; }
+    var unit = key.indexOf("IN_") === 0 ? "Hz" : key.indexOf("CP_") === 0 ? "" : "℃";
+    var dp = unit === "℃" ? (el.dataset.sp ? 1 : (n % 1 ? 1 : 0)) : 2;
+    el.innerHTML = n.toFixed(dp) + (el.dataset.sp && unit ? '<i class="u">' + unit + "</i>" : "");
+}
+
 function imxNum(el) { var n = parseFloat(String(el ? el.textContent : "").replace(/[^0-9.\-]/g, "")); return isNaN(n) ? null : n; }
+
+// PV 셀과 같은 열의 추이/편차 칸 (표는 같은 열, 인버터는 같은 블록)
+function imxSlot(el, cls) {
+    if (el.tagName === "TD") { var r = el.closest("table").querySelector("tr." + cls); return r ? r.cells[el.cellIndex] : null; }
+    return el.parentNode.querySelector("." + cls);
+}
+
+function imxSpark(box, h, sp, l1, st) {
+    if (!box || h.length < 2) return;
+    var lo = Math.min.apply(null, h), hi = Math.max.apply(null, h);
+    // 세로축은 최소 ±l1 폭 확보 (SP 가 없으면 평균 기준) → 미세 변동이 계단처럼 과장되지 않게
+    var c = sp != null ? sp : (lo + hi) / 2;
+    lo = Math.min(lo, c - l1); hi = Math.max(hi, c + l1);
+    var pad = (hi - lo) * 0.1 || l1; lo -= pad; hi += pad;
+    function y(v) { return (24 * (hi - v) / (hi - lo)).toFixed(2); }
+    // 처음 1분은 수집분만으로 폭을 채우고, 이후 3분 창으로 고정
+    var w = Math.max(h.length, 60), off = w - h.length;
+    var pts = h.map(function (v, i) { return (100 * (off + i) / (w - 1)).toFixed(2) + "," + y(v); }).join(" ");
+    var ref = sp == null ? "" :
+        '<rect class="band" x="0" width="100" y="' + y(sp + l1) + '" height="' + (y(sp - l1) - y(sp + l1)).toFixed(2) + '"/>' +
+        '<line class="ref" x1="0" x2="100" y1="' + y(sp) + '" y2="' + y(sp) + '"/>';
+    box.innerHTML = '<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">' + ref +
+        '<polyline class="ln ' + st + '" points="' + pts + '"/></svg>';
+}
+
 function imxDeviation() {
-    var cnt = { ok: 0, warn: 0, bad: 0 };
+    var cnt = { ok: 0, warn: 0, bad: 0 }, inv = 0;
     document.querySelectorAll(".imx [data-sp]").forEach(function (el) {
         var sp = imxNum(document.querySelector(".imx ." + el.getAttribute("data-sp")));
-        var pv = imxNum(el);
+        var pv = imxNum(el), dv = imxSlot(el, "dv"), st = "ok";
+        var l1 = el.dataset.cp ? 0.02 : el.dataset.hz ? 1 : 5, dp = el.dataset.cp || el.dataset.hz ? 2 : 1;
         el.classList.remove("dev-warn", "dev-bad");
-        if (pv == null || sp == null || (el.dataset.cp && sp === 0)) return;
-        var l1 = el.dataset.cp ? 0.02 : el.dataset.hz ? 1 : 5, d = Math.abs(pv - sp);
-        var st = d > l1 * 2 ? "bad" : d > l1 ? "warn" : "ok";
-        if (st !== "ok") el.classList.add("dev-" + st);
-        if (!el.dataset.hz) cnt[st]++;
+        if (dv) dv.className = "dv";
+        if (pv == null) return;
+        var h = imxHist[el.classList[0]] || (imxHist[el.classList[0]] = []);
+        h.push(pv); if (h.length > IMX_N) h.shift();
+        if (sp != null) {
+            var d = pv - sp, ad = Math.abs(d);
+            st = ad > l1 * 2 ? "bad" : ad > l1 ? "warn" : "ok";
+            if (st !== "ok") el.classList.add("dev-" + st);
+            if (dv) { dv.textContent = (d > 0 ? "+" : d < 0 ? "−" : "±") + ad.toFixed(dp); if (st !== "ok") dv.classList.add(st); }
+            if (el.dataset.hz) { if (st !== "ok") inv++; } else cnt[st]++;
+        } else if (dv) dv.textContent = "—";
+        imxSpark(imxSlot(el, "sk"), h, sp, l1, st);
     });
-    var s = document.getElementById("imxSummary");
-    if (s) s.innerHTML = "정상 <b>" + cnt.ok + "</b> · 주의 <b>" + cnt.warn + "</b> · 이상 <b>" + cnt.bad + "</b>";
+
+    function kpi(id, n, st) { var e = document.getElementById(id); if (!e) return; e.textContent = n == null ? "—" : n; e.className = n > 0 && st ? st : ""; }
+    if (cnt.ok + cnt.warn + cnt.bad > 0) { kpi("kBad", cnt.bad, "bad"); kpi("kWarn", cnt.warn, "warn"); kpi("kOk", cnt.ok); kpi("kInv", inv, "warn"); }
+    kpi("kAlarm", imxAlarmOn, "bad");
+    kpi("kLot", document.querySelectorAll(".process-step.active-green").length);
+    var t = new Date(), p = function (n) { return String(n).padStart(2, "0"); };
+    document.getElementById("imxClock").textContent = t.getFullYear() + "-" + p(t.getMonth() + 1) + "-" + p(t.getDate()) + " " + p(t.getHours()) + ":" + p(t.getMinutes()) + ":" + p(t.getSeconds());
 }
 setInterval(imxDeviation, 1000);
 
@@ -2384,6 +2509,13 @@ function overviewListViewString() {
     });
 }
 
+// 알람 표가 화면 아래 끝을 넘지 않는 행 수 (머리행 28 · 카드 아래 9 · 페이지 아래 24 · 행 32px)
+function imxAlarmMax() {
+    var top = 0, z = parseFloat(document.documentElement.style.zoom) || 1;
+    for (var e = document.getElementById("tableAlarmWrapper"); e; e = e.offsetParent) top += e.offsetTop;
+    return Math.max(2, Math.floor((window.innerHeight / z - top - 28 - 9 - 24) / 32));
+}
+
 function fetchAlarm() {
     $.ajax({
         url: "/line/productionManagement/alarmRecord/list",
@@ -2394,23 +2526,28 @@ function fetchAlarm() {
             var $tbody = $("#tableAlarm tbody").empty();
 
             if (!arr || arr.length === 0) {
-                $tbody.append('<tr><td colspan="3" style="color:#94a3b8;">발생한 알람이 없습니다.</td></tr>');
+                $tbody.append('<tr><td colspan="4" class="empty">최근 알람 없음</td></tr>');
                 $("#imxAlarmCnt").text("");
+                imxAlarmOn = 0;
                 return;
             }
 
-            var onCnt = 0;
+            var onCnt = 0, max = imxAlarmMax();
+            arr.forEach(function(r) { if (!r.a_etime) onCnt++; });
+            // 발생중 알람을 먼저, 화면 세로 스크롤이 생기지 않는 개수까지만
+            arr = arr.filter(function(r) { return !r.a_etime; }).concat(arr.filter(function(r) { return r.a_etime; })).slice(0, max);
             arr.forEach(function(r, idx) {
                 var on = !r.a_etime;
-                if (on) onCnt++;
                 var tr = $("<tr></tr>").toggleClass("on", on);
-                tr.append($("<td></td>").html("<i class='dot'></i>").append(document.createTextNode(r.a_desc || "")));
-                tr.append("<td>" + String(r.a_stime || "").substr(5, 11) + "</td>");
-                tr.append("<td class='st'>" + (on ? "발생중" : "해제 " + String(r.a_etime).substr(11, 5)) + "</td>");
+                tr.append("<td class='st'><i class='dot'></i>" + (on ? "발생중" : "해제") + "</td>");
+                tr.append($("<td></td>").text(r.a_desc || "").attr("title", r.a_desc || ""));
+                tr.append("<td class='t'>" + String(r.a_stime || "").substr(5, 11) + "</td>");
+                tr.append("<td class='t'>" + (on ? "—" : String(r.a_etime).substr(11, 5)) + "</td>");
                 tr.data("rowdata", r);
                 $tbody.append(tr);
             });
-            $("#imxAlarmCnt").html("발생중 <b>" + onCnt + "</b> · 최근 " + arr.length + "건");
+            imxAlarmOn = onCnt;
+            $("#imxAlarmCnt").html("최근 <b>" + arr.length + "</b>건");
         }
     });
 }

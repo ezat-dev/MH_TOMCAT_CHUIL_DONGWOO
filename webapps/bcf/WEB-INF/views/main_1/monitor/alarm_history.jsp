@@ -1,142 +1,199 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="../common_style.jsp" %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
-.kpi-card {
-  border-radius:12px; padding:16px 18px; border:1px solid var(--border);
-  background:var(--white); box-shadow:var(--shadow);
-  display:flex; align-items:center; gap:14px;
+/* ===== 데모: 알람 이력 — 고밀도 운영 화면 (무채색 + 파랑 1색, 빨강은 활성 알람에만) ===== */
+:root {
+  --al-fg: oklch(24% 0.012 255); --al-fg2: oklch(46% 0.012 255); --al-fg3: oklch(64% 0.01 255);
+  --al-line: oklch(91.5% 0.006 255); --al-line2: oklch(95.5% 0.004 255); --al-hover: oklch(97.5% 0.003 255);
+  --al-bg: oklch(98.6% 0.002 255);
+  --al-accent: var(--primary); --al-accent-tint: oklch(58% 0.13 250 / 0.07);
+  --al-bad: oklch(56% 0.15 25); --al-bad-tint: oklch(56% 0.15 25 / 0.04);
+  --al-sans: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --al-mono: "IBM Plex Mono", Consolas, "Malgun Gothic", monospace;
 }
-.kpi-icon { font-size:26px; flex-shrink:0; }
-.kpi-val  { font-size:28px; font-weight:800; line-height:1; }
-.kpi-lbl  { font-size:11px; color:var(--muted); margin-top:3px; }
+html, body { background: var(--al-bg); color: var(--al-fg); font-family: var(--al-sans); font-size: 13px; }
+.mono { font-family: var(--al-mono); font-variant-numeric: tabular-nums slashed-zero; }
 
-.chart-row { display:grid; grid-template-columns:1fr 1fr 2fr; gap:14px; margin-bottom:16px; }
-.chart-box { background:var(--white); border:1px solid var(--border); border-radius:12px;
-  padding:16px 18px; box-shadow:var(--shadow); }
-.chart-title { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:12px; letter-spacing:.3px; }
+.page-wrap { height: 100vh; overflow: hidden; padding: 0; display: flex; flex-direction: column; }
 
-.filter-bar { background:var(--white); border:1px solid var(--border); border-radius:10px;
-  padding:14px 18px; margin-bottom:14px; box-shadow:var(--shadow); }
-.total-count { font-size:12px; color:var(--muted); }
-.pagination { display:flex; align-items:center; gap:4px; justify-content:center; margin-top:14px; }
+/* 헤더 + 필터 툴바 */
+.al-head { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 24px; background: #fff; border-bottom: 1px solid var(--al-line); flex-shrink: 0; flex-wrap: wrap; }
+.al-title { font-size: 18px; font-weight: 600; margin-right: 16px; white-space: nowrap; }
+.al-sep { width: 1px; height: 20px; background: var(--al-line); margin: 0 4px; }
+.al-label { font-size: 12px; color: var(--al-fg2); white-space: nowrap; }
+.al-spacer { flex: 1; }
+.al-upd { font-size: 12px; color: var(--al-fg3); font-family: var(--al-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.form-input, .form-select {
+  height: 32px; padding: 0 8px; border: 1px solid var(--al-line); border-radius: 6px; background: #fff;
+  color: var(--al-fg); font-family: var(--al-mono); font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.form-select { font-family: var(--al-sans); }
+.form-input:focus, .form-select:focus { border-color: var(--al-accent); box-shadow: 0 0 0 2px var(--al-accent-tint); outline: none; }
+.btn-outline, .btn-primary {
+  height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px;
+  font-family: var(--al-sans); font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+  transition: background-color 80ms, border-color 80ms;
+}
+.btn-outline { border: 1px solid var(--al-line); background: #fff; color: var(--al-fg); }
+.btn-outline:hover { background: var(--al-hover); border-color: oklch(86% 0.008 255); color: var(--al-fg); }
+.btn-primary { border: 1px solid var(--al-accent); background: var(--al-accent); color: #fff; }
+.btn-primary:hover { background: var(--primary-d); }
+.btn-outline svg, .btn-primary svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 본문 */
+.al-body { flex: 1; min-height: 0; padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* 지표 띠: 첫 칸이 핵심 지표 */
+.al-kpi { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); background: #fff; border: 1px solid var(--al-line); border-radius: 8px; flex-shrink: 0; }
+.al-kpi > div { padding: 12px 16px; border-left: 1px solid var(--al-line2); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.al-kpi > div:first-child { border-left: 0; }
+.kpi-lbl { font-size: 12px; font-weight: 500; color: var(--al-fg2); }
+.kpi-val { font-family: var(--al-mono); font-size: 22px; font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--al-fg); }
+.kpi-sub { font-size: 12px; color: var(--al-fg3); }
+.al-kpi .hero .kpi-lbl { color: var(--al-fg); font-weight: 600; }
+.al-kpi .hero .kpi-val { font-size: 28px; }
+.al-kpi .hero .kpi-val.bad { color: var(--al-bad); }
+
+/* 패널 */
+.panel { background: #fff; border: 1px solid var(--al-line); border-radius: 8px; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.panel-head { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-bottom: 1px solid var(--al-line2); flex-shrink: 0; }
+.panel-title { font-size: 14px; font-weight: 600; }
+.panel-meta { margin-left: auto; font-size: 12px; color: var(--al-fg3); }
+.chart-row { display: grid; grid-template-columns: 1fr 1.2fr 2.4fr; gap: 16px; flex-shrink: 0; }
+.chart-body { position: relative; height: 168px; padding: 8px 12px 8px 8px; }
+.chart-body canvas { position: absolute; inset: 8px 12px 8px 8px; width: calc(100% - 20px) !important; height: calc(100% - 16px) !important; }
+
+/* 상태 분포: 수평 비율 막대 */
+.st-list { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* 표 */
+.tbl-panel { flex: 1; }
+.tbl-scroll { flex: 1; min-height: 0; overflow: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  position: sticky; top: 0; z-index: 1; background: #fff; color: var(--al-fg2);
+  font-size: 12px; font-weight: 500; text-align: left; padding: 8px 12px; height: 36px;
+  border-bottom: 1px solid var(--al-line); white-space: nowrap;
+}
+.data-table td { padding: 0 12px; height: 32px; border-bottom: 1px solid var(--al-line2); color: var(--al-fg); white-space: nowrap; }
+.data-table tbody tr { transition: background-color 80ms; }
+.data-table tbody tr:hover { background: var(--al-hover); }
+.data-table td.num, .data-table th.num { text-align: right; }
+.alarm-row-active { background: var(--al-bad-tint) !important; }
+.alarm-row-active td:first-child { box-shadow: inset 2px 0 0 var(--al-bad); }
+.th-sort { cursor: pointer; user-select: none; }
+.th-sort:hover { color: var(--al-fg); }
+.th-sort::after { content: ' ↕'; font-size: 11px; color: var(--al-fg3); }
+.th-sort.asc::after  { content: ' ↑'; color: var(--al-accent); }
+.th-sort.desc::after { content: ' ↓'; color: var(--al-accent); }
+.st { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--al-fg2); }
+.st::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--al-fg3); opacity: .6; }
+.st.on { color: var(--al-bad); font-weight: 500; }
+.st.on::before { background: var(--al-bad); opacity: 1; }
+
+.tbl-foot { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-top: 1px solid var(--al-line2); flex-shrink: 0; }
+.total-count { font-size: 12px; color: var(--al-fg2); font-variant-numeric: tabular-nums; }
+.pagination { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .page-btn {
-  width:30px; height:30px; border-radius:6px; border:1px solid var(--border);
-  background:var(--white); cursor:pointer; font-size:12px; transition:all .13s;
+  min-width: 28px; height: 28px; padding: 0 6px; border-radius: 6px; border: 1px solid transparent; background: transparent;
+  cursor: pointer; font-family: var(--al-mono); font-size: 12px; color: var(--al-fg2); font-variant-numeric: tabular-nums;
 }
-.page-btn:hover,.page-btn.active { background:var(--primary);color:#fff;border-color:var(--primary); }
-.alarm-row-active { background:#FFF5F5 !important; }
-.th-sort {
-  cursor: pointer; user-select: none; white-space: nowrap;
-  transition: color .13s;
-}
-.th-sort:hover { color: var(--primary); }
-.th-sort::after {
-  content: ' ⇅'; font-size: 10px; opacity: .45;
-}
-.th-sort.asc::after  { content: ' ▲'; opacity: .85; color: var(--primary); }
-.th-sort.desc::after { content: ' ▼'; opacity: .85; color: var(--primary); }
+.page-btn:hover { background: var(--al-hover); border-color: var(--al-line); }
+.page-btn.active { border-color: var(--al-accent); color: var(--al-accent); background: var(--al-accent-tint); font-weight: 500; }
 </style>
 <body>
 <div class="page-wrap">
-  <div class="page-header">
-    <div>
-      <div class="page-title">알람 이력</div>
-      <div class="page-sub">전체 설비 알람 발생 이력 · 실시간 연동</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:11px;color:var(--muted)" id="lastUpdate"></span>
-      <button class="btn-outline" onclick="downloadExcel()">📥 엑셀 다운로드</button>
-      <button class="btn-primary" onclick="loadAll()">🔄 새로고침</button>
-    </div>
+  <!-- 헤더 + 필터 -->
+  <div class="al-head">
+    <div class="al-title">알람 이력</div>
+    <span class="al-label">시작일</span>
+    <input class="form-input" type="date" id="dateFrom" style="width:140px">
+    <span class="al-label">~</span>
+    <input class="form-input" type="date" id="dateTo" style="width:140px">
+    <span class="al-label" style="margin-left:8px">PLC</span>
+    <select class="form-select" id="selPlc" style="width:110px">
+      <option value="">전체</option>
+    </select>
+    <span class="al-label" style="margin-left:8px">상태</span>
+    <select class="form-select" id="selState" style="width:96px">
+      <option value="">전체</option>
+      <option value="active">활성</option>
+      <option value="cleared">해제됨</option>
+    </select>
+    <button class="btn-primary" onclick="applyFilter()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>조회</button>
+    <div class="al-spacer"></div>
+    <span class="al-upd" id="lastUpdate"></span>
+    <div class="al-sep"></div>
+    <button class="btn-outline" onclick="loadAll()"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>새로고침</button>
+    <button class="btn-outline" onclick="downloadExcel()"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>엑셀</button>
   </div>
 
-  <!-- KPI 카드 -->
-  <div class="kpi-row">
-    <div class="kpi-card" style="border-left:4px solid var(--red)">
-      <div class="kpi-icon">🔴</div>
-      <div><div class="kpi-val" id="kpiActive" style="color:var(--red)">-</div><div class="kpi-lbl">현재 활성 알람</div></div>
+  <div class="al-body">
+    <!-- 지표 띠 -->
+    <div class="al-kpi">
+      <div class="hero">
+        <span class="kpi-lbl">현재 활성 알람</span>
+        <span class="kpi-val" id="kpiActive">-</span>
+        <span class="kpi-sub">해제되지 않은 알람</span>
+      </div>
+      <div>
+        <span class="kpi-lbl">오늘 발생</span>
+        <span class="kpi-val" id="kpiToday">-</span>
+        <span class="kpi-sub">00:00 이후</span>
+      </div>
+      <div>
+        <span class="kpi-lbl">미인지 알람</span>
+        <span class="kpi-val" id="kpiUnack">-</span>
+        <span class="kpi-sub">활성 중 확인 안 됨</span>
+      </div>
+      <div>
+        <span class="kpi-lbl">해제 완료</span>
+        <span class="kpi-val" id="kpiCleared">-</span>
+        <span class="kpi-sub">이력 기준</span>
+      </div>
     </div>
-    <div class="kpi-card" style="border-left:4px solid #2B6CB0">
-      <div class="kpi-icon">📅</div>
-      <div><div class="kpi-val" id="kpiToday" style="color:#2B6CB0">-</div><div class="kpi-lbl">오늘 발생</div></div>
-    </div>
-    <div class="kpi-card" style="border-left:4px solid var(--orange)">
-      <div class="kpi-icon">🔔</div>
-      <div><div class="kpi-val" id="kpiUnack" style="color:var(--orange)">-</div><div class="kpi-lbl">미인지 알람</div></div>
-    </div>
-    <div class="kpi-card" style="border-left:4px solid var(--green)">
-      <div class="kpi-icon">✅</div>
-      <div><div class="kpi-val" id="kpiCleared" style="color:var(--green)">-</div><div class="kpi-lbl">해제 완료</div></div>
-    </div>
-  </div>
 
-  <!-- 차트 행 -->
-  <div class="chart-row">
-    <div class="chart-box">
-      <div class="chart-title">상태별 분포</div>
-      <canvas id="chartState" height="180"></canvas>
+    <!-- 차트 행 -->
+    <div class="chart-row">
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">상태별 분포</span><span class="panel-meta">건수</span></div>
+        <div class="chart-body"><canvas id="chartState"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">PLC별 알람 수</span><span class="panel-meta">상위 8</span></div>
+        <div class="chart-body"><canvas id="chartPlc"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">시간대별 발생 추이</span><span class="panel-meta">최근 24시간 · 1시간 단위</span></div>
+        <div class="chart-body"><canvas id="chartTrend"></canvas></div>
+      </div>
     </div>
-    <div class="chart-box">
-      <div class="chart-title">PLC별 알람 수</div>
-      <canvas id="chartPlc" height="180"></canvas>
-    </div>
-    <div class="chart-box" style="position:relative;">
-      <div class="chart-title">시간대별 발생 추이 (최근 24h)</div>
-      <canvas id="chartTrend" style="position:absolute;top:36px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 36px)"></canvas>
-    </div>
-  </div>
 
-  <!-- 필터 -->
-  <div class="filter-bar">
-    <div class="form-row">
-      <div class="form-field">
-        <label class="form-label">시작일</label>
-        <input class="form-input" type="date" id="dateFrom" style="width:140px">
+    <!-- 테이블 -->
+    <div class="panel tbl-panel">
+      <div class="panel-head"><span class="panel-title">알람 목록</span><span class="panel-meta">활성 알람은 왼쪽 빨간 선</span></div>
+      <div class="tbl-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="num" style="width:56px">No</th>
+              <th class="th-sort desc" id="thOccur" onclick="toggleSort('occurTime')">발생시각</th>
+              <th>PLC</th><th>태그명</th><th>내용</th><th class="num">발생값</th>
+              <th class="th-sort" id="thClear" onclick="toggleSort('clearTime')">해제시각</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody id="alarmBody"></tbody>
+        </table>
       </div>
-      <div class="form-field">
-        <label class="form-label">종료일</label>
-        <input class="form-input" type="date" id="dateTo" style="width:140px">
-      </div>
-      <div class="form-field">
-        <label class="form-label">PLC</label>
-        <select class="form-select" id="selPlc" style="width:130px">
-          <option value="">전체</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label class="form-label">상태</label>
-        <select class="form-select" id="selState" style="width:110px">
-          <option value="">전체</option>
-          <option value="active">활성</option>
-          <option value="cleared">해제됨</option>
-        </select>
-      </div>
-      <div class="form-field" style="align-self:flex-end">
-        <button class="btn-primary" onclick="applyFilter()">🔍 조회</button>
+      <div class="tbl-foot">
+        <span class="total-count" id="totalCount">총 0건</span>
+        <div class="pagination" id="pagination"></div>
       </div>
     </div>
-  </div>
-
-  <!-- 테이블 -->
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="card-title" style="margin:0">알람 목록</div>
-      <span class="total-count" id="totalCount">총 0건</span>
-    </div>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th class="th-sort desc" id="thOccur" onclick="toggleSort('occurTime')">발생시각</th>
-          <th>PLC</th><th>태그명</th><th>내용</th><th>발생값</th>
-          <th class="th-sort" id="thClear" onclick="toggleSort('clearTime')">해제시각</th>
-          <th>상태</th>
-        </tr>
-      </thead>
-      <tbody id="alarmBody"></tbody>
-    </table>
-    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
@@ -183,6 +240,7 @@ function updateKpi(){
     if(!dup) combined.push(a);
   });
   document.getElementById('kpiActive').textContent  = allActive.length;
+  document.getElementById('kpiActive').classList.toggle('bad', allActive.length > 0);
   document.getElementById('kpiToday').textContent   = combined.filter(function(r){ return (r.occurTime||'').slice(0,10) === todayStr; }).length;
   document.getElementById('kpiUnack').textContent   = allActive.filter(function(r){ return !r.ackTime; }).length;
   document.getElementById('kpiCleared').textContent = allHistory.filter(function(r){ return r.clearTime; }).length;
@@ -207,29 +265,33 @@ function populatePlcFilter(){
   });
 }
 
-/* ── 차트 ── */
+/* ── 차트 (데모: 무채색 + 파랑 1색, 빨강은 활성에만) ── */
+var CH_ACCENT = '#3182CE', CH_MUTED = '#CBD5E0', CH_BAD = '#C53030';
+var CH_GRID = '#EEF1F5', CH_TICK = '#718096';
+var CH_FONT = { family:'"IBM Plex Mono", Consolas, monospace', size:11 };
 function buildCharts(){
-  /* 상태별 도넛 */
+  /* 상태별 분포 — 가로 막대 (활성/해제) */
   var activeCnt  = allActive.length;
   var clearedCnt = allHistory.filter(function(r){ return r.clearTime; }).length;
 
   if(chartState){ chartState.destroy(); }
   chartState = new Chart(document.getElementById('chartState'), {
-    type:'doughnut',
+    type:'bar',
     data:{
       labels:['활성','해제'],
       datasets:[{
         data:[activeCnt, clearedCnt],
-        backgroundColor:['#E53E3E','#38A169'],
-        borderWidth:2, borderColor:'#fff'
+        backgroundColor:[CH_BAD, CH_MUTED],
+        borderRadius:2, barThickness:18
       }]
     },
     options:{
-      responsive:false, maintainAspectRatio:false, animation:false,
-      plugins:{
-        legend:{ position:'bottom', labels:{ font:{size:11}, padding:8 } }
-      },
-      cutout:'62%'
+      responsive:true, maintainAspectRatio:false, animation:false, indexAxis:'y',
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ beginAtZero:true, grid:{color:CH_GRID}, border:{display:false}, ticks:{font:CH_FONT, color:CH_TICK} },
+        y:{ grid:{display:false}, border:{display:false}, ticks:{font:{size:12}, color:'#4A5568'} }
+      }
     }
   });
 
@@ -246,13 +308,17 @@ function buildCharts(){
       datasets:[{
         label:'알람 수',
         data:plcKeys.map(function(k){ return plcCnt[k]; }),
-        backgroundColor:'#4299E1', borderRadius:5
+        backgroundColor:plcKeys.map(function(_,i){ return i < 3 ? CH_ACCENT : 'rgba(49,130,206,.35)'; }),
+        borderRadius:2, maxBarThickness:12
       }]
     },
     options:{
-      responsive:false, maintainAspectRatio:false, animation:false, indexAxis:'y',
+      responsive:true, maintainAspectRatio:false, animation:false, indexAxis:'y',
       plugins:{ legend:{display:false} },
-      scales:{ x:{ grid:{color:'#F0F4F8'} }, y:{ ticks:{font:{size:11}} } }
+      scales:{
+        x:{ beginAtZero:true, grid:{color:CH_GRID}, border:{display:false}, ticks:{font:CH_FONT, color:CH_TICK} },
+        y:{ grid:{display:false}, border:{display:false}, ticks:{font:{size:11}, color:'#4A5568', autoSkip:false} }
+      }
     }
   });
 
@@ -283,16 +349,23 @@ function buildCharts(){
       datasets:[{
         label:'알람 발생 수',
         data:buckets.map(function(b){ return b.cnt; }),
-        borderColor:'#E53E3E', backgroundColor:'rgba(229,62,62,.08)',
-        borderWidth:2, pointRadius:3, fill:true, tension:.35
+        borderColor:CH_ACCENT,
+        backgroundColor:function(ctx){
+          var a = ctx.chart.chartArea; if(!a) return 'rgba(49,130,206,.15)';
+          var g = ctx.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+          g.addColorStop(0, 'rgba(49,130,206,.15)'); g.addColorStop(1, 'rgba(49,130,206,0)');
+          return g;
+        },
+        borderWidth:1.5, pointRadius:0, pointHoverRadius:3, fill:true, tension:.25, cubicInterpolationMode:'monotone'
       }]
     },
     options:{
       responsive:true, maintainAspectRatio:false, animation:false,
+      interaction:{ mode:'index', intersect:false },
       plugins:{ legend:{display:false} },
       scales:{
-        x:{ ticks:{font:{size:10}, maxTicksLimit:12} },
-        y:{ beginAtZero:true, grid:{color:'#F0F4F8'}, ticks:{font:{size:10}, stepSize:1} }
+        x:{ grid:{display:false}, border:{color:CH_GRID}, ticks:{font:CH_FONT, color:CH_TICK, maxTicksLimit:12} },
+        y:{ beginAtZero:true, grid:{color:CH_GRID}, border:{display:false}, ticks:{font:CH_FONT, color:CH_TICK, stepSize:1} }
       }
     }
   });
@@ -368,17 +441,18 @@ function renderPage(page){
   rows.forEach(function(r, i){
     var isActive = !r.clearTime;
     html += '<tr'+(isActive?' class="alarm-row-active"':'')+'>'
-          + '<td>'+(start+i+1)+'</td>'
-          + '<td style="font-size:12px;font-family:monospace">'+(r.occurTime||'-')+'</td>'
-          + '<td><span style="font-size:12px;font-weight:600">'+esc(plcLabel(r.plcId))+'</span></td>'
-          + '<td style="font-weight:600">'+esc(r.tagName||'-')+'</td>'
-          + '<td>'+esc(r.alarmMsg||'-')+'</td>'
-          + '<td style="font-family:monospace;font-size:12px">'+(r.valueAtOccur!=null?r.valueAtOccur:'-')+'</td>'
-          + '<td style="font-size:12px;color:var(--muted)">'+(r.clearTime||'—')+'</td>'
-          + '<td><span class="badge '+(isActive?'badge-alarm':'badge-ok')+'">'+(isActive?'활성':'해제')+'</span></td>'
+          + '<td class="num mono" style="color:var(--al-fg3)">'+(start+i+1)+'</td>'
+          + '<td class="mono">'+(r.occurTime||'-')+'</td>'
+          + '<td>'+esc(plcLabel(r.plcId))+'</td>'
+          + '<td class="mono" style="color:var(--al-fg2)">'+esc(r.tagName||'-')+'</td>'
+          + '<td'+(isActive?' style="font-weight:500"':'')+'>'+esc(r.alarmMsg||'-')+'</td>'
+          + '<td class="num mono">'+(r.valueAtOccur!=null?r.valueAtOccur:'-')+'</td>'
+          + '<td class="mono" style="color:var(--al-fg3)">'+(r.clearTime||'—')+'</td>'
+          + '<td><span class="st'+(isActive?' on':'')+'">'+(isActive?'활성':'해제')+'</span></td>'
           + '</tr>';
   });
-  document.getElementById('alarmBody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">데이터 없음</td></tr>';
+  document.getElementById('alarmBody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;color:var(--al-fg3);height:64px">조회 조건에 맞는 알람이 없습니다</td></tr>';
+  var sc = document.querySelector('.tbl-scroll'); if(sc) sc.scrollTop = 0;
   renderPaging();
 }
 

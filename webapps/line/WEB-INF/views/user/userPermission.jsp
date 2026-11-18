@@ -12,278 +12,70 @@
   <jsp:include page="../include/tabBar.jsp"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    /* ===================== Design System (통일) ===================== */
-    :root {
-      --bg:           #f0f2f7;
-      --surface:      #ffffff;
-      --surface2:     #f7f8fc;
-      --surface3:     #eef1f8;
-      --border:       #e2e6ef;
-      --border-focus: #2563eb;
-      --text-p:       #0f172a;
-      --text-s:       #64748b;
-      --text-m:       #94a3b8;
-      --accent:       #2563eb;
-      --accent-dk:    #1d4ed8;
-      --accent-lt:    #eff6ff;
-      --green:        #16a34a;
-      --green-lt:     #f0fdf4;
-      --green-dk:     #15803d;
-      --red:          #dc2626;
-      --red-lt:       #fff5f5;
-      --amber:        #d97706;
-      --amber-lt:     #fffbeb;
-      --indigo:       #4f46e5;
-      --indigo-lt:    #eef2ff;
-      --indigo-dk:    #4338ca;
-      --shadow-sm:    0 1px 4px rgba(0,0,0,.07);
-      --shadow-lg:    0 18px 60px rgba(0,0,0,.20);
-      --radius-sm:    8px;
-      --radius:       12px;
-      --topbar-h:     56px;
-      --transition:   .15s cubic-bezier(.4,0,.2,1);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text-p); min-height: 100vh; }
-
-    /* ===== TOPBAR ===== */
-    .topbar {
-      position: sticky; top: 0; z-index: 200;
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm);
-    }
-    .topbar-inner {
-      max-width: 1600px; margin: 0 auto; height: var(--topbar-h);
-      padding: 0 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .topbar-title {
-      font-size: 14px; font-weight: 900; letter-spacing: -.4px;
-      color: var(--text-p); display: flex; align-items: center; gap: 8px;
-      white-space: nowrap; margin-right: 4px;
-    }
-    .topbar-title .icon-wrap {
-      width: 28px; height: 28px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--indigo), var(--indigo-dk));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; box-shadow: 0 2px 8px rgba(79,70,229,.32);
-    }
-    .divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
-
-    .btn {
-      height: 34px; padding: 0 14px; border-radius: var(--radius-sm);
-      font-size: 12px; font-weight: 900; font-family: inherit;
-      display: inline-flex; align-items: center; gap: 6px;
-      cursor: pointer; border: 1px solid transparent;
-      transition: transform .08s, filter var(--transition), box-shadow var(--transition);
-      white-space: nowrap; user-select: none; letter-spacing: -.1px;
-    }
-    .btn:active { transform: translateY(1px); }
-    .btn:hover  { filter: brightness(1.06); }
-    .btn svg    { width: 14px; height: 14px; flex-shrink: 0; }
-
-    .btn-save   { background: linear-gradient(135deg,var(--indigo),var(--indigo-dk)); color:#fff; border-color:var(--indigo-dk); box-shadow:0 1px 4px rgba(79,70,229,.28); }
-    .btn-allup  { background: linear-gradient(135deg,#16a34a,#15803d); color:#fff; border-color:#15803d; box-shadow:0 1px 4px rgba(22,163,74,.25); }
-    .btn-allno  { background: var(--surface); color: var(--text-s); border-color: var(--border); }
-    .btn-allno:hover { background: var(--surface2); }
-    .btn-reset  { background: var(--surface); color: var(--red); border-color: var(--border); }
-    .btn-reset:hover { background: var(--red-lt); }
-
-    /* ===== PAGE ===== */
-    .page-wrap {
-      max-width: 1600px; margin: 0 auto;
-      padding: 16px 20px 28px;
-      display: flex; flex-direction: column; gap: 14px;
-    }
-
-    /* ===== CARD ===== */
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
-    }
-    .card-header {
-      padding: 11px 16px; border-bottom: 1px solid var(--border); background: var(--surface2);
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    }
-    .card-title {
-      font-size: 12px; font-weight: 900; color: var(--text-p); letter-spacing: -.2px;
-      display: flex; align-items: center; gap: 7px;
-    }
-    .card-title::before { content:''; display:inline-block; width:3px; height:13px; border-radius:3px; }
-    .card-title.indigo::before { background: var(--indigo); }
-    .card-title.green::before  { background: var(--green); }
-    .card-meta { font-size: 11px; color: var(--text-m); font-family: 'JetBrains Mono',monospace; font-weight: 500; }
-
-    /* ===== TABULATOR (사용자 목록) ===== */
-    #dataList { padding: 10px; }
-    .tabulator { border: none !important; font-size: 13px !important; font-family: 'Noto Sans KR',sans-serif !important; }
-    .tabulator .tabulator-header { background: var(--surface2) !important; border-bottom: 1px solid var(--border) !important; }
-    .tabulator .tabulator-header .tabulator-col {
-      background: var(--surface2) !important; border-right: 1px solid var(--border) !important;
-      color: var(--text-s) !important; font-size: 11px !important; font-weight: 800 !important;
-    }
-    .tabulator-row { border-bottom: 1px solid #f1f4fa !important; transition: background var(--transition) !important; }
-    .tabulator-row:hover { background: #f5f3ff !important; }
-    .tabulator-row.row_select { background: var(--indigo-lt) !important; border-left: 3px solid var(--indigo) !important; }
-    .tabulator-cell { color: var(--text-p) !important; }
-
-    /* ===== 선택된 사용자 배지 ===== */
-    .user-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 5px 14px; border-radius: 20px;
-      background: var(--indigo-lt); border: 1px solid #c7d2fe;
-      font-size: 12px; font-weight: 800; color: var(--indigo);
-    }
-    .user-badge .badge-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--indigo); animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-
-    /* ===== 권한 그리드 ===== */
-    .perm-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 12px;
-      padding: 16px;
-    }
-    @media(max-width:1200px){ .perm-grid{ grid-template-columns:repeat(3,1fr); } }
-    @media(max-width:800px) { .perm-grid{ grid-template-columns:repeat(2,1fr); } }
-
-    /* 권한 섹션 카드 */
-    .perm-section {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); overflow: hidden;
-    }
-    .perm-section-head {
-      padding: 9px 12px; border-bottom: 1px solid var(--border);
-      font-size: 11px; font-weight: 900; color: var(--text-p);
-      display: flex; align-items: center; gap: 6px;
-      letter-spacing: -.1px;
-    }
-    .perm-section-head .dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    }
-    /* 섹션별 색상 */
-    .dot-a { background: var(--indigo); }
-    .dot-b { background: var(--amber); }
-    .dot-c { background: var(--green); }
-    .dot-d { background: #0d9488; }
-    .dot-e { background: #dc2626; }
-    .dot-f { background: #7c3aed; }
-
-    .perm-section-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
-
-    .perm-row {
-      display: flex; align-items: center; gap: 6px;
-    }
-    .perm-label {
-      font-size: 11px; font-weight: 700; color: var(--text-s);
-      flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .perm-select {
-      height: 30px; padding: 0 6px;
-      border: 1px solid var(--border); border-radius: 6px;
-      background: var(--surface); color: var(--text-p);
-      font-size: 11px; font-family: inherit; font-weight: 700;
-      outline: none; cursor: pointer; min-width: 58px;
-      transition: border-color var(--transition), box-shadow var(--transition);
-      appearance: none; -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 5px center;
-      padding-right: 20px;
-    }
-    .perm-select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px rgba(37,99,235,.12); }
-
-    /* 권한 값에 따른 색상 */
-    .perm-select[data-val="N"] { color: var(--text-m); }
-    .perm-select[data-val="R"] { color: var(--accent); border-color: #bfdbfe; background-color: var(--accent-lt); }
-    .perm-select[data-val="I"] { color: var(--green);  border-color: #bbf7d0; background-color: var(--green-lt); }
-    .perm-select[data-val="U"] { color: var(--amber);  border-color: #fde68a; background-color: var(--amber-lt); }
-    .perm-select[data-val="D"] { color: var(--red);    border-color: #fecaca; background-color: var(--red-lt); }
-
-    /* footer badge */
-    .footer-badge {
-      display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
-      border-radius: 20px; background: var(--surface2); border: 1px solid var(--border);
-      font-size: 11px; font-family: 'JetBrains Mono',monospace; color: var(--text-s); font-weight: 600;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/line/css/opsList/ops-list.css">
+  <link rel="stylesheet" href="/line/css/opsList/ops-user.css">
 </head>
 
-<body>
+<body class="ops fit">
 
-  <!-- ===== TOPBAR ===== -->
-  <div class="topbar">
-    <div class="topbar-inner">
-
-      <div class="topbar-title">
-        <span class="icon-wrap">🔑</span>
-        사용자 권한부여
-      </div>
-      <div class="divider"></div>
+  <!-- ===== 헤더 + 툴바 ===== -->
+  <header class="ops-head">
+    <div class="ops-head-in">
+      <h1 class="ops-title">사용자 권한부여</h1>
 
       <!-- 선택 사용자 표시 -->
-      <span class="user-badge">
-        <span class="badge-dot"></span>
-        <span id="selectedUserName">사용자를 선택하세요</span>
-      </span>
+      <span class="ops-sel" id="selectedUserBox"><i></i><span id="selectedUserName">사용자를 선택하세요</span></span>
 
-      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
-        <button class="btn btn-allno allNo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-          </svg>전체없음
-        </button>
-        <button class="btn btn-allup allUpdate">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>최고권한
-        </button>
-        <button class="btn btn-reset clearAut">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
-          </svg>초기화
-        </button>
-        <button class="btn btn-save saveAut">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-          </svg>저장
-        </button>
-      </div>
+      <span class="ops-spacer"></span>
 
+      <button class="ops-btn allNo">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>전체없음
+      </button>
+      <button class="ops-btn allUpdate" title="모든 메뉴를 최고 권한으로 바꾸고 바로 저장합니다">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>최고권한 적용
+      </button>
+      <button class="ops-btn danger clearAut">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>초기화
+      </button>
+      <button class="ops-btn primary saveAut">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>저장
+      </button>
     </div>
-  </div>
+  </header>
 
   <!-- ===== PAGE ===== -->
-  <div class="page-wrap">
+  <main class="ops-page">
+    <div class="perm-layout">
 
-    <!-- 사용자 목록 테이블 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title indigo">사용자 목록</div>
-        <div class="card-meta">클릭하여 사용자 선택 → 하단 권한 편집</div>
-      </div>
-      <div id="dataList"></div>
-    </div>
+      <!-- 사용자 목록 -->
+      <section class="ops-card grow">
+        <div class="ops-card-head">
+          <h2>사용자 목록</h2>
+          <span class="note">행을 눌러 사용자 선택</span>
+        </div>
+        <div id="dataList" class="ops-table"></div>
+        <div class="ops-card-foot">
+          <span id="perm-user-count">-</span>
+          <span>선택 <strong id="perm-user-id">-</strong></span>
+        </div>
+      </section>
 
-    <!-- 권한 설정 카드 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title green">메뉴 권한 설정</div>
-        <div class="card-meta">없음(N) · 조회(R) · 저장(I) · 수정(U) · 삭제(D)</div>
-      </div>
+      <!-- 권한 설정 -->
+      <section class="ops-card grow">
+        <div class="ops-card-head">
+          <h2>메뉴 권한 설정</h2>
+          <span class="perm-legend">
+            <span class="n"><i></i>N 없음</span><span class="r"><i></i>R 조회</span><span class="i"><i></i>I 저장</span>
+            <span class="u"><i></i>U 수정</span><span class="d"><i></i>D 삭제</span>
+          </span>
+        </div>
 
-      <form id="permissionForm">
-        <input type="hidden" id="user_code" name="user_code">
+        <form id="permissionForm" class="perm-scroll">
+          <input type="hidden" id="user_code" name="user_code">
 
-        <div class="perm-grid">
+          <div class="perm-grid">
 
           <!-- ① 기준정보 -->
           <div class="perm-section">
@@ -432,11 +224,16 @@
             </div>
           </div>
 
-        </div><!-- /.perm-grid -->
-      </form>
-    </div>
+          </div><!-- /.perm-grid -->
+        </form>
+        <div class="ops-card-foot">
+          <span>메뉴 <strong id="perm-menu-count">-</strong>개 · 권한 있음 <strong id="perm-on-count">-</strong>개</span>
+          <span>최고권한 적용은 즉시 저장됩니다</span>
+        </div>
+      </section>
 
-  </div><!-- /.page-wrap -->
+    </div>
+  </main>
 
   <!-- ===== SCRIPT ===== -->
   <script>
@@ -446,6 +243,16 @@
     function refreshSelectColor(sel) {
       if (!sel) return;
       sel.setAttribute('data-val', sel.value);
+      updatePermCount();
+    }
+
+    /* 데모: 권한 있음 개수 (표시 전용) */
+    function updatePermCount() {
+      var all = document.querySelectorAll('.perm-select'), on = 0;
+      all.forEach(function (s) { if (s.value !== 'N') on++; });
+      var m = document.getElementById('perm-menu-count'), o = document.getElementById('perm-on-count');
+      if (m) m.textContent = all.length;
+      if (o) o.textContent = on;
     }
 
     document.querySelectorAll('.perm-select').forEach(function(sel) {
@@ -504,27 +311,32 @@
       /* ── 사용자 목록 Tabulator ── */
       function getAllUserList() {
         userTable = new Tabulator('#dataList', {
-          height: '220px',
+          height: '100%',
           layout: 'fitColumns',
           reactiveData: true,
           ajaxConfig: { method: 'POST' },
           ajaxLoader: false,
           ajaxURL: '/line/user/userPermission/userSelect',
-          ajaxResponse: function (url, params, response) { return response.data; },
+          ajaxResponse: function (url, params, response) {
+            $('#perm-user-count').html('총 <strong>' + ((response.data || []).length) + '</strong>명');
+            return response.data;
+          },
           placeholder: '조회된 데이터가 없습니다.',
-          headerHozAlign: 'center',
+          headerHozAlign: 'left',
           columns: [
-            { title: 'NO',       field: 'idx',       width: 60,  hozAlign: 'center' },
-            { title: '아이디',   field: 'user_id',   width: 150, hozAlign: 'center' },
-            { title: '성명',     field: 'user_name', width: 120, hozAlign: 'center' },
-            { title: '부서',     field: 'user_busu', width: 150, hozAlign: 'center' },
-            { title: '직책',     field: 'user_jick', width: 120, hozAlign: 'center' },
+            { title: '#',        field: 'idx',      width: 64,  hozAlign: 'right', headerHozAlign: 'right', cssClass: 'c-mono' },
+            { title: '아이디',   field: 'user_id',   widthGrow: 3, hozAlign: 'left', cssClass: 'c-mono c-strong' },
+            { title: '성명',     field: 'user_name', widthGrow: 2, hozAlign: 'left', cssClass: 'c-strong' },
+            { title: '부서',     field: 'user_busu', widthGrow: 2, hozAlign: 'left' },
+            { title: '직책',     field: 'user_jick', widthGrow: 2, hozAlign: 'left' },
             { title: 'user_code',field: 'user_code', visible: false }
           ],
           rowClick: function (e, row) {
             var data = row.getData();
             $('#user_code').val(data.user_code);
             $('#selectedUserName').text(data.user_name + ' (' + (data.user_busu || '-') + ')');
+            $('#selectedUserBox').addClass('on');
+            $('#perm-user-id').text(data.user_id || '-');
 
             userTable.getRows().forEach(function(r){ r.getElement().classList.remove('row_select'); });
             row.getElement().classList.add('row_select');

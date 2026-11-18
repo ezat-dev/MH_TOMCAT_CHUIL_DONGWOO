@@ -303,6 +303,14 @@ body, html {
 #pvCard .pv-dev{ margin-left:5px; font-weight:700; color:#16a34a; }
 #pvCard .pv-tile.warn .pv-dev{ color:#d97706; }
 #pvCard .pv-tile.bad .pv-dev{ color:#dc2626; }
+
+/* 큰 화면 대응: 폭 제한 제거, 하단 '최신 작업 목록'이 남은 높이를 채움 (페이지 스크롤 없음) */
+.main { max-width:none; margin:0; height:100vh; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; }
+.main > .header { margin-bottom:0; }
+.main > .grid { flex:none; }
+.main > .grid:last-of-type { flex:1; min-height:0; margin-bottom:0; }
+.main > .grid:last-of-type > .card { display:flex; flex-direction:column; min-height:0; }
+.main > .grid:last-of-type #tableHeatWrapper { flex:1; min-height:0; height:auto !important; }
 </style>
 
 </head>
@@ -634,6 +642,7 @@ function getDataList() {
 
     dataTable = new Tabulator("#dataList", {
         height: "160px",
+        layout: "fitColumns",   /* 카드 폭 전체 사용 */
         movableColumns: true,
         resizableColumns: true,
         ajaxConfig: "POST",

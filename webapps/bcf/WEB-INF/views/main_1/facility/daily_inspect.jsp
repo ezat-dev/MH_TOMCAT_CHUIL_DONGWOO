@@ -1,185 +1,209 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="../common_style.jsp" %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-.ctrl-bar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px; }
-
-.signer-row {
-  display:flex; gap:16px; flex-wrap:wrap; align-items:center;
-  padding:10px 0 12px; border-bottom:1px solid var(--border); margin-bottom:0; font-size:13px;
+/* ===== 데모: 일상점검일지 — 고밀도 운영 화면 (무채색 + 파랑 1색, 이상(X)만 빨강 글자) ===== */
+:root {
+  --di-fg: oklch(24% 0.012 255); --di-fg2: oklch(46% 0.012 255); --di-fg3: oklch(64% 0.01 255);
+  --di-line: oklch(91.5% 0.006 255); --di-line2: oklch(95.5% 0.004 255); --di-hover: oklch(97.5% 0.003 255);
+  --di-bg: oklch(98.6% 0.002 255); --di-night: oklch(98.2% 0.002 255);
+  --di-accent: var(--primary); --di-accent-tint: oklch(58% 0.13 250 / 0.06); --di-accent-tint2: oklch(58% 0.13 250 / 0.12);
+  --di-ok: oklch(60% 0.12 150); --di-warn: oklch(64% 0.13 75); --di-bad: oklch(56% 0.15 25);
+  --di-sans: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --di-mono: "IBM Plex Mono", Consolas, "Malgun Gothic", monospace;
 }
-.signer-row label { font-size:11px; color:var(--muted); font-weight:600; margin-right:4px; }
+html, body { background: var(--di-bg); color: var(--di-fg); font-family: var(--di-sans); font-size: 13px; }
+.page-wrap { height: 100vh; overflow: hidden; padding: 0; display: flex; flex-direction: column; }
 
-.matrix-wrap { overflow-x:auto; }
-.matrix-table {
-  border-collapse:collapse; font-size:13px; white-space:nowrap; min-width:100%;
+/* 헤더 + 툴바 */
+.di-head { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 8px 24px; background: #fff; border-bottom: 1px solid var(--di-line); flex-shrink: 0; flex-wrap: wrap; }
+.di-title { font-size: 18px; font-weight: 600; white-space: nowrap; }
+.di-sub { font-size: 12px; color: var(--di-fg3); font-family: var(--di-mono); white-space: nowrap; margin-right: 8px; }
+.di-sep { width: 1px; height: 20px; background: var(--di-line); margin: 0 4px; }
+.di-label { font-size: 12px; color: var(--di-fg2); white-space: nowrap; }
+.di-spacer { flex: 1; }
+.form-input, .form-select {
+  height: 32px; padding: 0 8px; border: 1px solid var(--di-line); border-radius: 6px; background: #fff;
+  color: var(--di-fg); font-family: var(--di-mono); font-size: 13px; font-variant-numeric: tabular-nums;
 }
+.form-select { font-family: var(--di-sans); }
+.form-input:focus, .form-select:focus { border-color: var(--di-accent); box-shadow: 0 0 0 2px var(--di-accent-tint2); outline: none; }
+.btn-outline, .btn-primary {
+  height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px;
+  font-family: var(--di-sans); font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+  transition: background-color 80ms, border-color 80ms;
+}
+.btn-outline { border: 1px solid var(--di-line); background: #fff; color: var(--di-fg); }
+.btn-outline:hover { background: var(--di-hover); border-color: oklch(86% 0.008 255); color: var(--di-fg); }
+.btn-primary { border: 1px solid var(--di-accent); background: var(--di-accent); color: #fff; }
+.btn-primary:hover { background: var(--primary-d); }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.btn-outline svg, .btn-primary svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.btn-outline.on { border-color: var(--di-accent); color: var(--di-accent); background: var(--di-accent-tint); }
+
+/* 상태: 점 + 글자 */
+.status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--di-fg2); white-space: nowrap; }
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--di-fg3); }
+.status-DONE { color: var(--di-ok); }
+.status-DONE::before { background: var(--di-ok); }
+.status-TEMP { color: var(--di-warn); }
+.status-TEMP::before { background: var(--di-warn); }
+
+/* 본문 */
+.di-body { flex: 1; min-height: 0; padding: 16px 24px 24px; display: flex; flex-direction: column; }
+#inspCard { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--di-line); border-radius: 8px; overflow: hidden; }
+.matrix-wrap { flex: 1; min-height: 0; overflow: auto; }
+.matrix-table { border-collapse: separate; border-spacing: 0; font-size: 13px; white-space: nowrap; min-width: 100%; }
 .matrix-table th {
-  background:var(--bg); padding:6px 4px; text-align:center;
-  font-size:11px; font-weight:700; color:var(--muted);
-  border:1px solid var(--border); white-space:nowrap;
-  position:sticky; top:0; z-index:2;
+  background: #fff; padding: 0 4px; height: 28px; text-align: center;
+  font-size: 12px; font-weight: 500; color: var(--di-fg2);
+  border-right: 1px solid var(--di-line2); border-bottom: 1px solid var(--di-line);
+  white-space: nowrap; position: sticky; top: 0; z-index: 2;
 }
-.matrix-table th.item-col { text-align:left; min-width:130px; position:sticky; left:0; z-index:3; }
-.matrix-table th.std-col  { text-align:left; min-width:140px; }
-.matrix-table th.img-col  { min-width:60px; width:60px; }
-.matrix-table th.day-hd   { min-width:116px; font-size:12px; color:var(--primary);
-                             background:#EBF8FF; border-bottom:none; }
-.matrix-table th.day-hd.today-col { background:#BEE3F8; }
-.matrix-table th.sh-hd    { min-width:58px; width:58px; font-size:11px; font-weight:700;
-                             background:var(--bg); border-top:none; }
-.matrix-table th.sh-hd.today-col { background:#EBF8FF; }
+.matrix-table thead tr:nth-child(2) th { top: 28px; }
+.matrix-table th.item-col { text-align: left; padding: 0 12px; min-width: 150px; left: 0; z-index: 4; }
+.matrix-table th.std-col  { text-align: left; padding: 0 12px; min-width: 150px; }
+.matrix-table th.img-col  { min-width: 48px; width: 48px; }
+.matrix-table th.day-hd   { min-width: 104px; font-family: var(--di-mono); font-variant-numeric: tabular-nums; color: var(--di-fg); border-bottom-color: var(--di-line2); }
+.matrix-table th.sh-hd    { min-width: 52px; width: 52px; font-size: 11px; font-weight: 400; color: var(--di-fg3); }
+.matrix-table th.sh-hd:nth-child(even) { background: var(--di-night); }
+.matrix-table th.today-col { color: var(--di-accent); background: oklch(97% 0.012 250) !important; }
+.matrix-table th.day-hd.today-col { box-shadow: inset 0 2px 0 var(--di-accent); font-weight: 600; }
 
-.matrix-table td {
-  padding:0; border:1px solid var(--border); vertical-align:middle;
-}
+.matrix-table td { padding: 0; height: 32px; border-right: 1px solid var(--di-line2); border-bottom: 1px solid var(--di-line2); vertical-align: middle; background: #fff; }
 .matrix-table td.item-name {
-  padding:6px 10px; font-weight:600; font-size:13px;
-  position:sticky; left:0; background:var(--white); z-index:1;
+  padding: 0 12px; font-weight: 500; font-size: 13px; color: var(--di-fg);
+  position: sticky; left: 0; z-index: 1; border-right: 1px solid var(--di-line);
 }
-.matrix-table td.item-std { padding:6px 10px; color:var(--muted); font-size:12px; }
-.matrix-table td.img-cell { padding:4px 6px; text-align:center; vertical-align:middle; }
-.matrix-table td.sh-cell  { padding:2px !important; }
-.matrix-table td.today-col { background:#EBF8FF !important; }
-.matrix-table tbody tr:hover td { background:var(--primary-l); }
-.matrix-table tbody tr:hover td.item-name { background:var(--primary-l); }
+.matrix-table td.item-std { padding: 0 12px; color: var(--di-fg3); font-size: 12px; }
+.matrix-table td.img-cell { padding: 2px 4px; text-align: center; }
+.matrix-table td.sh-cell  { padding: 0 !important; }
+.matrix-table td.sh-cell:nth-child(odd) { background: var(--di-night); }
+.matrix-table td.today-col { background: var(--di-accent-tint) !important; }
+.matrix-table tbody tr { transition: background-color 80ms; }
+.matrix-table tbody tr:hover td { background: var(--di-hover); }
+.matrix-table tbody tr:hover td.today-col { background: var(--di-accent-tint2) !important; }
 
 /* 수치 입력 */
 .val-input {
-  width:100%; height:34px; border:none; background:transparent;
-  text-align:center; font-size:13px; font-weight:600;
-  color:var(--text); outline:none;
+  width: 100%; height: 31px; border: none; background: transparent; text-align: center;
+  font-family: var(--di-mono); font-size: 13px; font-weight: 400; font-variant-numeric: tabular-nums;
+  color: var(--di-fg3); outline: none;
 }
-.val-input:focus { background:#EBF8FF; border-radius:3px; }
-.val-input.has-val { background:#F0FFF4; color:#276749; }
-.val-input[data-shift="N"].has-val { background:#FEFCBF; color:#744210; }
-.val-input.is-check { font-size:17px !important; font-weight:900 !important;
-  color:var(--green) !important; background:#F0FFF4 !important; }
+.val-input::placeholder { color: oklch(85% 0.006 255); }
+.val-input:focus { background: #fff; box-shadow: inset 0 0 0 1.5px var(--di-accent); border-radius: 2px; }
+.val-input.has-val { color: var(--di-fg); }
+.val-input.is-check { font-family: var(--di-sans); font-weight: 500 !important; color: var(--di-fg2) !important; }
 
 /* 편집 모드 */
-.edit-item-btns { display:none; gap:4px; padding:2px 4px; }
-.edit-item-btns.show { display:flex; }
-.eib { padding:2px 6px; font-size:10px; border-radius:4px; border:1px solid var(--border);
-  background:none; cursor:pointer; }
-.eib-edit:hover { border-color:var(--primary); color:var(--primary); }
-.eib-del:hover  { border-color:var(--red); color:var(--red); background:var(--red-l); }
-.eib-type       { border-color:#7C3AED; color:#7C3AED; }
-.eib-type:hover { background:#EDE9FE; }
-.eib-type.active{ background:#7C3AED !important; color:#fff !important; }
+.edit-item-btns { display: none; gap: 4px; padding: 2px 0 4px; }
+.edit-item-btns.show { display: flex; }
+.eib { height: 22px; padding: 0 6px; font-size: 11px; border-radius: 4px; border: 1px solid var(--di-line); background: #fff; color: var(--di-fg2); cursor: pointer; font-family: var(--di-sans); }
+.eib-edit:hover { border-color: var(--di-accent); color: var(--di-accent); }
+.eib-del { color: var(--di-bad); }
+.eib-del:hover { border-color: var(--di-bad); }
+.eib-type:hover { background: var(--di-hover); }
+.eib-type.active { border-color: var(--di-accent); color: var(--di-accent); background: var(--di-accent-tint); }
 
-/* OX 행 강조 */
-.row-ox td            { background:#EDE9FE !important; }
-.row-ox td.item-name  { background:#EDE9FE !important; }
-.row-ox td.today-col  { background:#D9D3FC !important; }
+/* 수치 행 / OX 행 — 배경색 구분 없음 (원래 보라색 강조 제거) */
+.row-ox td { }
 
-/* OX 드롭다운 */
+/* OX · 점검자 드롭다운 */
 .ox-select {
-  width:100%; height:34px; border:none; background:transparent;
-  text-align:center; font-size:13px; font-weight:700;
-  color:var(--text); outline:none; cursor:pointer;
-  -webkit-appearance:none; appearance:none;
+  width: 100%; height: 31px; border: none; background: transparent; text-align: center; text-align-last: center;
+  font-family: var(--di-sans); font-size: 13px; font-weight: 400; color: var(--di-fg3); outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
 }
-.ox-select:focus { background:#DDD6FE; border-radius:3px; }
-.ox-select.has-o { background:#D1FAE5 !important; color:#065F46 !important; }
-.ox-select.has-x { background:#FEE2E2 !important; color:#991B1B !important; }
+.ox-select:focus { box-shadow: inset 0 0 0 1.5px var(--di-accent); border-radius: 2px; }
+.ox-select.has-o { color: var(--di-fg2) !important; font-family: var(--di-mono); }
+.ox-select.has-x { color: var(--di-bad) !important; font-family: var(--di-mono); font-weight: 600; }
+.ox-select option { color: var(--di-fg); }
 
-.action-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; align-items:center; }
-.status-badge { font-size:11px; padding:2px 8px; border-radius:10px; font-weight:600; }
-.status-DONE { background:var(--green-l); color:var(--green); border:1px solid #9AE6B4; }
-.status-TEMP { background:var(--orange-l); color:var(--orange); border:1px solid #FBD38D; }
-
-.legend { display:flex; gap:10px; font-size:11px; color:var(--muted); align-items:center; flex-wrap:wrap; }
+.action-row { display: flex; gap: 8px; align-items: center; height: 40px; padding: 0 16px; border-top: 1px solid var(--di-line2); flex-shrink: 0; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--di-fg3); align-items: center; flex-wrap: wrap; }
+.legend b { font-family: var(--di-mono); font-weight: 500; color: var(--di-fg2); margin-right: 4px; }
+.legend b.bad { color: var(--di-bad); }
+#savedMsg { font-size: 12px; color: var(--di-ok); margin-left: auto; font-family: var(--di-mono); }
 
 /* 모달 */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4);
-  z-index:200; align-items:center; justify-content:center; }
-.modal-overlay.show { display:flex; }
-.modal-box { background:var(--white); border-radius:14px; padding:24px 28px;
-  width:420px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.18); }
-.modal-title { font-size:15px; font-weight:700; margin-bottom:16px; }
-.modal-notice { font-size:11px; color:var(--orange); margin-bottom:14px;
-  padding:7px 10px; background:var(--orange-l); border-radius:6px; }
-.modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:20px; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: oklch(20% 0.01 255 / 0.4); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: #fff; border: 1px solid var(--di-line); border-radius: 8px; padding: 20px 24px; width: 420px; max-width: 96vw; box-shadow: 0 8px 32px rgba(0,0,0,.14); }
+.modal-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+.modal-notice { font-size: 12px; color: var(--di-fg2); margin-bottom: 12px; padding: 8px 12px; background: var(--di-bg); border: 1px solid var(--di-line2); border-left: 2px solid var(--di-warn); border-radius: 4px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.form-label { font-size: 12px; color: var(--di-fg2); font-weight: 500; }
 
 /* 이미지 */
-.img-thumb {
-  width:48px; height:36px; object-fit:cover; border-radius:4px;
-  cursor:pointer; border:1px solid var(--border); display:block; margin:0 auto 2px;
-}
-.img-thumb:hover { opacity:.8; }
-.img-upload-btn {
-  font-size:11px; padding:1px 6px; border:1px dashed var(--border);
-  border-radius:4px; background:none; cursor:pointer; color:var(--muted);
-  display:none; margin:0 auto;
-}
-.img-upload-btn:hover { border-color:var(--primary); color:var(--primary); }
-.edit-mode .img-upload-btn { display:block; }
-#imgPreviewModal .modal-box { width:min(960px,92vw); text-align:center; }
-#imgPreviewModal img { max-width:100%; max-height:82vh; border-radius:8px; }
+.img-thumb { width: 40px; height: 26px; object-fit: cover; border-radius: 3px; cursor: zoom-in; border: 1px solid var(--di-line); display: block; margin: 0 auto; }
+.img-thumb:hover { opacity: .85; }
+.img-upload-btn { font-size: 11px; height: 20px; padding: 0 6px; border: 1px dashed var(--di-line); border-radius: 4px; background: none; cursor: pointer; color: var(--di-fg3); display: none; margin: 2px auto 0; }
+.img-upload-btn:hover { border-color: var(--di-accent); color: var(--di-accent); }
+.edit-mode .img-upload-btn { display: block; }
+#imgPreviewModal .modal-box { width: min(960px, 92vw); text-align: center; }
+#imgPreviewModal img { max-width: 100%; max-height: 82vh; border-radius: 4px; }
 
-@media (max-width:640px) {
-  .hide-mobile { display:none !important; }
-  .matrix-table th.std-col,
-  .matrix-table td.item-std { display:none; }
-  .val-input { height:40px; font-size:13px; }
-  .matrix-table th.sh-hd { min-width:42px; width:42px; }
-  .page-header { flex-direction:column; gap:10px; }
-  .page-header > div:last-child { flex-wrap:wrap; gap:6px; width:100%; }
-  .page-header > div:last-child button { flex:1; }
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+  .matrix-table th.std-col, .matrix-table td.item-std { display: none; }
+  .val-input { height: 40px; }
+  .matrix-table th.sh-hd { min-width: 42px; width: 42px; }
 }
 </style>
 <body>
 <div class="page-wrap">
-  <div class="page-header">
-    <div>
-      <div class="page-title">일상점검일지</div>
-      <div class="page-sub" id="pageSubTitle">설비를 선택하세요</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-outline" onclick="openTabletMode()">📱 태블릿 모드</button>
-      <button class="btn-outline" onclick="toggleEditMode()" id="editModeBtn">✏️ 항목 편집</button>
-      <button class="btn-outline" onclick="doExport()">📥 엑셀 출력</button>
-      <label class="btn-outline" style="cursor:pointer;margin:0">
-        📤 엑셀 가져오기<input type="file" id="importFile" accept=".xlsx" style="display:none" onchange="doImport(this)">
-      </label>
-      <button class="btn-outline" onclick="openInspectorMgr()">👤 사용자 관리</button>
-      <button class="btn-primary" onclick="saveDone()">✅ 점검완료</button>
-    </div>
+  <!-- 헤더 + 툴바 -->
+  <div class="di-head">
+    <div class="di-title">일상점검일지</div>
+    <div class="di-sub" id="pageSubTitle">설비를 선택하세요</div>
+    <div class="di-sep"></div>
+    <span class="di-label">점검월</span>
+    <input class="form-input" type="month" id="selYm" style="width:140px">
+    <span class="di-label" style="margin-left:8px">설비</span>
+    <select class="form-select" id="selEquip" style="width:104px" onchange="loadData()">
+      <option>BCF_1</option><option>BCF_2</option><option>BCF_3</option>
+      <option>BCF_4</option><option>BCF_5</option><option>BCF_6</option>
+      <option>BCF_7</option><option>BCF_8</option><option>BCF_9</option>
+      <option>BCF_10</option><option>BCF_11</option><option>BCF_12</option>
+    </select>
+    <button class="btn-outline" onclick="loadData()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>조회</button>
+    <span id="statusBadge" class="status-badge status-TEMP" style="margin-left:8px">임시저장</span>
+    <div class="di-spacer"></div>
+    <button class="btn-outline" onclick="openTabletMode()"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>태블릿 모드</button>
+    <button class="btn-outline" onclick="toggleEditMode()" id="editModeBtn"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>항목 편집</span></button>
+    <button class="btn-outline" onclick="doExport()"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>엑셀 출력</button>
+    <label class="btn-outline" style="cursor:pointer;margin:0">
+      <svg viewBox="0 0 24 24"><path d="M12 15V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg>엑셀 가져오기<input type="file" id="importFile" accept=".xlsx" style="display:none" onchange="doImport(this)">
+    </label>
+    <button class="btn-outline" onclick="openInspectorMgr()"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>점검자 관리</button>
+    <div class="di-sep"></div>
+    <button class="btn-primary" onclick="saveDone()"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>점검완료</button>
   </div>
 
-  <div class="card ctrl-bar" style="padding:10px 16px;margin-bottom:12px">
-    <div class="form-field">
-      <label class="form-label">점검월</label>
-      <input class="form-input" type="month" id="selYm" style="width:140px">
-    </div>
-    <div class="form-field">
-      <label class="form-label">설비</label>
-      <select class="form-select" id="selEquip" style="width:140px" onchange="loadData()">
-        <option>BCF_1</option><option>BCF_2</option><option>BCF_3</option>
-        <option>BCF_4</option><option>BCF_5</option><option>BCF_6</option>
-        <option>BCF_7</option><option>BCF_8</option><option>BCF_9</option>
-        <option>BCF_10</option><option>BCF_11</option><option>BCF_12</option>
-      </select>
-    </div>
-    <button class="btn-primary btn-sm" style="margin-top:18px;height:34px" onclick="loadData()">조회</button>
-    <span id="statusBadge" class="status-badge status-TEMP" style="margin-left:auto;align-self:center">임시저장</span>
-  </div>
+  <div class="di-body">
+    <div id="inspCard">
+      <div class="matrix-wrap">
+        <table class="matrix-table" id="matrixTable">
+          <thead id="matrixHead"></thead>
+          <tbody id="matrixBody">
+            <tr><td colspan="3" style="text-align:center;height:64px;color:var(--di-fg3)">
+              조회 버튼을 눌러 데이터를 불러오세요
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
 
-  <div class="card" id="inspCard">
-
-    <div class="matrix-wrap" style="margin-top:4px">
-      <table class="matrix-table" id="matrixTable">
-        <thead id="matrixHead"></thead>
-        <tbody id="matrixBody">
-          <tr><td colspan="3" style="text-align:center;padding:40px;color:var(--muted)">
-            조회 버튼을 눌러 데이터를 불러오세요
-          </td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="action-row">
-      <button class="btn-outline btn-sm edit-col" style="display:none" onclick="openItemModal(null)">＋ 항목 추가</button>
-      <span style="font-size:11px;color:var(--muted);margin-left:auto" id="savedMsg"></span>
+      <div class="action-row">
+        <button class="btn-outline btn-sm edit-col" style="display:none" onclick="openItemModal(null)">+ 항목 추가</button>
+        <div class="legend">
+          <span><b>O</b>정상</span><span><b class="bad">X</b>이상</span><span><b>√</b>작동 확인 (99 입력)</span>
+          <span>회색 칸 = 야간 · 파란 칸 = 오늘</span>
+        </div>
+        <span id="savedMsg"></span>
+      </div>
     </div>
   </div>
 </div>
@@ -196,15 +220,15 @@
 </div>
 
 <!-- 사용자 관리 모달 -->
-<div id="inspectorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;justify-content:center;align-items:center">
-  <div style="background:var(--bg);border-radius:8px;padding:24px;width:360px;max-height:80vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-    <div style="font-size:16px;font-weight:700">👤 점검자 관리</div>
+<div id="inspectorModal" style="display:none;position:fixed;inset:0;background:oklch(20% 0.01 255 / 0.4);z-index:2000;justify-content:center;align-items:center">
+  <div style="background:#fff;border:1px solid var(--di-line);border-radius:8px;padding:20px 24px;width:360px;max-height:80vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.14)">
+    <div style="font-size:15px;font-weight:600">점검자 관리</div>
     <div style="display:flex;gap:8px">
-      <input class="form-input" type="text" id="newInspectorName" placeholder="점검자 이름" style="flex:1"
+      <input class="form-input" type="text" id="newInspectorName" placeholder="점검자 이름" style="flex:1;font-family:var(--di-sans)"
              onkeydown="if(event.key==='Enter')addInspector()">
-      <button class="btn-primary btn-sm" onclick="addInspector()">추가</button>
+      <button class="btn-primary btn-sm" style="height:32px" onclick="addInspector()">추가</button>
     </div>
-    <div id="inspectorListBox" style="overflow-y:auto;flex:1;min-height:80px;border:1px solid var(--border);border-radius:6px;padding:4px"></div>
+    <div id="inspectorListBox" style="overflow-y:auto;flex:1;min-height:80px;border:1px solid var(--di-line);border-radius:6px"></div>
     <button class="btn-outline" onclick="closeInspectorMgr()" style="align-self:flex-end">닫기</button>
   </div>
 </div>
@@ -231,8 +255,9 @@
 </div>
 
 <script src="/bcf/mock/mock-loader.js"></script>
+<script src="/vendor/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-var base         = '${pageContext.request.contextPath}';
+var base         ='${pageContext.request.contextPath}';
 var editMode     = false;
 var curData      = null;
 var selYm        = '';
@@ -303,7 +328,7 @@ function renderMatrix(d){
   if(!items.length){
     document.getElementById('matrixBody').innerHTML =
       '<tr><td colspan="' + (days*2+3) + '" style="text-align:center;padding:40px;color:var(--muted)">'
-      + '우상단 <strong>✏️ 항목 편집</strong> → <strong>＋ 항목 추가</strong> 로 항목을 등록하세요.'
+      + '오른쪽 위 <strong>항목 편집</strong> → 아래 <strong>+ 항목 추가</strong>로 항목을 등록하세요.'
       + '</td></tr>';
     return;
   }
@@ -333,7 +358,7 @@ function renderMatrix(d){
               + 'class="img-thumb" onclick="previewImg(\'' + esc(item.imgFile) + '\',\'' + esc(item.itemName) + '\')" '
               + 'title="' + esc(item.itemName) + '" alt="미리보기">';
     }
-    if (!isInsp) imgCell += '<button class="img-upload-btn" onclick="openImgUpload(' + item.itemId + ')">＋</button>';
+    if (!isInsp) imgCell += '<button class="img-upload-btn" onclick="openImgUpload(' + item.itemId + ')">+</button>';
 
     var editBtns = isInsp ? '' :
         '<button class="eib eib-edit" onclick="openItemModal(' + item.itemId + ')">수정</button>'
@@ -527,10 +552,8 @@ function toggleInputType(itemId) {
 function toggleEditMode(){
   editMode = !editMode;
   var btn = document.getElementById('editModeBtn');
-  btn.textContent       = editMode ? '📋 편집 완료' : '✏️ 항목 편집';
-  btn.style.background  = editMode ? 'var(--primary-l)' : '';
-  btn.style.borderColor = editMode ? 'var(--primary)'   : '';
-  btn.style.color       = editMode ? 'var(--primary)'   : '';
+  btn.querySelector('span').textContent = editMode ? '편집 완료' : '항목 편집';
+  btn.classList.toggle('on', editMode);
   document.querySelectorAll('.edit-col').forEach(function(el){ el.style.display = editMode?'':'none'; });
   document.querySelectorAll('.edit-item-btns').forEach(function(el){ el.classList.toggle('show', editMode); });
   var wrap = document.querySelector('.matrix-wrap');
@@ -618,7 +641,19 @@ function showSavedMsg(){
 }
 function doExport(){
   if(!selEquip || !selYm){ alert('설비와 점검월을 선택하세요.'); return; }
-  location.href = base + '/inspect/excel/export?equipId=' + selEquip + '&ym=' + selYm;
+  // 데모: 서버 엑셀 생성 대신 화면의 점검표를 그대로 xlsx 로 내려받는다
+  var tbl = document.getElementById('matrixTable');
+  var c = tbl.cloneNode(true);
+  var src = tbl.querySelectorAll('input,select,textarea'), dst = c.querySelectorAll('input,select,textarea');
+  for (var i = 0; i < dst.length; i++) {
+    var s = src[i];
+    var v = (s.type === 'checkbox' || s.type === 'radio') ? (s.checked ? 'V' : '')
+          : (s.tagName === 'SELECT' ? ((s.options[s.selectedIndex] || {}).text || '') : s.value);
+    dst[i].parentNode.replaceChild(document.createTextNode(v), dst[i]);
+  }
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(c, { raw: true }), '일상점검일지');
+  XLSX.writeFile(wb, '일상점검일지_' + selEquip + '_' + selYm + '.xlsx');
 }
 function doImport(input){
   var file = input.files[0];

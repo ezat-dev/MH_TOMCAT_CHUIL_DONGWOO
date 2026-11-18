@@ -39,6 +39,13 @@ body { font-family:"Pretendard","Malgun Gothic","맑은 고딕",sans-serif; back
 
 /* ===== 페이지 ===== */
 .page { padding:14px 20px 18px; display:flex; flex-direction:column; gap:12px; }
+/* 큰 화면 대응: 페이지를 창 높이에 맞추고 목록 카드가 남은 높이를 채움 (페이지 스크롤 없음) */
+html, body { height:100%; overflow:hidden; }
+body { display:flex; flex-direction:column; min-height:0; }
+body > .page { flex:1; min-height:0; }
+.page > .main-card, .page > .table-card { flex:1; min-height:0; display:flex; flex-direction:column; }
+.page > .main-card > .flat-tab, .page > .table-card > .flat-tab { flex:1; min-height:0; }
+.page > .main-card > .table-wrap { flex:1; min-height:0; max-height:none; }
 .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; }
 .card-head { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line2); }
 .card-head-title { font-size:14px; font-weight:700; color:var(--text-2); }
@@ -593,7 +600,7 @@ function renderFileBadge(files, label) {
   /* ── Tabulator 초기화 ── */
   function initTable() {
     mainTable = new Tabulator('#mainTable', {
-      height: '700px',
+      height: '100%',
       layout: 'fitDataFill',
       layoutColumnsOnNewData: true,
       selectable: true,

@@ -9,202 +9,113 @@
     <title>비가동현황</title>
  <%@include file="../include/pluginpage.jsp" %>    
     <jsp:include page="../include/tabBar.jsp"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/line/css/opsList/ops-list.css">
   <style>
-:root {
-  --bg:         #f0f2f7;
-  --surface:    #ffffff;
-  --surface2:   #f7f8fc;
-  --border:     #e2e6ef;
-  --text-p:     #0f172a;
-  --text-s:     #64748b;
-  --text-m:     #94a3b8;
-  --accent:     #2563eb;
-  --indigo:     #4f46e5;
-  --red:        #dc2626;
-  --green:      #16a34a;
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.06);
-  --shadow-md:  0 4px 16px rgba(0,0,0,.08);
-  --radius:     12px;
-}
+/* ===== 데모: 설비비가동현황 — 고밀도 운영 화면 (ops-list.css 공통 + 페이지 전용) ===== */
+html, body.ops { height: 100%; }
+body.ops { display: flex; flex-direction: column; overflow: hidden; }
+.ops-page { flex: 1; min-height: 0; }
 
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-  background: var(--bg);
-  color: var(--text-p);
-  margin: 0; padding: 0;
-}
+.nt-kpi { grid-template-columns: 1.4fr repeat(3, 1fr); }
+.nt-kpi .kpi-value .u { font-family: var(--ops-sans); font-size: 13px; color: var(--ops-fg3); margin-left: 2px; }
 
-/* 상단 툴바 */
-.topbar {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 24px;
-}
+/* 원인별 요약 | 상세 이력: 남은 높이를 채우고 표 안에서만 스크롤 */
+.nt-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 640px 1fr; gap: 16px; }
+.nt-grid .ops-card { display: flex; flex-direction: column; min-height: 0; }
+.nt-grid .ops-table { flex: 1; min-height: 0; }
+.ops .c-mono { font-family: var(--ops-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ops-fg2); }
 
-.topbar-inner {
-  max-width: 1600px; margin: 0 auto;
-  display: flex; align-items: center; gap: 12px;
-}
-
-.topbar-title {
-  font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;
-  margin-right: 15px;
-}
-
-.ctrl {
-  height: 34px; padding: 0 12px; border: 1px solid var(--border);
-  border-radius: 8px; font-size: 13px; outline: none;
-}
-
-/* KPI 카드 레이아웃 */
-.page-wrap { max-width: 1600px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-
-.kpi-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm);
-  display: flex; align-items: center; gap: 15px;
-}
-
-.kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
-
-.kpi-value { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; }
-
-/* 메인 컨텐츠 영역 (그리드) */
-.content-grid {
-  display: grid;
-  grid-template-columns: 667px 1fr; /* 요약 350px, 리스트 나머지 */
-  gap: 20px;
-  align-items: start;
-}
-
-.main-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
-}
-
-.card-header {
-  padding: 14px 20px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-
-.card-title { font-size: 14px; font-weight: 800; color: var(--text-p); }
-
-/* 버튼 스타일 */
-.btn {
-  height: 34px; padding: 0 15px; border-radius: 8px; font-size: 13px; font-weight: 700;
-  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; border: none;
-}
-
-.btn-blue { background: var(--accent); color: #fff; }
-.btn-green { background: var(--green); color: #fff; }
-.btn-red { background: var(--red); color: #fff; }
-
-/* 모달 스타일 커스텀 */
-.modal {
-  display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-  width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: white; width: 420px; margin: 5vh auto; padding: 25px;
-  border-radius: 20px; box-shadow: var(--shadow-md);
-}
-
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-s); margin-bottom: 5px; }
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
-}
-	
+/* 입력 모달 (#modalContainer 는 jQuery fadeIn/Out 으로 표시) */
+.modal { display: none; position: fixed; z-index: 1000; inset: 0; background: oklch(20% 0.01 255 / 0.4); }
+.modal-content { background: #fff; width: 440px; max-width: 95vw; margin: 8vh auto 0; border: 1px solid var(--ops-line); border-radius: 8px;
+  box-shadow: 0 12px 32px oklch(20% 0.01 255 / 0.16); font-family: var(--ops-sans); }
+.modal-content .modal-body { display: flex; flex-direction: column; gap: 12px; }
+.modal-content .form-group label { font-size: 12px; font-weight: 500; color: var(--ops-fg2); }
+.modal-content .form-group input, .modal-content .form-group select, .modal-content .form-group textarea {
+  width: 100%; height: 32px; padding: 0 8px; border: 1px solid var(--ops-line); border-radius: 6px; background: #fff;
+  color: var(--ops-fg); font-family: var(--ops-sans); font-size: 13px; outline: none; }
+.modal-content .form-group textarea { height: auto; padding: 8px; resize: vertical; }
+.modal-content .form-group input.datetimeSet { font-family: var(--ops-mono); font-variant-numeric: tabular-nums; }
+.modal-content .form-group input[readonly] { background: var(--ops-bg); color: var(--ops-fg2); }
+.modal-content .form-group input:focus, .modal-content .form-group select:focus, .modal-content .form-group textarea:focus {
+  border-color: var(--ops-accent); box-shadow: 0 0 0 2px var(--ops-accent-tint); }
+.modal-content .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     </style>
 </head>
 
-<body>
+<body class="ops">
 
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="topbar-title">📋 비가동 현황</div>
-    <div style="width:1px; height:20px; background:var(--border);"></div>
-    
-    <span style="font-size:12px; font-weight:700; color:var(--text-s);">조회기간</span>
-    <input type="text" id="startDate" class="ctrl daySet">
-    <span style="color:var(--text-m);">~</span>
-    <input type="text" id="endDate" class="ctrl daySet">
-    
-    <select id="equipment_name" class="ctrl">
+<header class="ops-head">
+  <div class="ops-head-in">
+    <h1 class="ops-title">설비비가동현황</h1>
+    <span class="ops-label">조회기간</span>
+    <input type="text" id="startDate" class="ops-input ctrl daySet">
+    <span class="muted">~</span>
+    <input type="text" id="endDate" class="ops-input ctrl daySet">
+    <span class="ops-label">설비</span>
+    <select id="equipment_name" class="ops-input ctrl" style="font-family:var(--ops-sans)">
         <option value="열처리 연속로">열처리 연속로</option>
     </select>
+    <button class="ops-btn primary btn select-button">조회</button>
 
-    <button class="btn btn-blue select-button">조회</button>
-    
-    <div style="margin-left:auto; display:flex; gap:8px;">
-        <button class="btn btn-green insert-button">내역 추가</button>
-        <button class="btn btn-red delete-button">내역 삭제</button>
-    </div>
+    <span class="ops-spacer"></span>
+    <button class="ops-btn btn insert-button">내역 추가</button>
+    <button class="ops-btn danger btn delete-button">내역 삭제</button>
   </div>
-</div>
+</header>
 
-<div class="page-wrap">
-  <div class="kpi-row">
-    <div class="kpi-card">
-        <div class="kpi-icon" style="color:var(--indigo); background:#eef2ff;">📊</div>
-        <div>
-            <div style="font-size:11px; font-weight:700; color:var(--text-m);">전체 비가동</div>
-            <div class="kpi-value" id="kpi-total">0</div>
-        </div>
+<div class="ops-page">
+  <div class="ops-kpi nt-kpi">
+    <div class="hero">
+      <span class="kpi-label">총 비가동 시간</span>
+      <span class="kpi-value" id="kpi-time">0h</span>
+      <span class="kpi-sub">조회기간 합계 · 종료 시각이 있는 건만</span>
     </div>
-    <div class="kpi-card">
-        <div class="kpi-icon" style="color:var(--red); background:#fef2f2;">⚠️</div>
-        <div>
-            <div style="font-size:11px; font-weight:700; color:var(--text-m);">설비 고장</div>
-            <div class="kpi-value" id="kpi-failure">0</div>
-        </div>
+    <div>
+      <span class="kpi-label">전체 비가동</span>
+      <span class="kpi-value" id="kpi-total">0</span>
+      <span class="kpi-sub">조회기간 등록 건수</span>
     </div>
-    <div class="kpi-card">
-        <div class="kpi-icon" style="color:var(--accent); background:#eff6ff;">⏱️</div>
-        <div>
-            <div style="font-size:11px; font-weight:700; color:var(--text-m);">총 비가동 시간</div>
-            <div class="kpi-value" id="kpi-time">0h</div>
-        </div>
+    <div>
+      <span class="kpi-label">설비 고장</span>
+      <span class="kpi-value" id="kpi-failure">0</span>
+      <span class="kpi-sub">분류 = 설비고장</span>
     </div>
-    <div class="kpi-card">
-        <div class="kpi-icon" style="color:var(--green); background:#f0fdf4;">✅</div>
-        <div>
-            <div style="font-size:11px; font-weight:700; color:var(--text-m);">조치 완료</div>
-            <div class="kpi-value" id="kpi-done">0</div>
-        </div>
+    <div>
+      <span class="kpi-label">조치 완료</span>
+      <span class="kpi-value" id="kpi-done">0</span>
+      <span class="kpi-sub">종료 시각 입력 건</span>
     </div>
   </div>
 
-  <div class="content-grid">
-    <div class="main-card">
-      <div class="card-header">
-        <span class="card-title">원인별 요약 (TOP 10)</span>
+  <div class="nt-grid">
+    <section class="ops-card">
+      <div class="ops-card-head">
+        <h2>원인별 요약</h2><span class="note">비가동 시간 순 TOP 10</span>
       </div>
-      <div id="dataView"></div>
-    </div>
+      <div id="dataView" class="ops-table"></div>
+    </section>
 
-    <div class="main-card">
-      <div class="card-header">
-        <span class="card-title">상세 비가동 이력</span>
+    <section class="ops-card">
+      <div class="ops-card-head">
+        <h2>상세 비가동 이력</h2><span class="note">행 더블클릭으로 수정 · 선택 후 내역 삭제</span>
       </div>
-      <div id="dataList"></div>
-    </div>
+      <div id="dataList" class="ops-table"></div>
+    </section>
   </div>
 </div>
 
 <div id="modalContainer" class="modal">
     <div class="modal-content">
-        <h2 style="margin:0 0 20px 0; font-size:18px;">비가동 정보 입력</h2>
+        <div class="modal-head"><h2>비가동 정보 입력</h2></div>
         <form id="corrForm">
+          <div class="modal-body">
             <div class="form-group">
                 <label>설비명</label>
-                <input type="text" id="popup_equip" name="equipment_name" readonly style="background:#f8fafc;">
+                <input type="text" id="popup_equip" name="equipment_name" readonly>
             </div>
             <div class="form-group">
                 <label>정보 LIST (분류)</label>
@@ -215,26 +126,29 @@ body {
                     <option value="기타">기타</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>비가동 시작</label>
-                <input type="text" class="datetimeSet" name="start_time">
-            </div>
-            <div class="form-group">
-                <label>비가동 종료</label>
-                <input type="text" class="datetimeSet" name="end_time">
+            <div class="form-row">
+              <div class="form-group">
+                  <label>비가동 시작</label>
+                  <input type="text" class="datetimeSet" name="start_time">
+              </div>
+              <div class="form-group">
+                  <label>비가동 종료</label>
+                  <input type="text" class="datetimeSet" name="end_time">
+              </div>
             </div>
             <div class="form-group">
                 <label>비고 (상세 조치내역)</label>
                 <textarea name="non_time_memo" rows="4"></textarea>
             </div>
-            
+
             <input type="hidden" name="non_time_idx" />
             <input type="hidden" class="facility_standard_code" name="standard_code" value="">
+          </div>
 
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button type="submit" id="saveCorrStatus" class="btn btn-blue" style="flex:2; justify-content:center;">데이터 저장</button>
-                <button type="button" id="closeModal" class="btn" style="flex:1; justify-content:center; background:#e2e8f0;">취소</button>
-            </div>
+          <div class="modal-btn-row">
+              <button type="button" id="closeModal" class="ops-btn btn">취소</button>
+              <button type="submit" id="saveCorrStatus" class="ops-btn primary btn">데이터 저장</button>
+          </div>
         </form>
     </div>
 </div>
@@ -301,7 +215,7 @@ function bindEvents() {
 function initTables() {
     // 상세 리스트 테이블
     dataListTable = new Tabulator("#dataList", {
-        height: "560px",
+        height: "100%",
         layout: "fitColumns",
         selectable: 1,
         placeholder: "조회된 데이터가 없습니다.",
@@ -318,8 +232,8 @@ function initTables() {
         columns: [
             {title: "설비", field: "equipment_name", width: 150, hozAlign: "center"},
             {title: "정보LIST", field: "info_list", width: 150, hozAlign: "center"},
-            {title: "비가동 시작", field: "start_time", width: 180, hozAlign: "center"},
-            {title: "비가동 종료", field: "end_time", width: 180, hozAlign: "center"},
+            {title: "비가동 시작", field: "start_time", width: 160, hozAlign: "center", cssClass: "c-mono"},
+            {title: "비가동 종료", field: "end_time", width: 160, hozAlign: "center", cssClass: "c-mono"},
             {title: "비고", field: "non_time_memo", minWidth: 200, hozAlign: "left"},
             {title: "idx", field: "non_time_idx", visible: false},
             {title: "code", field: "standard_code", visible: false},
@@ -331,7 +245,7 @@ function initTables() {
 
     // 원인별 요약 테이블
     dataViewTable = new Tabulator("#dataView", {
-        height: "560px",
+        height: "100%",
         layout: "fitColumns",
         placeholder: "데이터 없음",
         ajaxConfig: "POST",
@@ -341,11 +255,11 @@ function initTables() {
             return response.status === "success" ? response.data : [];
         },
         columns: [
-            {title: "순위", field: "rank", width: 60, hozAlign: "center", formatter:"rownum"},
+            {title: "순위", field: "rank", width: 56, hozAlign: "right", cssClass: "c-mono", formatter:"rownum"},
             {title: "설비", field: "v_equipment_name", width: 100, hozAlign: "center"},
             {title: "비가동 내역", field: "info_list_v", hozAlign: "center"},
-            {title: "시간", field: "sum_time_ch", width: 120, hozAlign: "right"},
-            {title: "건수(일/월)", field: "day_count", width: 100, hozAlign: "center", 
+            {title: "시간", field: "sum_time_ch", width: 120, hozAlign: "right", cssClass: "c-mono"},
+            {title: "건수(일/월)", field: "day_count", width: 100, hozAlign: "right", cssClass: "c-mono", 
              formatter:function(cell){
                 const d = cell.getRow().getData();
                 return d.day_count + " / " + d.month_count;

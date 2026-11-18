@@ -223,6 +223,12 @@
             animation: slideDown .4s .1s ease both;
         }
 
+        /* 큰 화면 대응: 창 높이에 맞추고 표가 남은 높이를 채움 (페이지 스크롤 없음) */
+        html, body { height: 100%; overflow: hidden; }
+        body > .main { height: 100%; display: flex; flex-direction: column; }
+        .main > .table-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        .main > .table-wrap > #dataTable { flex: 1; min-height: 0; }
+
         /* ── Tabulator overrides (light) ── */
         .tabulator {
             background: var(--surface) !important;
@@ -653,7 +659,7 @@ function getDailyCheckData() {
 /* ── Tabulator 초기화 ── */
 function getDailyCheck() {
     dataTable = new Tabulator('#dataTable', {
-        height: '700px',
+        height: '100%',
         layout: 'fitDataFill',
         headerSort: false,
         reactiveData: true,
